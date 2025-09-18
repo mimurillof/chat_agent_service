@@ -1,0 +1,606 @@
+{
+  "fileName": "informe_analisis_portafolio_2025-09-18.json",
+  "document": {
+    "title": "Informe de Análisis de Portafolio de Inversión - Q3 2025",
+    "author": "Analista Financiero Senior",
+    "subject": "Análisis de Rendimiento, Riesgo y Optimización de Portafolio"
+  },
+  "content": [
+    {
+      "type": "text",
+      "text": "Informe de Análisis de Portafolio de Inversión",
+      "style": "h1",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "text",
+      "text": "Fecha de Análisis: 2025-09-18",
+      "style": "p",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "text",
+      "text": "Resumen Ejecutivo",
+      "style": "h2",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "text",
+      "text": "Este informe presenta un análisis exhaustivo del portafolio de inversión compuesto por AAPL, MSFT, GOOGL, AMZN y NVDA para el período del 7 de mayo de 2024 al 17 de septiembre de 2025. El portafolio ha demostrado un sólido rendimiento anualizado del 30.49%, pero con una volatilidad considerable del 26.14% y un drawdown máximo del -26.90%. El Ratio de Sharpe de 1.0 indica un rendimiento ajustado por riesgo aceptable. Sin embargo, la alta concentración en el sector tecnológico resulta en una correlación elevada entre los activos, limitando los beneficios de la diversificación. Se presentan estrategias de optimización para mejorar el perfil de riesgo-retorno y se compara con un portafolio más diversificado para ilustrar los beneficios de una asignación de activos más amplia.",
+      "style": "p",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "table",
+      "text": null,
+      "style": null,
+      "height": null,
+      "path": null,
+      "caption": "Métricas Clave de Rendimiento y Riesgo",
+      "width": null,
+      "headers": [
+        "Métrica",
+        "Valor"
+      ],
+      "rows": [
+        [
+          "Rendimiento Anualizado",
+          "30.49%"
+        ],
+        [
+          "Volatilidad Anualizada",
+          "26.14%"
+        ],
+        [
+          "Ratio de Sharpe",
+          "1.00"
+        ],
+        [
+          "Ratio de Sortino",
+          "1.48"
+        ],
+        [
+          "Máximo Drawdown",
+          "-26.90%"
+        ],
+        [
+          "Valor en Riesgo (VaR) Diario",
+          "-2.59%"
+        ]
+      ],
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "text",
+      "text": "Composición del Portafolio Actual",
+      "style": "h2",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "table",
+      "text": null,
+      "style": null,
+      "height": null,
+      "path": null,
+      "caption": "Desglose de Activos y Ponderaciones",
+      "width": null,
+      "headers": [
+        "Activo",
+        "Ticker",
+        "Peso (%)",
+        "Sector"
+      ],
+      "rows": [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.0%",
+          "Technology"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.0%",
+          "Technology"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.0%",
+          "Communication Services"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.0%",
+          "Consumer Cyclical"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.0%",
+          "Technology"
+        ]
+      ],
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "image",
+      "text": null,
+      "style": null,
+      "height": null,
+      "path": null,
+      "caption": "Distribución de Activos en el Portafolio",
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": {
+        "bucket": "portfolio-files",
+        "path": "Graficos/clasificacion_donut.png",
+        "public": null,
+        "expires_in": null,
+        "use_url": null,
+        "transform": null
+      }
+    },
+    {
+      "type": "text",
+      "text": "Análisis de Rendimiento",
+      "style": "h2",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "text",
+      "text": "El portafolio ha generado un rendimiento anualizado del 30.49%, superando a muchos benchmarks del mercado. El crecimiento ha sido consistente, como se observa en el gráfico de rendimiento acumulado. Sin embargo, la alta curtosis (12.06) indica la presencia de 'colas pesadas' en la distribución de rendimientos, lo que significa una mayor probabilidad de eventos extremos (tanto positivos como negativos) en comparación con una distribución normal.",
+      "style": "p",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "image",
+      "text": null,
+      "style": null,
+      "height": null,
+      "path": null,
+      "caption": "Crecimiento del Portafolio y Rendimiento Acumulado (Mayo 2024 - Sep 2025)",
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": {
+        "bucket": "portfolio-files",
+        "path": "Graficos/rendimiento_acumulado.png",
+        "public": null,
+        "expires_in": null,
+        "use_url": null,
+        "transform": null
+      }
+    },
+    {
+      "type": "text",
+      "text": "Análisis de Riesgo",
+      "style": "h2",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "text",
+      "text": "El principal punto de atención es el riesgo asumido. La volatilidad anualizada del 26.14% es elevada. El máximo drawdown alcanzó un -26.90%, lo que representa una pérdida significativa desde un pico anterior, con un período de recuperación de hasta 159 días. El Ratio de Sortino de 1.48, superior al Ratio de Sharpe, sugiere que el portafolio ha sido más eficiente en la gestión del riesgo a la baja que de la volatilidad total.",
+      "style": "p",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "image",
+      "text": null,
+      "style": null,
+      "height": null,
+      "path": null,
+      "caption": "Análisis de Drawdown y Períodos de Pérdida",
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": {
+        "bucket": "portfolio-files",
+        "path": "Graficos/drawdown_underwater.png",
+        "public": null,
+        "expires_in": null,
+        "use_url": null,
+        "transform": null
+      }
+    },
+    {
+      "type": "text",
+      "text": "Análisis de Diversificación y Correlación",
+      "style": "h2",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "text",
+      "text": "La correlación promedio entre los activos es de 0.527, considerada moderadamente alta. La correlación más fuerte se observa entre Microsoft (MSFT) y Amazon (AMZN) con 0.655. La más baja es entre NVIDIA (NVDA) y Apple (AAPL) con 0.392. Esta estructura de correlación confirma que, si bien existe cierta diversificación, los activos tienden a moverse en la misma dirección debido a su concentración en el sector tecnológico, lo que aumenta el riesgo sistémico del portafolio.",
+      "style": "p",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "image",
+      "text": null,
+      "style": null,
+      "height": null,
+      "path": null,
+      "caption": "Matriz de Correlación entre los Activos del Portafolio",
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": {
+        "bucket": "portfolio-files",
+        "path": "Graficos/matriz_correlacion.png",
+        "public": null,
+        "expires_in": null,
+        "use_url": null,
+        "transform": null
+      }
+    },
+    {
+      "type": "text",
+      "text": "Optimización del Portafolio y Frontera Eficiente",
+      "style": "h2",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "text",
+      "text": "Se han calculado dos portafolios alternativos para optimizar el perfil de riesgo-retorno: uno que maximiza el Ratio de Sharpe y otro que minimiza la volatilidad. La frontera eficiente ilustra el conjunto de portafolios óptimos que ofrecen el mayor rendimiento esperado para un nivel de riesgo determinado.",
+      "style": "p",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "image",
+      "text": null,
+      "style": null,
+      "height": null,
+      "path": null,
+      "caption": "Frontera Eficiente y Portafolios Óptimos",
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": {
+        "bucket": "portfolio-files",
+        "path": "Graficos/efficient_frontier.png",
+        "public": null,
+        "expires_in": null,
+        "use_url": null,
+        "transform": null
+      }
+    },
+    {
+      "type": "text",
+      "text": "Portafolio de Máximo Ratio de Sharpe",
+      "style": "h3",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "text",
+      "text": "Este portafolio busca el mayor rendimiento ajustado por riesgo. La asignación se concentra en GOOGL y NVDA, eliminando AMZN y MSFT. Aunque teóricamente superior, implica una concentración aún mayor.",
+      "style": "p",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "table",
+      "text": null,
+      "style": null,
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": [
+        "Activo",
+        "Peso Óptimo (%)"
+      ],
+      "rows": [
+        [
+          "GOOGL",
+          "63.54%"
+        ],
+        [
+          "NVDA",
+          "35.61%"
+        ],
+        [
+          "AAPL",
+          "0.85%"
+        ],
+        [
+          "AMZN",
+          "0.00%"
+        ],
+        [
+          "MSFT",
+          "0.00%"
+        ]
+      ],
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "text",
+      "text": "Portafolio de Mínima Volatilidad",
+      "style": "h3",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "text",
+      "text": "Diseñado para inversores conservadores, este portafolio minimiza las fluctuaciones de precio. La asignación se centra en MSFT, GOOGL y AAPL, excluyendo los activos más volátiles como NVDA.",
+      "style": "p",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "table",
+      "text": null,
+      "style": null,
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": [
+        "Activo",
+        "Peso Óptimo (%)"
+      ],
+      "rows": [
+        [
+          "MSFT",
+          "64.45%"
+        ],
+        [
+          "GOOGL",
+          "18.00%"
+        ],
+        [
+          "AAPL",
+          "17.55%"
+        ],
+        [
+          "AMZN",
+          "0.00%"
+        ],
+        [
+          "NVDA",
+          "0.00%"
+        ]
+      ],
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "text",
+      "text": "Análisis Avanzado: Portafolio Diversificado y Proyecciones",
+      "style": "h2",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "text",
+      "text": "Para ilustrar los beneficios de una mayor diversificación, se analizó un portafolio alternativo de 10 activos que incluye bonos (TLT, IEF), bienes raíces (MBB), criptomonedas (BTC-USD, ETH-USD) y oro (PAXG-USD). El portafolio optimizado (MSR) de esta cartera diversificada alcanza un Ratio de Sharpe de 1.69, significativamente mayor que el 1.0 del portafolio actual, demostrando una mejora sustancial en el rendimiento ajustado por riesgo.",
+      "style": "p",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "text",
+      "text": "La simulación de Monte Carlo para este portafolio diversificado proyecta una riqueza terminal media de $4,336.93 sobre una inversión inicial de $1,000 en 5 años. El rango de resultados probables (percentil 5 al 95) se sitúa entre $1,928.96 y $8,185.32, proporcionando una visión cuantitativa del riesgo y el potencial de crecimiento a largo plazo.",
+      "style": "p",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "image",
+      "text": null,
+      "style": null,
+      "height": null,
+      "path": null,
+      "caption": "Simulación de Monte Carlo (1000 Escenarios a 5 años)",
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": {
+        "bucket": "portfolio-files",
+        "path": "Graficos/monte_carlo_simulation.png",
+        "public": null,
+        "expires_in": null,
+        "use_url": null,
+        "transform": null
+      }
+    },
+    {
+      "type": "image",
+      "text": null,
+      "style": null,
+      "height": null,
+      "path": null,
+      "caption": "Distribución de Resultados Finales de la Simulación",
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": {
+        "bucket": "portfolio-files",
+        "path": "Graficos/monte_carlo_distribution.png",
+        "public": null,
+        "expires_in": null,
+        "use_url": null,
+        "transform": null
+      }
+    },
+    {
+      "type": "text",
+      "text": "Conclusiones y Recomendaciones Estratégicas",
+      "style": "h2",
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": null,
+      "supabase": null
+    },
+    {
+      "type": "list",
+      "text": null,
+      "style": null,
+      "height": null,
+      "path": null,
+      "caption": null,
+      "width": null,
+      "headers": null,
+      "rows": null,
+      "items": [
+        "**Revisar Concentración Sectorial:** El portafolio actual está excesivamente concentrado en el sector tecnológico. Se recomienda diversificar en otros sectores (salud, consumo básico, industrial) y clases de activos (bonos, materias primas) para reducir la correlación y mitigar riesgos específicos del sector.",
+        "**Alinear con el Perfil de Riesgo:** El drawdown máximo del -26.9% puede ser inaceptable para inversores con aversión al riesgo. Para un perfil más conservador, se sugiere una transición hacia la composición del portafolio de 'Mínima Volatilidad'.",
+        "**Optimizar el Retorno Ajustado por Riesgo:** Para inversores con mayor tolerancia al riesgo que buscan maximizar la eficiencia, se podría considerar un rebalanceo hacia la composición del portafolio de 'Máximo Ratio de Sharpe', aunque esto aumentaría la concentración en GOOGL y NVDA.",
+        "**Incorporar Activos Alternativos con Cautela:** El análisis del portafolio diversificado demuestra que la inclusión de activos como criptomonedas puede mejorar significativamente el Ratio de Sharpe. Sin embargo, debido a su alta volatilidad inherente, esta estrategia solo es adecuada para inversores con un perfil de riesgo muy agresivo y un horizonte de inversión a largo plazo.",
+        "**Establecer un Plan de Monitoreo y Rebalanceo:** Es crucial revisar el portafolio de forma periódica (trimestral o semestralmente) para rebalancear las ponderaciones a sus objetivos estratégicos y ajustarlas según las condiciones del mercado y los cambios en los objetivos financieros del inversor."
+      ],
+      "supabase": null
+    }
+  ]
+}

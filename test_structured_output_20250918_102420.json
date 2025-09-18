@@ -1,0 +1,31 @@
+{
+  "report_title": "Análisis de Portafolio de Prueba",
+  "timestamp": "2024-07-26T12:00:00Z",
+  "summary": "Este portafolio muestra una diversificación moderada a través de diferentes clases de activos.  La asignación actual busca un balance entre crecimiento y preservación del capital. Se recomienda una revisión periódica para optimizar la estrategia.",
+  "sections": [
+    {
+      "title": "Análisis de Riesgo",
+      "content": "El portafolio presenta un nivel de riesgo moderado, con una exposición equilibrada a acciones y bonos.  La volatilidad histórica se encuentra dentro de los parámetros esperados para este tipo de distribución de activos.  Se debe considerar la sensibilidad a las fluctuaciones del mercado.",
+      "key_points": [
+        "Riesgo moderado",
+        "Exposición equilibrada a acciones y bonos",
+        "Volatilidad dentro de parámetros esperados"
+      ]
+    },
+    {
+      "title": "Rendimiento",
+      "content": "El rendimiento del portafolio ha sido consistente con las expectativas, mostrando un crecimiento moderado a lo largo del tiempo.  Se han observado variaciones en función de las condiciones del mercado, pero el rendimiento general ha sido positivo.  Se recomienda un seguimiento continuo del rendimiento para realizar ajustes si es necesario.",
+      "key_points": [
+        "Rendimiento consistente con expectativas",
+        "Crecimiento moderado",
+        "Variaciones en función de las condiciones del mercado"
+      ]
+    }
+  ],
+  "recommendations": [
+    "Rebalancear el portafolio anualmente para mantener la asignación de activos deseada.",
+    "Considerar la incorporación de activos alternativos para diversificar aún más el portafolio.",
+    "Monitorear de cerca el rendimiento y el riesgo del portafolio y realizar ajustes según sea necesario."
+  ],
+  "risk_assessment": "Moderado"
+}

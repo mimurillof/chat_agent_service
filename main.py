@@ -10,7 +10,8 @@ from typing import List
 from config import settings
 from models import (
     ChatRequest, ChatResponse, HealthResponse, SessionInfo, 
-    ErrorResponse, MessageRole
+    ErrorResponse, MessageRole,
+    PortfolioReportRequest, PortfolioReportResponse
 )
 from agent_service import chat_service
 
@@ -41,6 +42,7 @@ async def root():
             "health": "/health",
             "chat": "/chat",
             "sessions": "/sessions",
+            "generar_informe_portafolio": "/acciones/generar_informe_portafolio",
             "docs": "/docs"
         }
     }
@@ -56,6 +58,19 @@ async def health_check():
             status_code=503, 
             detail=f"Servicio no disponible: {str(e)}"
         )
+
+@app.post("/acciones/generar_informe_portafolio", response_model=PortfolioReportResponse)
+async def generar_informe_portafolio(request: PortfolioReportRequest):
+    """Endpoint: genera informe de análisis de portafolio con salida JSON estructurada."""
+    try:
+        result = await chat_service.ejecutar_generacion_informe_portafolio(request)
+        if isinstance(result, dict) and result.get("error"):
+            raise HTTPException(status_code=500, detail=result.get("detail") or result.get("error"))
+        return PortfolioReportResponse(**result)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generando informe de portafolio: {str(e)}")
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):

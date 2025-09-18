@@ -1,0 +1,1787 @@
+{
+  "report": {
+    "fileName": "Informe_Analisis_Portafolio_Horizon_Agent_2025-09-18.pdf",
+    "document": {
+      "title": "Informe Completo de Análisis de Portafolio",
+      "author": "Horizon Agent",
+      "subject": "Análisis Cuantitativo y Estratégico de Portafolio de Inversión"
+    },
+    "content": [
+      {
+        "type": "header1",
+        "text": "Informe Completo de Análisis de Portafolio",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "Fecha de Análisis: 18 de Septiembre de 2025",
+        "style": "italic",
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 20,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "page_break",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "header2",
+        "text": "I. Resumen Ejecutivo",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "El presente informe detalla un análisis exhaustivo del portafolio de inversión, evaluando su rendimiento histórico, perfil de riesgo y oportunidades de optimización. En el contexto macroeconómico actual, caracterizado por la persistente inflación, las fluctuaciones en las tasas de interés y la volatilidad en los mercados tecnológicos, una gestión de portafolio proactiva y basada en datos es crucial. Este análisis abarca un período de 342 días, desde el 7 de mayo de 2024 hasta el 17 de septiembre de 2025, proporcionando una visión integral para la toma de decisiones estratégicas.",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 15,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "header3",
+        "text": "Composición del Portafolio Actual",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "La distribución actual del portafolio se centra predominantemente en el sector tecnológico, con una asignación significativa en empresas de gran capitalización. Esta concentración puede ofrecer un alto potencial de crecimiento, pero también expone el portafolio a riesgos sectoriales específicos.",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "table",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": [
+          "Activo",
+          "Peso (%)"
+        ],
+        "rows": [
+          [
+            "AAPL",
+            "25.00%"
+          ],
+          [
+            "MSFT",
+            "25.00%"
+          ],
+          [
+            "GOOGL",
+            "20.00%"
+          ],
+          [
+            "AMZN",
+            "15.00%"
+          ],
+          [
+            "NVDA",
+            "15.00%"
+          ]
+        ],
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 15,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "header3",
+        "text": "Métricas de Rendimiento Clave",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "Las siguientes métricas resumen el desempeño del portafolio durante el período analizado, ofreciendo una perspectiva sobre su rentabilidad y eficiencia ajustada al riesgo.",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "key_value_list",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": [
+          {
+            "key": "Rendimiento Anualizado",
+            "value": "30.49%"
+          },
+          {
+            "key": "Volatilidad Anualizada",
+            "value": "26.14%"
+          },
+          {
+            "key": "Ratio de Sharpe",
+            "value": "1.00"
+          },
+          {
+            "key": "Ratio de Sortino",
+            "value": "1.48"
+          },
+          {
+            "key": "Ratio de Calmar",
+            "value": "1.13"
+          },
+          {
+            "key": "Máximo Drawdown",
+            "value": "-26.90%"
+          },
+          {
+            "key": "Skewness (Asimetría)",
+            "value": "0.84"
+          },
+          {
+            "key": "Kurtosis (Curtosis)",
+            "value": "12.06"
+          },
+          {
+            "key": "Valor en Riesgo (VaR) Diario (99%)",
+            "value": "-2.59%"
+          }
+        ],
+        "supabase": null
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 15,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "header3",
+        "text": "Información Actual de Mercado de Activos",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "A continuación, se presenta un resumen de la información de mercado más reciente para los activos que componen el portafolio, reflejando su estado actual y sector de operación.",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "table",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": [
+          "Activo",
+          "Precio Actual",
+          "Cambio Diario ($)",
+          "Cambio Diario (%)",
+          "Capitalización de Mercado",
+          "Sector"
+        ],
+        "rows": [
+          [
+            "AAPL",
+            "$240.80",
+            "+$1.81",
+            "+0.76%",
+            "$3.57T",
+            "Technology"
+          ],
+          [
+            "MSFT",
+            "$509.15",
+            "-$0.87",
+            "-0.17%",
+            "$3.79T",
+            "Technology"
+          ],
+          [
+            "GOOGL",
+            "$251.77",
+            "+$2.24",
+            "+0.90%",
+            "$3.05T",
+            "Communication Services"
+          ],
+          [
+            "AMZN",
+            "$231.26",
+            "-$0.36",
+            "-0.16%",
+            "$2.47T",
+            "Consumer Cyclical"
+          ],
+          [
+            "NVDA",
+            "$174.28",
+            "+$3.99",
+            "+2.34%",
+            "$4.24T",
+            "Technology"
+          ]
+        ],
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 20,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "page_break",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "header2",
+        "text": "II. Análisis de Rendimiento y Riesgo",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 15,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "header3",
+        "text": "Rendimiento Acumulado",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "El gráfico de rendimiento acumulado ilustra la evolución del valor del portafolio a lo largo del tiempo, destacando los períodos de crecimiento y las fases de corrección. Un rendimiento anualizado del 30.49% es notable, pero es esencial analizarlo en conjunto con la volatilidad.",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "image",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": "rendimiento_acumulado.png",
+        "caption": "Gráfico 1: Rendimiento Acumulado del Portafolio",
+        "width": 600,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": {
+          "bucket": "portfolio-files",
+          "path": "Graficos/rendimiento_acumulado.png",
+          "public": null,
+          "expires_in": null,
+          "use_url": null,
+          "transform": null
+        }
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 15,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "header3",
+        "text": "Análisis de Drawdowns",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "El drawdown representa la caída desde un pico hasta un valle en el valor del portafolio. Un máximo drawdown del -26.90% indica una exposición significativa a pérdidas durante el período, lo cual es un factor crítico para la evaluación del riesgo. La duración de los períodos de recuperación es igualmente importante para entender la resiliencia del portafolio.",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "key_value_list",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": [
+          {
+            "key": "Máximo Drawdown",
+            "value": "-26.90%"
+          },
+          {
+            "key": "Drawdown Actual",
+            "value": "-0.69%"
+          },
+          {
+            "key": "Duración del Drawdown Actual",
+            "value": "159 días"
+          }
+        ],
+        "supabase": null
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 10,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "Períodos de Recuperación de Drawdowns Significativos:",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "table",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": [
+          "Fecha de Inicio",
+          "Fecha de Fin",
+          "Duración (Días)",
+          "Máximo Drawdown (%)"
+        ],
+        "rows": [
+          [
+            "2024-07-17",
+            "2024-10-18",
+            93,
+            -16.75
+          ],
+          [
+            "2024-10-23",
+            "2024-10-25",
+            2,
+            -5.31
+          ],
+          [
+            "2024-10-31",
+            "2024-11-01",
+            1,
+            -5.96
+          ],
+          [
+            "2025-01-13",
+            "2025-01-15",
+            2,
+            -5.99
+          ],
+          [
+            "2025-01-16",
+            "2025-01-17",
+            1,
+            -5.37
+          ]
+        ],
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "image",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": "drawdown_underwater.png",
+        "caption": "Gráfico 2: Gráfico Underwater de Drawdowns del Portafolio",
+        "width": 600,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": {
+          "bucket": "portfolio-files",
+          "path": "Graficos/drawdown_underwater.png",
+          "public": null,
+          "expires_in": null,
+          "use_url": null,
+          "transform": null
+        }
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 15,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "header3",
+        "text": "Volatilidad y Distribución de Retornos",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "La volatilidad mide la dispersión de los retornos, siendo un indicador clave del riesgo. La asimetría (Skewness) y la curtosis (Kurtosis) proporcionan información sobre la forma de la distribución de los retornos, revelando la probabilidad de eventos extremos.",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "key_value_list",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": [
+          {
+            "key": "Volatilidad Diaria",
+            "value": "1.65%"
+          },
+          {
+            "key": "Volatilidad Semanal",
+            "value": "3.68%"
+          },
+          {
+            "key": "Volatilidad Mensual",
+            "value": "7.55%"
+          },
+          {
+            "key": "Volatilidad Anualizada",
+            "value": "26.14%"
+          },
+          {
+            "key": "Skewness (Asimetría)",
+            "value": "0.84 (Distribución con cola derecha, más ganancias pequeñas que pérdidas grandes)"
+          },
+          {
+            "key": "Kurtosis (Curtosis)",
+            "value": "12.06 (Distribución leptocúrtica, mayor probabilidad de eventos extremos)"
+          }
+        ],
+        "supabase": null
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 20,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "page_break",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "header2",
+        "text": "III. Análisis de Correlación y Diversificación",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "La correlación entre activos es fundamental para la diversificación de un portafolio. Una baja correlación puede ayudar a reducir el riesgo general del portafolio, ya que los movimientos de los activos tienden a compensarse entre sí. Una alta correlación, como se observa en este portafolio dominado por tecnología, puede amplificar el riesgo durante las caídas del mercado.",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 15,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "header3",
+        "text": "Matriz de Correlación de Activos",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "La matriz muestra los coeficientes de correlación entre cada par de activos. Valores cercanos a 1 indican una fuerte correlación positiva, mientras que valores cercanos a -1 indican una fuerte correlación negativa. Valores cercanos a 0 sugieren poca o ninguna relación lineal.",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "table",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": [
+          "Activo",
+          "AAPL",
+          "AMZN",
+          "GOOGL",
+          "MSFT",
+          "NVDA"
+        ],
+        "rows": [
+          [
+            "AAPL",
+            1.0,
+            0.549,
+            0.493,
+            0.528,
+            0.392
+          ],
+          [
+            "AMZN",
+            0.549,
+            1.0,
+            0.595,
+            0.655,
+            0.51
+          ],
+          [
+            "GOOGL",
+            0.493,
+            0.595,
+            1.0,
+            0.532,
+            0.44
+          ],
+          [
+            "MSFT",
+            0.528,
+            0.655,
+            0.532,
+            1.0,
+            0.577
+          ],
+          [
+            "NVDA",
+            0.392,
+            0.51,
+            0.44,
+            0.577,
+            1.0
+          ]
+        ],
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 10,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "key_value_list",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": [
+          {
+            "key": "Correlación Promedio",
+            "value": "0.527"
+          },
+          {
+            "key": "Correlación Máxima",
+            "value": "0.655 (AMZN-MSFT)"
+          },
+          {
+            "key": "Correlación Mínima",
+            "value": "0.392 (AAPL-NVDA)"
+          }
+        ],
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "La matriz revela correlaciones generalmente positivas y moderadamente altas entre los activos tecnológicos, lo que sugiere que el portafolio podría beneficiarse de una mayor diversificación con activos de menor correlación.",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "image",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": "matriz_correlacion.png",
+        "caption": "Gráfico 3: Heatmap de la Matriz de Correlación de Activos",
+        "width": 600,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": {
+          "bucket": "portfolio-files",
+          "path": "Graficos/matriz_correlacion.png",
+          "public": null,
+          "expires_in": null,
+          "use_url": null,
+          "transform": null
+        }
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 15,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "header3",
+        "text": "Composición del Portafolio por Clasificación",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "Estos gráficos visualizan la distribución del portafolio por diferentes criterios de clasificación, ofreciendo una perspectiva rápida sobre la concentración sectorial y de activos.",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "image",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": "clasificacion_donut.png",
+        "caption": "Gráfico 4: Distribución del Portafolio por Activo (Gráfico de Donut)",
+        "width": 400,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": {
+          "bucket": "portfolio-files",
+          "path": "Graficos/clasificacion_donut.png",
+          "public": null,
+          "expires_in": null,
+          "use_url": null,
+          "transform": null
+        }
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 10,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "image",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": "clasificacion_breakdown.png",
+        "caption": "Gráfico 5: Desglose de la Composición del Portafolio (Gráfico de Barras)",
+        "width": 600,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": {
+          "bucket": "portfolio-files",
+          "path": "Graficos/clasificacion_breakdown.png",
+          "public": null,
+          "expires_in": null,
+          "use_url": null,
+          "transform": null
+        }
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 20,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "page_break",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "header2",
+        "text": "IV. Optimización de Portafolios",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "La optimización de portafolios busca encontrar la asignación de activos que maximice el retorno para un nivel de riesgo dado, o minimice el riesgo para un retorno esperado. La Frontera Eficiente es una herramienta clave en este proceso, mostrando el conjunto de portafolios óptimos.",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 15,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "header3",
+        "text": "Frontera Eficiente",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "La Frontera Eficiente representa el conjunto de portafolios que ofrecen el mayor retorno esperado para un nivel de riesgo determinado, o el menor riesgo para un nivel de retorno esperado. Los portafolios por debajo de la frontera son subóptimos.",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "image",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": "efficient_frontier.png",
+        "caption": "Gráfico 6: Frontera Eficiente de Portafolios",
+        "width": 600,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": {
+          "bucket": "portfolio-files",
+          "path": "Graficos/efficient_frontier.png",
+          "public": null,
+          "expires_in": null,
+          "use_url": null,
+          "transform": null
+        }
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 15,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "header3",
+        "text": "Portafolio de Máximo Ratio de Sharpe (MSR)",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "El portafolio MSR es el punto en la frontera eficiente que ofrece la mejor relación retorno/riesgo, maximizando el retorno excedente por unidad de riesgo (volatilidad).",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "key_value_list",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": [
+          {
+            "key": "Retorno Esperado",
+            "value": "32.98%"
+          },
+          {
+            "key": "Volatilidad",
+            "value": "19.52%"
+          },
+          {
+            "key": "Ratio de Sharpe",
+            "value": "1.69"
+          }
+        ],
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "Composición Óptima (MSR):",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "table",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": [
+          "Activo",
+          "Peso Óptimo (%)"
+        ],
+        "rows": [
+          [
+            "GOOG",
+            "10.22%"
+          ],
+          [
+            "GOOGL",
+            "2.89%"
+          ],
+          [
+            "AAPL",
+            "4.40%"
+          ],
+          [
+            "TLT",
+            "4.42%"
+          ],
+          [
+            "BTC-USD",
+            "19.85%"
+          ],
+          [
+            "ETH-USD",
+            "58.34%"
+          ]
+        ],
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 15,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "header3",
+        "text": "Portafolio de Mínima Volatilidad (GMV)",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "El portafolio GMV es el punto en la frontera eficiente con el menor riesgo posible. Es ideal para inversores con una alta aversión al riesgo.",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "key_value_list",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": [
+          {
+            "key": "Retorno Esperado",
+            "value": "1.47%"
+          },
+          {
+            "key": "Volatilidad",
+            "value": "6.54%"
+          },
+          {
+            "key": "Ratio de Sharpe",
+            "value": "0.23"
+          }
+        ],
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "Composición Óptima (GMV):",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "table",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": [
+          "Activo",
+          "Peso Óptimo (%)"
+        ],
+        "rows": [
+          [
+            "NVDA",
+            "0.76%"
+          ],
+          [
+            "TLT",
+            "1.07%"
+          ],
+          [
+            "MBB",
+            "90.78%"
+          ],
+          [
+            "ETH-USD",
+            "7.39%"
+          ]
+        ],
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 15,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "image",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": "msr_treemap.png",
+        "caption": "Gráfico 7: Treemap de la Composición del Portafolio MSR",
+        "width": 600,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": {
+          "bucket": "portfolio-files",
+          "path": "Graficos/msr_treemap.png",
+          "public": null,
+          "expires_in": null,
+          "use_url": null,
+          "transform": null
+        }
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 20,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "page_break",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "header2",
+        "text": "V. Proyecciones y Simulaciones",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "Las simulaciones de Monte Carlo son herramientas poderosas para proyectar el rendimiento futuro del portafolio bajo diferentes escenarios de mercado, proporcionando un rango de resultados posibles y ayudando a cuantificar la incertidumbre.",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 15,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "header3",
+        "text": "Simulación Monte Carlo",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "Se realizaron 1,000 escenarios de simulación Monte Carlo sobre 1,255 períodos de tiempo (aproximadamente 5 años) para proyectar la riqueza terminal del portafolio. Esta simulación asume un retorno anualizado (μ) del 29.96% y una volatilidad anualizada (σ) del 21.47%.",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "key_value_list",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": [
+          {
+            "key": "Escenarios Simulados",
+            "value": "1,000"
+          },
+          {
+            "key": "Períodos de Tiempo",
+            "value": "1,255"
+          },
+          {
+            "key": "Riqueza Terminal Promedio",
+            "value": "$4,336.93"
+          },
+          {
+            "key": "Riqueza Terminal Mediana",
+            "value": "$3,881.62"
+          },
+          {
+            "key": "Desviación Estándar de Riqueza Terminal",
+            "value": "$2,065.98"
+          },
+          {
+            "key": "Percentil 5% (VaR)",
+            "value": "$1,928.96"
+          },
+          {
+            "key": "Percentil 95%",
+            "value": "$8,185.32"
+          }
+        ],
+        "supabase": null
+      },
+      {
+        "type": "image",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": "monte_carlo_simulation.png",
+        "caption": "Gráfico 8: Trayectorias de la Simulación Monte Carlo",
+        "width": 600,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": {
+          "bucket": "portfolio-files",
+          "path": "Graficos/monte_carlo_simulation.png",
+          "public": null,
+          "expires_in": null,
+          "use_url": null,
+          "transform": null
+        }
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 10,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "image",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": "monte_carlo_distribution.png",
+        "caption": "Gráfico 9: Distribución de la Riqueza Terminal (Monte Carlo)",
+        "width": 600,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": {
+          "bucket": "portfolio-files",
+          "path": "Graficos/monte_carlo_distribution.png",
+          "public": null,
+          "expires_in": null,
+          "use_url": null,
+          "transform": null
+        }
+      },
+      {
+        "type": "paragraph",
+        "text": "Los resultados de la simulación indican una amplia dispersión en los posibles resultados futuros, con una riqueza terminal promedio de $4,336.93 para una inversión inicial de $1,000. El percentil 5% de $1,928.96 sugiere que hay un 5% de probabilidad de que el portafolio termine con un valor igual o inferior a este monto, lo que resalta la importancia de la gestión del riesgo.",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 20,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "page_break",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "header2",
+        "text": "VI. Perspectivas Estratégicas y Riesgos Clave",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "El portafolio actual ha demostrado un rendimiento anualizado robusto, pero con una volatilidad considerable y un máximo drawdown que sugiere una exposición significativa al riesgo. La concentración en el sector tecnológico, aunque ha sido beneficiosa, también implica una menor diversificación frente a shocks sectoriales.",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 15,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "list",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": [
+          "**Rendimiento Sólido:** El retorno anualizado del 30.49% es competitivo y atractivo.",
+          "**Riesgo Elevado:** La volatilidad del 26.14% y el máximo drawdown del -26.90% indican un perfil de riesgo agresivo.",
+          "**Concentración Sectorial:** La alta ponderación en tecnología puede limitar la diversificación y aumentar la sensibilidad a eventos específicos del sector.",
+          "**Oportunidades de Optimización:** Los portafolios MSR y GMV ofrecen alternativas para ajustar el perfil riesgo-retorno según los objetivos del inversor."
+        ],
+        "supabase": null
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 15,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "header3",
+        "text": "Recomendaciones Tácticas",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "list",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": [
+          "**Reevaluación de la Asignación de Activos:** Dada la alta correlación entre los activos actuales, considere introducir activos con baja o negativa correlación para mejorar la diversificación y reducir el riesgo general del portafolio.",
+          "**Gestión del Drawdown:** El máximo drawdown de 26.9% es significativo. Se recomienda explorar estrategias de reducción de riesgo, como la implementación de órdenes de stop-loss, el uso de opciones para cobertura, o la reasignación hacia el portafolio de **Mínima Volatilidad (GMV)** para perfiles más conservadores.",
+          "**Considerar Portafolio MSR:** Para inversores que buscan maximizar el retorno ajustado por riesgo, la estructura del portafolio de Máximo Ratio de Sharpe (MSR) podría ser una guía para rebalancear las ponderaciones, incorporando activos como BTC-USD y ETH-USD que han mostrado un buen desempeño en esta optimización.",
+          "**Análisis de Sensibilidad:** Realizar análisis de sensibilidad adicionales para entender cómo los cambios en las condiciones del mercado (ej. tasas de interés, inflación) podrían afectar el rendimiento y el riesgo del portafolio."
+        ],
+        "supabase": null
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 15,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "header3",
+        "text": "Puntos Clave de Monitoreo",
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "list",
+        "text": null,
+        "style": null,
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": [
+          "**Volatilidad del Mercado:** Monitorear de cerca los índices de volatilidad (VIX) y las fluctuaciones en los precios de los activos tecnológicos.",
+          "**Correlaciones entre Activos:** Revisar periódicamente la matriz de correlación para identificar cambios en las relaciones entre los activos del portafolio.",
+          "**Rendimiento Relativo:** Comparar el rendimiento del portafolio con benchmarks relevantes y con los portafolios optimizados (MSR, GMV).",
+          "**Eventos Macroeconómicos:** Estar atento a los anuncios de política monetaria, datos de inflación y crecimiento económico que puedan impactar los mercados."
+        ],
+        "supabase": null
+      },
+      {
+        "type": "spacer",
+        "text": null,
+        "style": null,
+        "height": 20,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      },
+      {
+        "type": "paragraph",
+        "text": "Este informe ha sido generado con fines informativos y no constituye una recomendación de inversión. Las decisiones de inversión deben basarse en un análisis individualizado y la consulta con un asesor financiero calificado. Los rendimientos pasados no garantizan resultados futuros.",
+        "style": "disclaimer",
+        "height": null,
+        "path": null,
+        "caption": null,
+        "width": null,
+        "headers": null,
+        "rows": null,
+        "items": null,
+        "supabase": null
+      }
+    ]
+  },
+  "session_id": "60d07fcf-6956-43d6-95b1-d7b844cb682d",
+  "model_used": "gemini-2.5-flash",
+  "metadata": {
+    "context_keys": [
+      "execution_type",
+      "timestamp",
+      "source",
+      "note"
+    ],
+    "fallback_model": "gemini-2.5-flash"
+  }
+}

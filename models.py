@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Literal, Union
 from pydantic import BaseModel, Field
 from enum import Enum
 
@@ -52,3 +52,69 @@ class ErrorResponse(BaseModel):
     error: str
     detail: Optional[str] = None
     error_code: Optional[str] = None
+
+# ====== Esquema de informe de análisis de portafolio (salida JSON estructurada) ======
+
+class ImageTransform(BaseModel):
+    width: Optional[int] = None
+    height: Optional[int] = None
+    quality: Optional[int] = Field(None, ge=20, le=100)
+    resize: Optional[Literal["cover", "contain", "fill"]] = None
+    format: Optional[Literal["origin", "avif"]] = None
+
+
+class SupabaseImage(BaseModel):
+    bucket: str
+    path: str
+    public: Optional[bool] = None
+    expires_in: Optional[int] = None
+    use_url: Optional[bool] = None
+    transform: Optional[ImageTransform] = None
+
+
+class KeyValueItem(BaseModel):
+    """Item para listas key-value"""
+    key: str
+    value: str
+
+
+class ContentItem(BaseModel):
+    """Elemento de contenido del informe - soporta múltiples tipos"""
+    type: str  # header1, header2, header3, paragraph, spacer, page_break, table, list, key_value_list, image
+    text: Optional[str] = None  # Para headers y paragraphs
+    style: Optional[str] = None  # italic, bold, centered, disclaimer, etc.
+    height: Optional[Union[float, int]] = None  # Para spacers y images
+    path: Optional[str] = None  # Para images (solo nombre del archivo)
+    caption: Optional[str] = None  # Para images
+    width: Optional[Union[float, int]] = None  # Para images
+    headers: Optional[List[str]] = None  # Para tables
+    rows: Optional[List[List[Any]]] = None  # Para tables
+    items: Optional[List[Union[str, KeyValueItem]]] = None  # Para lists y key_value_lists
+    supabase: Optional[SupabaseImage] = None  # Deprecated - mantenido por compatibilidad
+
+
+class DocumentMetadata(BaseModel):
+    """Metadatos del documento del informe"""
+    title: Optional[str] = None
+    author: Optional[str] = None  # Debe ser "Horizon Agent"
+    subject: Optional[str] = None
+
+
+class Report(BaseModel):
+    fileName: str
+    document: Optional[DocumentMetadata] = None
+    content: List[ContentItem]
+
+
+class PortfolioReportRequest(BaseModel):
+    """Solicitud para generar informe de análisis de portafolio mediante botón"""
+    session_id: Optional[str] = Field(None, description="ID de sesión para el agente")
+    model_preference: Optional[str] = Field(None, description="flash | pro")
+    context: Optional[Dict[str, Any]] = Field(None, description="Datos/indicadores/imagenes relevantes para el informe")
+
+
+class PortfolioReportResponse(BaseModel):
+    report: Report
+    session_id: str
+    model_used: str
+    metadata: Optional[Dict[str, Any]] = None

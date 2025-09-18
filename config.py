@@ -1,6 +1,6 @@
 import os
 from typing import Optional
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     """Configuración del servicio de agente de chat"""
@@ -8,6 +8,13 @@ class Settings(BaseSettings):
     # API Keys
     gemini_api_key: Optional[str] = None
     google_api_key: Optional[str] = None
+    supabase_url: Optional[str] = None
+    supabase_service_role_key: Optional[str] = None
+    supabase_anon_key: Optional[str] = None
+    supabase_bucket_name: Optional[str] = None
+    supabase_base_prefix: Optional[str] = None
+    enable_supabase_upload: bool = False
+    supabase_cleanup_after_tests: bool = False
     
     # Configuración del servicio
     service_host: str = "0.0.0.0"
@@ -22,12 +29,16 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     
     # Configuración de modelos
-    model_flash: str = "gemini-2.5-flash"
-    model_pro: str = "gemini-2.5-pro"
+    model_flash: str = "gemini-2.5-flash-lite"
+    model_pro: str = "gemini-2.5-flash"
+    default_currency: str = "USD"
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
+    # Configuración Pydantic v2 para BaseSettings
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=False,
+        extra="ignore",  # Ignorar variables de entorno no declaradas
+    )
 
     def get_api_key(self) -> Optional[str]:
         """Obtener la clave API disponible"""

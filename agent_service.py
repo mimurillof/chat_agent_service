@@ -8,8 +8,9 @@ import uuid
 import traceback
 from datetime import datetime
 from typing import Optional, Dict, Any, List
+import json
 from config import settings
-from models import ChatMessage, MessageRole
+from models import ChatMessage, MessageRole, PortfolioReportRequest, PortfolioReportResponse, Report
 
 try:
     from google import genai
@@ -23,11 +24,18 @@ try:
     if not os.getenv("GEMINI_API_KEY"):
         os.environ["GEMINI_API_KEY"] = api_key
     
-    client = genai.Client()
+    # Crear cliente con API key explícita (según tutorial)
+    client = genai.Client(api_key=api_key)
     
 except Exception as e:
     print(f"❌ Error configurando Gemini: {e}")
     client = None
+
+try:
+    from supabase import create_client
+    _has_supabase = True
+except Exception:
+    _has_supabase = False
 
 # Prompts del sistema
 FLASH_SYSTEM_PROMPT = """
@@ -57,9 +65,20 @@ class ChatAgentService:
         self.client = client
         self.sessions: Dict[str, Dict] = {}
         self.active_sessions = 0
+        self.supabase = None
         
         if not self.client:
             raise Exception("Cliente Gemini no disponible")
+        
+        # Inicializar Supabase si hay credenciales
+        if _has_supabase and settings.supabase_url and settings.supabase_service_role_key:
+            try:
+                self.supabase = create_client(settings.supabase_url, settings.supabase_service_role_key)
+            except Exception as e:
+                print(f"⚠️ No se pudo inicializar Supabase: {e}")
+        
+        self.supabase_bucket = settings.supabase_bucket_name or "portfolio-files"
+        self.supabase_prefix = settings.supabase_base_prefix or "Graficos"
     
     def get_health_status(self) -> Dict[str, Any]:
         """Obtener estado del servicio"""
@@ -137,6 +156,339 @@ class ChatAgentService:
         # Por ahora retornamos False, se puede implementar más tarde
         return False
     
+    # =====================
+    # Informe de análisis de portafolio
+    # =====================
+    def _list_supabase_files(self) -> List[Dict[str, Any]]:
+        """Lista archivos en el bucket/prefijo configurado. Filtra por extensiones permitidas."""
+        if not self.supabase:
+            return []
+        try:
+            items = self.supabase.storage.from_(self.supabase_bucket).list(self.supabase_prefix)
+        except Exception as e:
+            print(f"⚠️ Error listando Storage: {e}")
+            return []
+
+        allowed = {".json", ".md", ".png"}
+        files: List[Dict[str, Any]] = []
+        for it in (items or []):
+            name = str(it.get("name") or "")
+            lower = name.lower()
+            if not any(lower.endswith(ext) for ext in allowed):
+                continue
+            full_path = f"{self.supabase_prefix}/{name}" if self.supabase_prefix else name
+            files.append({
+                "name": name,
+                "path": full_path,
+                "ext": lower[lower.rfind("."):],
+            })
+        return files
+
+    def _read_supabase_text_files(self, files: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Descarga y devuelve contenidos de .json y .md en dicts separados."""
+        if not self.supabase:
+            return {"json_docs": {}, "markdown_docs": {}}
+        json_docs: Dict[str, Any] = {}
+        markdown_docs: Dict[str, str] = {}
+        for f in files:
+            ext = f.get("ext")
+            path = f.get("path")
+            name = f.get("name")
+            if ext not in (".json", ".md"):
+                continue
+            try:
+                data = self.supabase.storage.from_(self.supabase_bucket).download(path)
+                text = data.decode("utf-8", errors="replace") if isinstance(data, (bytes, bytearray)) else str(data)
+                if ext == ".json":
+                    try:
+                        json_docs[name] = json.loads(text)
+                    except Exception:
+                        json_docs[name] = {"_raw": text}
+                else:
+                    markdown_docs[name] = text
+            except Exception as e:
+                print(f"⚠️ No se pudo descargar {path}: {e}")
+        return {"json_docs": json_docs, "markdown_docs": markdown_docs}
+
+    def _gather_storage_context(self) -> Dict[str, Any]:
+        """Compila contexto desde Storage: JSON/MD contenidos y lista de imágenes PNG."""
+        if not self.supabase:
+            return {}
+        files = self._list_supabase_files()
+        text_ctx = self._read_supabase_text_files(files)
+        images = [
+            {"bucket": self.supabase_bucket, "path": f["path"]}
+            for f in files if f.get("ext") == ".png"
+        ]
+        return {
+            "storage": {
+                "bucket": self.supabase_bucket,
+                "prefix": self.supabase_prefix,
+                "images": images,
+                **text_ctx,
+            }
+        }
+
+    async def ejecutar_generacion_informe_portafolio(self, req: PortfolioReportRequest) -> Dict[str, Any]:
+        """Construye prompt y genera un informe de portafolio en JSON usando el esquema Report."""
+        session_id = req.session_id or self.create_session()
+        # Por defecto, usar PRO para análisis profundo salvo que se indique lo contrario
+        if req.model_preference:
+            model = settings.model_pro if req.model_preference.lower() == "pro" else settings.model_flash
+        else:
+            model = settings.model_pro
+
+        instruction = (
+            "Eres un analista financiero senior especializado en análisis de portafolios. "
+            "Tu tarea es generar un informe de análisis de portafolio COMPLETO y PROFESIONAL "
+            "que será convertido a PDF automáticamente.\n\n"
+            
+            "INSTRUCCIONES CRÍTICAS PARA LA ESTRUCTURA:\n"
+            "1. Debes responder ÚNICAMENTE con JSON válido que siga el esquema especificado\n"
+            "2. NO agregues texto adicional antes o después del JSON\n"
+            "3. NO uses markdown ni etiquetas como ```json\n"
+            "4. Asegúrate de que el JSON esté completo y sea válido\n"
+            "5. Todas las cadenas deben estar correctamente escapadas\n\n"
+            
+            "ESTRUCTURA REQUERIDA DEL INFORME:\n"
+            "- fileName: Nombre descriptivo con extensión .pdf\n"
+            "- document.title: Título profesional del informe\n"
+            "- document.author: 'Horizon Agent'\n"
+            "- document.subject: Descripción del análisis\n\n"
+            
+            "TIPOS DE CONTENIDO DISPONIBLES (usa variedad):\n"
+            "• 'header1': Títulos principales del informe\n"
+            "• 'header2': Secciones principales (I., II., III., etc.)\n"
+            "• 'header3': Subsecciones (5.1, 5.2, etc.)\n"
+            "• 'paragraph': Texto explicativo (puede tener style: 'italic', 'bold', 'centered', 'disclaimer')\n"
+            "• 'spacer': Espacios en blanco (height: número de pixeles)\n"
+            "• 'page_break': Salto de página\n"
+            "• 'table': Tablas con headers y rows\n"
+            "• 'list': Listas con items (pueden incluir **texto en negritas**)\n"
+            "• 'key_value_list': Listas de métricas con key y value\n"
+            "• 'image': Gráficos con path (SOLO nombre del archivo, SIN carpeta), caption, width, height\n\n"
+            
+            "INSTRUCCIONES ESPECÍFICAS:\n"
+            "1. Comienza con header1 con el título del informe\n"
+            "2. Incluye fecha del análisis en párrafo con style italic\n"
+            "3. Estructura en secciones numeradas (I. Resumen Ejecutivo, II. Análisis, etc.)\n"
+            "4. Usa key_value_list para métricas financieras importantes\n"
+            "5. Incluye TODAS las imágenes PNG disponibles con captions descriptivos\n"
+            "6. Para imágenes, usa SOLO el nombre del archivo (ej: 'portfolio_growth.png')\n"
+            "7. Añade spacers entre secciones para mejor legibilidad\n"
+            "8. Incluye page_breaks en puntos estratégicos\n"
+            "9. Termina con disclaimer en style 'disclaimer'\n"
+            "10. El texto debe ser profesional, técnico y detallado\n\n"
+            
+            "ANÁLISIS REQUERIDO:\n"
+            "- Resumen ejecutivo con contexto macro actual\n"
+            "- Métricas de rendimiento detalladas\n"
+            "- Análisis de riesgo y drawdowns\n"
+            "- Comparativa con portafolios optimizados\n"
+            "- Análisis de correlación entre activos\n"
+            "- Proyecciones y simulaciones\n"
+            "- Perspectivas estratégicas y riesgos\n"
+            "- Recomendaciones tácticas específicas\n"
+            "- Puntos clave de monitoreo\n\n"
+            
+            "Genera un informe extenso, profesional y técnicamente sólido que demuestre "
+            "expertise en análisis cuantitativo y gestión de portafolios."
+        )
+
+        contents = [types.Content(role="user", parts=[types.Part.from_text(text=instruction)])]
+
+        # Contexto desde Supabase Storage (JSON/MD/PNGs) + contexto del request
+        storage_ctx = self._gather_storage_context()
+        merged_ctx: Dict[str, Any] = {}
+        if isinstance(req.context, dict):
+            merged_ctx.update(req.context)
+        if storage_ctx:
+            merged_ctx.update(storage_ctx)
+        if merged_ctx:
+            contents.append(types.Content(
+                role="user",
+                parts=[types.Part.from_text(text=f"CONTEXT_JSON=\n{json.dumps(merged_ctx, ensure_ascii=False)}")]
+            ))
+
+        config = types.GenerateContentConfig(
+            temperature=0.1,  # Temperatura muy baja para JSON consistente
+            top_p=0.8,
+            max_output_tokens=16384,  # Aumentar tokens para informe extenso
+            response_mime_type="application/json",
+            response_schema=Report,
+        )
+
+        try:
+            # Intentar con diferentes modelos si hay sobrecarga
+            models_to_try = [model]
+            if model == "gemini-2.5-pro":
+                models_to_try.extend(["gemini-2.5-flash", "gemini-2.5-flash-lite"])
+            elif model == "gemini-2.5-flash":
+                models_to_try.extend(["gemini-2.5-flash-lite", "gemini-2.0-flash"])
+            
+            successful_model = None
+            resp = None
+            
+            for try_model in models_to_try:
+                try:
+                    resp = await self.client.aio.models.generate_content(
+                        model=try_model,
+                        contents=contents,
+                        config=config,
+                    )
+                    successful_model = try_model
+                    break
+                except Exception as model_error:
+                    error_str = str(model_error)
+                    if "overloaded" in error_str or "503" in error_str:
+                        print(f"⚠️ Modelo {try_model} sobrecargado, probando siguiente...")
+                        continue
+                    else:
+                        # Error no relacionado con sobrecarga, propagar
+                        raise model_error
+            
+            if not resp or not successful_model:
+                raise ValueError("Todos los modelos están sobrecargados, intenta más tarde")
+
+            parsed_report = None
+            
+            # Seguir el patrón del tutorial exactamente
+            print(f"🔍 Analizando respuesta de {successful_model}...")
+            print(f"   Tiene atributo .parsed: {hasattr(resp, 'parsed')}")
+            print(f"   Tiene atributo .text: {hasattr(resp, 'text')}")
+            
+            if hasattr(resp, "parsed"):
+                print(f"   resp.parsed: {resp.parsed}")
+                print(f"   resp.parsed es None: {resp.parsed is None}")
+                print(f"   resp.parsed es truthy: {bool(resp.parsed)}")
+            
+            if hasattr(resp, "text"):
+                print(f"   resp.text: {resp.text[:200] if resp.text else None}...")
+                print(f"   len(resp.text): {len(resp.text) if resp.text else 0}")
+            
+            if hasattr(resp, "parsed") and resp.parsed:
+                parsed_report = resp.parsed
+                print(f"✅ Salida estructurada parseada correctamente con {successful_model}")
+            elif hasattr(resp, "text") and resp.text:
+                try:
+                    # Fallback: parsear manualmente el JSON
+                    print(f"🔧 Intentando parsear manualmente el JSON de {successful_model}")
+                    
+                    # Debug: Guardar la respuesta raw para diagnóstico
+                    raw_text = resp.text
+                    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                    debug_file = f"debug_raw_response_{timestamp}.txt"
+                    
+                    try:
+                        with open(debug_file, 'w', encoding='utf-8') as f:
+                            f.write(f"MODELO: {successful_model}\n")
+                            f.write(f"TIMESTAMP: {timestamp}\n")
+                            f.write("="*60 + "\n")
+                            f.write(raw_text)
+                        print(f"💾 Respuesta raw guardada en: {debug_file}")
+                    except Exception:
+                        pass
+                    
+                    # Intentar limpiar JSON malformado
+                    cleaned_text = raw_text.strip()
+                    
+                    # Si el JSON está claramente truncado, intentar completarlo
+                    if len(cleaned_text) > 3000 and not cleaned_text.endswith('}'):
+                        print("🔧 JSON parece estar truncado, intentando completar...")
+                        
+                        # Contar llaves abiertas vs cerradas
+                        open_braces = cleaned_text.count('{')
+                        close_braces = cleaned_text.count('}')
+                        missing_braces = open_braces - close_braces
+                        
+                        print(f"   Llaves abiertas: {open_braces}, cerradas: {close_braces}, faltantes: {missing_braces}")
+                        
+                        # Intentar cerrar el JSON
+                        if missing_braces > 0:
+                            # Remover texto incompleto al final
+                            lines = cleaned_text.split('\n')
+                            
+                            # Buscar la última línea válida
+                            valid_lines = []
+                            for line in lines:
+                                if line.strip() and not line.strip().endswith(',') and not line.strip().endswith('{'):
+                                    if '"' in line and line.count('"') % 2 == 0:  # Comillas balanceadas
+                                        valid_lines.append(line)
+                                    elif not '"' in line:  # No tiene comillas
+                                        valid_lines.append(line)
+                                elif line.strip().endswith(',') or line.strip().endswith('{'):
+                                    valid_lines.append(line)
+                                else:
+                                    # Línea problemática, truncar aquí
+                                    break
+                            
+                            # Reconstruir JSON
+                            cleaned_text = '\n'.join(valid_lines)
+                            
+                            # Remover coma final si existe
+                            if cleaned_text.rstrip().endswith(','):
+                                cleaned_text = cleaned_text.rstrip()[:-1]
+                            
+                            # Añadir llaves faltantes
+                            cleaned_text += '}' * missing_braces
+                            
+                            print(f"   JSON completado automáticamente")
+                    
+                    # Si termina con coma, intentar completar
+                    elif cleaned_text.endswith(','):
+                        cleaned_text = cleaned_text[:-1]
+                    
+                    # Si no termina con }, intentar cerrar
+                    elif not cleaned_text.endswith('}'):
+                        cleaned_text += '}'
+                    
+                    parsed_json = json.loads(cleaned_text)
+                    parsed_report = Report.model_validate(parsed_json)
+                    print(f"✅ Salida parseada manualmente desde .text con {successful_model} (después de limpieza)")
+                except Exception as parse_error:
+                    print(f"❌ Error parseando JSON desde .text: {parse_error}")
+                    # Mostrar una muestra del texto para diagnóstico
+                    if hasattr(resp, "text") and resp.text:
+                        sample_text = resp.text[:500] + "..." if len(resp.text) > 500 else resp.text
+                        print(f"🔍 Muestra del texto recibido: {sample_text}")
+                    parsed_report = None
+
+            if not parsed_report:
+                raise ValueError("No se pudo parsear la salida estructurada del modelo")
+
+            response_payload = PortfolioReportResponse(
+                report=parsed_report,
+                session_id=session_id,
+                model_used=successful_model,  # Usar el modelo que realmente funcionó
+                metadata={
+                    "context_keys": list(req.context.keys()) if isinstance(req.context, dict) else None,
+                    "fallback_model": successful_model if successful_model != model else None,
+                },
+            ).model_dump()
+
+            # Registrar mensaje en la sesión (opcional)
+            try:
+                summary_added = ChatMessage(
+                    role=MessageRole.ASSISTANT,
+                    content="[INFORME_PORTAFOLIO_GENERADO]",
+                    timestamp=datetime.now().isoformat()
+                )
+                self.sessions[session_id]["messages"].append(summary_added.model_dump())
+                self.sessions[session_id]["last_activity"] = datetime.now().isoformat()
+            except Exception:
+                pass
+
+            return response_payload
+
+        except Exception as e:
+            print(f"❌ Error generando informe de portafolio: {e}")
+            return {
+                "error": "Error generando informe",
+                "detail": str(e),
+                "session_id": session_id,
+                "model_used": model,
+            }
+
     async def process_message(
         self, 
         message: str, 

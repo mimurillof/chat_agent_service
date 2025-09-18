@@ -1,0 +1,123 @@
+MODELO: gemini-2.5-pro
+TIMESTAMP: 20250918_103817
+============================================================
+{
+  "fileName": "Analisis_Completo_Portafolio_Tecnologico_2025-09-18.json",
+  "document": {
+    "title": "Análisis Integral de Portafolio de Inversión Tecnológico",
+    "author": "Analista Financiero Senior",
+    "subject": "Informe de Rendimiento y Riesgo del Portafolio"
+  },
+  "content": [
+    {
+      "type": "text",
+      "text": "Resumen Ejecutivo",
+      "style": "h1"
+    },
+    {
+      "type": "text",
+      "text": "El presente informe detalla el análisis del portafolio de inversión con alta concentración en el sector tecnológico, compuesto por AAPL (25%), MSFT (25%), GOOGL (20%), AMZN (15%) y NVDA (15%). Durante el período analizado del 7 de mayo de 2024 al 17 de septiembre de 2025, el portafolio ha demostrado un rendimiento anualizado robusto del 30.49%. Sin embargo, este rendimiento viene acompañado de una volatilidad anualizada significativa del 26.14% y un máximo drawdown del -26.90%, lo que subraya un perfil de riesgo elevado. El análisis revela oportunidades claras de optimización para mejorar el rendimiento ajustado por riesgo y la diversificación."
+    },
+    {
+      "type": "table",
+      "caption": "Tabla 1: Composición Actual del Portafolio",
+      "headers": [
+        "Activo",
+        "Símbolo",
+        "Sector",
+        "Peso Asignado (%)"
+      ],
+      "rows": [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "Technology",
+          "25.0"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "Technology",
+          "25.0"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "Communication Services",
+          "20.0"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "Consumer Cyclical",
+          "15.0"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "Technology",
+          "15.0"
+        ]
+      ]
+    },
+    {
+      "type": "table",
+      "caption": "Tabla 2: Métricas Clave de Rendimiento y Riesgo",
+      "headers": [
+        "Métrica",
+        "Valor"
+      ],
+      "rows": [
+        [
+          "Rendimiento Anualizado",
+          "30.49%"
+        ],
+        [
+          "Volatilidad Anualizada",
+          "26.14%"
+        ],
+        [
+          "Ratio de Sharpe",
+          "1.00"
+        ],
+        [
+          "Ratio de Sortino",
+          "1.48"
+        ],
+        [
+          "Máximo Drawdown",
+          "-26.90%"
+        ],
+        [
+          "Valor en Riesgo (VaR) Diario (95%)",
+          "-2.59%"
+        ]
+      ]
+    },
+    {
+      "type": "text",
+      "text": "Análisis de Rendimiento",
+      "style": "h2"
+    },
+    {
+      "type": "text",
+      "text": "El portafolio ha experimentado un crecimiento considerable a lo largo del período de análisis. A pesar de la volatilidad inherente a sus componentes, la trayectoria general ha sido positiva, culminando en un rendimiento acumulado significativo. El gráfico siguiente ilustra la evolución del valor del portafolio en comparación con su punto de partida."
+    },
+    {
+      "type": "image",
+      "caption": "Gráfico 1: Crecimiento del Portafolio y Rendimiento Acumulado",
+      "supabase": {
+        "bucket": "portfolio-files",
+        "path": "Graficos/rendimiento_acumulado.png"
+      }
+    },
+    {
+      "type": "text",
+      "text": "Análisis de Riesgo",
+      "style": "h2"
+    },
+    {
+      "type": "text",
+      "text": "El perfil de riesgo del portafolio es elevado, como lo demuestra la volatilidad anualizada del 26.14%. El máximo drawdown alcanzó un -26.90%, lo que indica que en su peor momento, el portafolio perdió más de una cuarta parte de su valor desde su pico anterior. La curtosis de 12.06 es particularmente notable, ya que sugiere la presencia de 'colas pesadas', lo que significa que los eventos de mercado extremos (tanto positivos como negativos) son más probables de lo que una distribución normal predeciría."
+    },
+    
