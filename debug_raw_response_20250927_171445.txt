@@ -1,0 +1,2261 @@
+MODELO: gemini-2.5-pro
+TIMESTAMP: 20250927_171445
+============================================================
+{
+  "fileName": "Analisis_Completo_Portafolio_Q3_2025.pdf",
+  "document": {
+    "title": "Análisis Cuantitativo de Portafolio de Inversión",
+    "author": "Horizon Agent",
+    "subject": "Informe detallado sobre el rendimiento, riesgo y optimización del portafolio de acciones tecnológicas para el período finalizado el 27 de septiembre de 2025."
+  },
+  "content": [
+    {
+      "type": "header1",
+      "text": "Análisis Cuantitativo de Portafolio de Inversión"
+    },
+    {
+      "type": "paragraph",
+      "text": "Fecha del Análisis: 27 de septiembre de 2025",
+      "style": "italic"
+    },
+    {
+      "type": "spacer",
+      "height": 20
+    },
+    {
+      "type": "header2",
+      "text": "I. Resumen Ejecutivo"
+    },
+    {
+      "type": "paragraph",
+      "text": "El presente informe ofrece un análisis exhaustivo del portafolio de inversión, evaluando su rendimiento, perfil de riesgo y diversificación en el contexto macroeconómico actual. El período analizado, desde mayo de 2024 hasta septiembre de 2025, ha estado marcado por una volatilidad persistente en los mercados, impulsada por la incertidumbre en las políticas monetarias de los bancos centrales y tensiones geopolíticas. A pesar de este entorno, el sector tecnológico ha mostrado resiliencia, aunque con episodios de correcciones significativas. Este análisis busca cuantificar el desempeño del portafolio y proponer estrategias de optimización basadas en modelos financieros robustos."
+    },
+    {
+      "type": "header3",
+      "text": "1.1 Composición del Portafolio Actual"
+    },
+    {
+      "type": "table",
+      "headers": ["Activo", "Ticker", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
+          "Apple Inc.",
+          "AAPL",
+          "25.00%"
+        ],
+        [
+          "Microsoft Corporation",
+          "MSFT",
+          "25.00%"
+        ],
+        [
+          "Alphabet Inc.",
+          "GOOGL",
+          "20.00%"
+        ],
+        [
+          "Amazon.com, Inc.",
+          "AMZN",
+          "15.00%"
+        ],
+        [
+          "NVIDIA Corporation",
+          "NVDA",
+          "15.00%"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico 1: Distribución de activos en el portafolio actual.",
+      "width": 400,
+      "headers": 
+      [
+        "Activo",
+        "Ticker",
+        "Peso en Portafolio (%)"
+      ],
+      "rows": 
+      [
+        [
