@@ -29,8 +29,8 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     
     # Configuración de modelos
-    model_flash: str = "gemini-2.5-flash-lite"
-    model_pro: str = "gemini-2.5-flash"
+    model_flash: str = "gemini-2.5-flash"
+    model_pro: str = "gemini-2.5-pro"
     default_currency: str = "USD"
     
     # Configuración Pydantic v2 para BaseSettings
