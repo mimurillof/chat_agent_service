@@ -1,0 +1,1035 @@
+MODELO: gemini-2.5-pro
+TIMESTAMP: 20250927_160557
+============================================================
+{
+  "fileName": "Informe_Analisis_Portafolio_Cuantitativo_Q3_2025.pdf",
+  "document": {
+    "title": "Análisis Cuantitativo de Portafolio de Inversión",
+    "author": "Horizon Agent",
+    "subject": "Análisis detallado de rendimiento, riesgo y optimización del portafolio para el período finalizado el 27 de septiembre de 2025."
+  },
+  "content": [
+    {
+      "type": "header1",
+      "text": "Análisis Cuantitativo de Portafolio de Inversión"
+    },
+    {
+      "type": "paragraph",
+      "text": "Fecha del Análisis: 27 de septiembre de 2025",
+      "style": "italic"
+    },
+    {
+      "type": "paragraph",
+      "text": "Período de Análisis: 16 de mayo de 2024 - 26 de septiembre de 2025",
+      "style": "italic"
+    },
+    {
+      "type": "spacer",
+      "height": 20
+    },
+    {
+      "type": "header2",
+      "text": "I. Resumen Ejecutivo"
+    },
+    {
+      "type": "paragraph",
+      "text": "El presente informe ofrece un análisis exhaustivo del portafolio de inversión, evaluando su rendimiento, perfil de riesgo y diversificación en el contexto macroeconómico actual. El período analizado ha estado marcado por una volatilidad persistente en los mercados, impulsada por la incertidumbre en las políticas monetarias de los bancos centrales y tensiones geopolíticas. A pesar de este entorno, el sector tecnológico ha mostrado resiliencia, aunque con episodios de corrección significativos. Este análisis compara el rendimiento del portafolio actual con alternativas optimizadas para ofrecer recomendaciones estratégicas fundamentadas."
+    },
+    {
+      "type": "header3",
+      "text": "1.1 Composición del Portafolio Actual"
+    },
+    {
+      "type": "table",
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut.png",
+      "caption": "Gráfico de distribución de activos en el portafolio actual.",
+      "width": 300,
+      "headers": ["Activo", "Ticker", "Sector", "Peso en Portafolio (%)"],
+      "rows": [
+        ["Apple Inc.", "AAPL", "Technology", "25.00%"],
+        ["Microsoft Corporation", "MSFT", "Technology", "25.00%"],
+        ["Alphabet Inc.", "GOOGL", "Communication Services", "20.00%"],
+        ["Amazon.com, Inc.", "AMZN", "Consumer Cyclical", "15.00%"],
+        ["NVIDIA Corporation", "NVDA", "Technology", "15.00%"]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "clasificacion_donut
