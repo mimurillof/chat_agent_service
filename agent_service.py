@@ -78,7 +78,21 @@ class ChatAgentService:
                 print(f"⚠️ No se pudo inicializar Supabase: {e}")
         
         self.supabase_bucket = settings.supabase_bucket_name or "portfolio-files"
-        self.supabase_prefix = settings.supabase_base_prefix or "Graficos"
+
+        primary_prefix = (settings.supabase_base_prefix or "Graficos" or "").strip("/")
+        secondary_prefix = (settings.supabase_base_prefix_2 or "").strip("/") if settings.supabase_base_prefix_2 else ""
+
+        prefixes: List[str] = []
+        if primary_prefix:
+            prefixes.append(primary_prefix)
+        if secondary_prefix and secondary_prefix not in prefixes:
+            prefixes.append(secondary_prefix)
+
+        if not prefixes:
+            prefixes = [""]
+
+        self.supabase_prefixes = prefixes
+        self.supabase_prefix = self.supabase_prefixes[0]
     
     def get_health_status(self) -> Dict[str, Any]:
         """Obtener estado del servicio"""
@@ -163,25 +177,27 @@ class ChatAgentService:
         """Lista archivos en el bucket/prefijo configurado. Filtra por extensiones permitidas."""
         if not self.supabase:
             return []
-        try:
-            items = self.supabase.storage.from_(self.supabase_bucket).list(self.supabase_prefix)
-        except Exception as e:
-            print(f"⚠️ Error listando Storage: {e}")
-            return []
-
         allowed = {".json", ".md", ".png"}
         files: List[Dict[str, Any]] = []
-        for it in (items or []):
-            name = str(it.get("name") or "")
-            lower = name.lower()
-            if not any(lower.endswith(ext) for ext in allowed):
+        for prefix in self.supabase_prefixes:
+            try:
+                items = self.supabase.storage.from_(self.supabase_bucket).list(prefix or "")
+            except Exception as e:
+                print(f"⚠️ Error listando Storage para prefijo '{prefix}': {e}")
                 continue
-            full_path = f"{self.supabase_prefix}/{name}" if self.supabase_prefix else name
-            files.append({
-                "name": name,
-                "path": full_path,
-                "ext": lower[lower.rfind("."):],
-            })
+
+            for it in (items or []):
+                name = str(it.get("name") or "")
+                lower = name.lower()
+                if not any(lower.endswith(ext) for ext in allowed):
+                    continue
+                full_path = f"{prefix}/{name}" if prefix else name
+                files.append({
+                    "name": name,
+                    "path": full_path,
+                    "prefix": prefix,
+                    "ext": lower[lower.rfind("."):],
+                })
         return files
 
     def _read_supabase_text_files(self, files: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -224,6 +240,7 @@ class ChatAgentService:
             "storage": {
                 "bucket": self.supabase_bucket,
                 "prefix": self.supabase_prefix,
+                "prefixes": self.supabase_prefixes,
                 "images": images,
                 **text_ctx,
             }

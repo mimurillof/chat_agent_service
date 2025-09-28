@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     supabase_anon_key: Optional[str] = None
     supabase_bucket_name: Optional[str] = None
     supabase_base_prefix: Optional[str] = None
+    supabase_base_prefix_2: Optional[str] = None
     enable_supabase_upload: bool = False
     supabase_cleanup_after_tests: bool = False
     
