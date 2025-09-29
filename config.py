@@ -23,8 +23,23 @@ class Settings(BaseSettings):
     service_name: str = "Chat Agent Service"
     service_version: str = "1.0.0"
     
-    # Configuración CORS
-    cors_origins: list[str] = ["http://localhost:3000", "http://localhost:8000"]
+    # Backend Service URL (para comunicación entre servicios)
+    backend_service_url: str = "http://localhost:8000"
+    backend_service_url_prod: str = "https://horizon-backend-316b23e32b8b.herokuapp.com"
+    
+    # Configuración CORS (orígenes permitidos)
+    cors_origins: list[str] = [
+        # Desarrollo local
+        "http://localhost:3000",
+        "http://localhost:8000", 
+        "http://localhost:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:8000",
+        "http://127.0.0.1:5173",
+        # Producción
+        "https://horizon-backend-316b23e32b8b.herokuapp.com",
+        "https://chat-agent-horizon-cc5e16d4b37e.herokuapp.com"
+    ]
     
     # Configuración de logging
     log_level: str = "INFO"
@@ -33,6 +48,9 @@ class Settings(BaseSettings):
     model_flash: str = "gemini-2.5-flash"
     model_pro: str = "gemini-2.5-pro"
     default_currency: str = "USD"
+    
+    # Environment
+    environment: str = "development"
     
     # Configuración Pydantic v2 para BaseSettings
     model_config = SettingsConfigDict(
@@ -44,6 +62,12 @@ class Settings(BaseSettings):
     def get_api_key(self) -> Optional[str]:
         """Obtener la clave API disponible"""
         return self.gemini_api_key or self.google_api_key
+    
+    def get_backend_url(self) -> str:
+        """Obtener la URL del backend según el entorno"""
+        if self.environment == "production":
+            return self.backend_service_url_prod
+        return self.backend_service_url
 
 # Instancia global de configuración
 settings = Settings()
