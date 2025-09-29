@@ -1,8 +1,7 @@
-# Archivos de debug
+# Archivos de debug (listar específicamente, NO usar *.txt)
 debug_raw_response_*.txt
-*.txt
-!requirements.txt
-!runtime.txt
+test_real_context_20250918_102500.json
+test_structured_output_20250918_102420.json
 
 # Archivos de prueba
 test_*.py
@@ -25,6 +24,7 @@ output_reports/
 # Documentación innecesaria para producción
 README_AGENTE_PROCESO.md
 tutorial.md
+README.md
 
 # Git
 .git/
