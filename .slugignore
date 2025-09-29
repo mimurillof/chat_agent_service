@@ -1,0 +1,34 @@
+# Archivos de debug
+debug_raw_response_*.txt
+*.txt
+!requirements.txt
+!runtime.txt
+
+# Archivos de prueba
+test_*.py
+__pycache__/
+*.pyc
+
+# Entorno virtual
+.venv/
+venv/
+env/
+
+# Archivos de configuración local
+.env
+.env.local
+setup_supabase_env.ps1
+
+# Outputs y reportes
+output_reports/
+
+# Documentación innecesaria para producción
+README_AGENTE_PROCESO.md
+tutorial.md
+
+# Git
+.git/
+.gitignore
+
+# Docker (no necesario en Heroku)
+Dockerfile
