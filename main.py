@@ -173,6 +173,7 @@ async def generar_informe_portafolio(request: PortfolioReportRequest):
     """
     Endpoint: genera informe de análisis de portafolio con salida JSON estructurada.
     NOTA: Este endpoint es síncrono y puede dar timeout. Se recomienda usar /start y /status
+    Requiere user_id para acceder a los archivos del usuario en Supabase.
     """
     try:
         result = await chat_service.ejecutar_generacion_informe_portafolio(request)
@@ -186,10 +187,11 @@ async def generar_informe_portafolio(request: PortfolioReportRequest):
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
-    """Endpoint principal para el chat"""
+    """Endpoint principal para el chat - requiere user_id"""
     try:
         result = await chat_service.process_message(
             message=request.message,
+            user_id=request.user_id,  # ✅ Pasar user_id al servicio
             session_id=request.session_id,
             model_preference=request.model_preference,
             file_path=request.file_path,

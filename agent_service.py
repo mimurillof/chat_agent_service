@@ -78,21 +78,8 @@ class ChatAgentService:
                 print(f"⚠️ No se pudo inicializar Supabase: {e}")
         
         self.supabase_bucket = settings.supabase_bucket_name or "portfolio-files"
-
-        primary_prefix = (settings.supabase_base_prefix or "Graficos" or "").strip("/")
-        secondary_prefix = (settings.supabase_base_prefix_2 or "").strip("/") if settings.supabase_base_prefix_2 else ""
-
-        prefixes: List[str] = []
-        if primary_prefix:
-            prefixes.append(primary_prefix)
-        if secondary_prefix and secondary_prefix not in prefixes:
-            prefixes.append(secondary_prefix)
-
-        if not prefixes:
-            prefixes = [""]
-
-        self.supabase_prefixes = prefixes
-        self.supabase_prefix = self.supabase_prefixes[0]
+        
+        # ✅ Ya no usamos prefijos hardcodeados, ahora usamos user_id dinámicamente
     
     def get_health_status(self) -> Dict[str, Any]:
         """Obtener estado del servicio"""
@@ -173,31 +160,32 @@ class ChatAgentService:
     # =====================
     # Informe de análisis de portafolio
     # =====================
-    def _list_supabase_files(self) -> List[Dict[str, Any]]:
-        """Lista archivos en el bucket/prefijo configurado. Filtra por extensiones permitidas."""
+    def _list_supabase_files(self, user_id: str) -> List[Dict[str, Any]]:
+        """Lista archivos en el bucket del usuario. Filtra por extensiones permitidas."""
         if not self.supabase:
             return []
         allowed = {".json", ".md", ".png"}
         files: List[Dict[str, Any]] = []
-        for prefix in self.supabase_prefixes:
-            try:
-                items = self.supabase.storage.from_(self.supabase_bucket).list(prefix or "")
-            except Exception as e:
-                print(f"⚠️ Error listando Storage para prefijo '{prefix}': {e}")
-                continue
+        
+        # Listar archivos en la carpeta del usuario: {user_id}/
+        try:
+            items = self.supabase.storage.from_(self.supabase_bucket).list(user_id or "")
+        except Exception as e:
+            print(f"⚠️ Error listando Storage para user_id '{user_id}': {e}")
+            return []
 
-            for it in (items or []):
-                name = str(it.get("name") or "")
-                lower = name.lower()
-                if not any(lower.endswith(ext) for ext in allowed):
-                    continue
-                full_path = f"{prefix}/{name}" if prefix else name
-                files.append({
-                    "name": name,
-                    "path": full_path,
-                    "prefix": prefix,
-                    "ext": lower[lower.rfind("."):],
-                })
+        for it in (items or []):
+            name = str(it.get("name") or "")
+            lower = name.lower()
+            if not any(lower.endswith(ext) for ext in allowed):
+                continue
+            full_path = f"{user_id}/{name}"
+            files.append({
+                "name": name,
+                "path": full_path,
+                "user_id": user_id,
+                "ext": lower[lower.rfind("."):],
+            })
         return files
 
     def _read_supabase_text_files(self, files: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -226,11 +214,11 @@ class ChatAgentService:
                 print(f"⚠️ No se pudo descargar {path}: {e}")
         return {"json_docs": json_docs, "markdown_docs": markdown_docs}
 
-    def _gather_storage_context(self) -> Dict[str, Any]:
-        """Compila contexto desde Storage: JSON/MD contenidos y lista de imágenes PNG."""
+    def _gather_storage_context(self, user_id: str) -> Dict[str, Any]:
+        """Compila contexto desde Storage: JSON/MD contenidos y lista de imágenes PNG del usuario específico."""
         if not self.supabase:
             return {}
-        files = self._list_supabase_files()
+        files = self._list_supabase_files(user_id)
         text_ctx = self._read_supabase_text_files(files)
         images = [
             {"bucket": self.supabase_bucket, "path": f["path"]}
@@ -239,8 +227,7 @@ class ChatAgentService:
         return {
             "storage": {
                 "bucket": self.supabase_bucket,
-                "prefix": self.supabase_prefix,
-                "prefixes": self.supabase_prefixes,
+                "user_id": user_id,
                 "images": images,
                 **text_ctx,
             }
@@ -249,6 +236,8 @@ class ChatAgentService:
     async def ejecutar_generacion_informe_portafolio(self, req: PortfolioReportRequest) -> Dict[str, Any]:
         """Construye prompt y genera un informe de portafolio en JSON usando el esquema Report."""
         session_id = req.session_id or self.create_session()
+        user_id = req.user_id  # ✅ Obtener user_id del request
+        
         # Por defecto, usar PRO para análisis profundo salvo que se indique lo contrario
         if req.model_preference:
             model = settings.model_pro if req.model_preference.lower() == "pro" else settings.model_flash
@@ -319,7 +308,8 @@ class ChatAgentService:
         contents = [types.Content(role="user", parts=[types.Part.from_text(text=instruction)])]
 
         # Contexto desde Supabase Storage (JSON/MD/PNGs) + contexto del request
-        storage_ctx = self._gather_storage_context()
+        # ✅ Usar user_id para obtener archivos específicos del usuario
+        storage_ctx = self._gather_storage_context(user_id)
         merged_ctx: Dict[str, Any] = {}
         if isinstance(req.context, dict):
             merged_ctx.update(req.context)
@@ -512,7 +502,8 @@ class ChatAgentService:
 
     async def process_message(
         self, 
-        message: str, 
+        message: str,
+        user_id: str,  # ✅ NUEVO: Requerido para multiusuario
         session_id: Optional[str] = None,
         model_preference: Optional[str] = None,
         file_path: Optional[str] = None,

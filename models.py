@@ -17,6 +17,7 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     """Modelo para solicitud de chat"""
     message: str = Field(..., description="Mensaje del usuario")
+    user_id: str = Field(..., description="ID del usuario autenticado (requerido)")
     session_id: Optional[str] = Field(None, description="ID de sesión para mantener contexto")
     model_preference: Optional[str] = Field(None, description="Preferencia de modelo (flash/pro)")
     file_path: Optional[str] = Field(None, description="Ruta a archivo para análisis")
@@ -108,6 +109,7 @@ class Report(BaseModel):
 
 class PortfolioReportRequest(BaseModel):
     """Solicitud para generar informe de análisis de portafolio mediante botón"""
+    user_id: str = Field(..., description="ID del usuario autenticado (requerido)")
     session_id: Optional[str] = Field(None, description="ID de sesión para el agente")
     model_preference: Optional[str] = Field(None, description="flash | pro")
     context: Optional[Dict[str, Any]] = Field(None, description="Datos/indicadores/imagenes relevantes para el informe")
