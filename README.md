@@ -1,32 +1,128 @@
 # Chat Agent Service
 
-Este es un servicio independiente para el agente de chat que puede ser desplegado separadamente del backend principal.
+Servicio independiente de agente de chat financiero con capacidades avanzadas de grounding y conexión a información en tiempo real.
 
-## Estructura
+## 🚀 Nuevas Características (Grounding Tools)
+
+### ✨ Implementado recientemente:
+
+1. **🔍 Google Search Grounding** - Búsqueda web inteligente para información actualizada
+2. **🌐 URL Context** - Análisis automático de contenido de URLs
+3. **⏰ Function Calling** - Acceso a fecha/hora actual del sistema
+4. **📚 Citaciones Automáticas** - Referencias verificables en respuestas
+5. **🎯 Selección Inteligente** - El sistema elige herramientas según el contexto
+
+> 📖 **Documentación detallada**: Ver [`GROUNDING_IMPLEMENTATION.md`](./GROUNDING_IMPLEMENTATION.md)
+
+### 🎯 Uso Rápido
+
+```python
+# El agente usa herramientas automáticamente según tu consulta
+await chat_service.process_message(
+    message="¿Cuál es el precio actual de las acciones de Apple?",  # → Usa Google Search
+    user_id="tu_user_id"
+)
+
+await chat_service.process_message(
+    message="Analiza este artículo: https://example.com/...",  # → Usa URL Context
+    user_id="tu_user_id"
+)
+
+await chat_service.process_message(
+    message="¿Qué hora es?",  # → Usa get_current_datetime()
+    user_id="tu_user_id"
+)
+```
+
+### 🧪 Probar las nuevas características
+
+```bash
+# Ejecutar suite de tests
+python test_grounding_tools.py
+
+# Ejecutar ejemplos interactivos
+python example_grounding_usage.py
+```
+
+### 📊 Response con Grounding
+
+```json
+{
+  "response": "Apple cotiza a $178.50 [1](https://finance.yahoo.com/...)",
+  "tools_used": ["get_current_datetime", "google_search"],
+  "metadata": {
+    "grounding_used": true,
+    "search_queries": ["Apple AAPL stock price"],
+    "sources": [
+      {"title": "AAPL - Yahoo Finance", "uri": "https://..."}
+    ],
+    "function_calls_made": [
+      {"name": "get_current_datetime", "result": {...}}
+    ]
+  }
+}
+```
+
+---
+
+## 📁 Estructura del Proyecto
 
 - `main.py`: Aplicación FastAPI principal
-- `agent_service.py`: Lógica del agente de chat
+- `agent_service.py`: Lógica del agente con herramientas de grounding ✨
 - `models.py`: Modelos Pydantic para la API
 - `config.py`: Configuración del servicio
 - `requirements.txt`: Dependencias específicas del servicio
+- `GROUNDING_IMPLEMENTATION.md`: Documentación completa de grounding 📖
+- `test_grounding_tools.py`: Suite de tests para herramientas 🧪
+- `example_grounding_usage.py`: Ejemplos de uso 💡
 
-## Instalación
+## 💻 Instalación
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Ejecución
+## 🚀 Ejecución
 
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8001
 ```
 
-## Variables de Entorno
+## 🔧 Variables de Entorno
 
-- `GEMINI_API_KEY`: Clave API de Google Gemini
+### Requeridas:
+- `GEMINI_API_KEY` o `GOOGLE_API_KEY`: Clave API de Google Gemini
+
+### Opcionales:
 - `SERVICE_HOST`: Host del servicio (default: 0.0.0.0)
 - `SERVICE_PORT`: Puerto del servicio (default: 8001)
+- `SUPABASE_URL`: URL de Supabase (para funciones avanzadas)
+- `SUPABASE_SERVICE_ROLE_KEY`: Service role key de Supabase
+
+## 🎯 Capacidades Disponibles
+
+Ejecuta `GET /health` para ver todas las capacidades:
+
+```json
+{
+  "status": "healthy",
+  "capabilities": [
+    "google_search_grounding",
+    "url_context_analysis",
+    "function_calling",
+    "real_time_datetime",
+    "citation_generation",
+    "financial_analysis"
+  ],
+  "tools": [
+    {"name": "google_search", "enabled": true},
+    {"name": "url_context", "enabled": true},
+    {"name": "get_current_datetime", "enabled": true}
+  ]
+}
+```
+
+---
 
 ## Nueva funcionalidad: Informe de Análisis de Portafolio (JSON estructurado)
 

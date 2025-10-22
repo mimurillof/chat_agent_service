@@ -7,7 +7,7 @@ import os
 import re
 import uuid
 import traceback
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List
 import json
 from json import JSONDecodeError
@@ -47,15 +47,61 @@ try:
 except Exception:
     _has_json_repair = False
 
+# ==========================================
+# HERRAMIENTAS DEL AGENTE
+# ==========================================
+
+def get_current_datetime() -> Dict[str, str]:
+    """
+    Función que devuelve la fecha y hora actuales del sistema.
+    Esta función es usada por el modelo a través de Function Calling.
+    
+    Returns:
+        Dict con fecha, hora, timezone y formato ISO
+    """
+    now = datetime.now()
+    now_utc = datetime.now(timezone.utc)
+    
+    return {
+        "date": now.strftime("%Y-%m-%d"),
+        "time": now.strftime("%H:%M:%S"),
+        "datetime": now.strftime("%Y-%m-%d %H:%M:%S"),
+        "timezone": "local",
+        "iso_format": now.isoformat(),
+        "utc_datetime": now_utc.strftime("%Y-%m-%d %H:%M:%S UTC"),
+        "utc_iso": now_utc.isoformat(),
+        "weekday": now.strftime("%A"),
+        "month": now.strftime("%B"),
+        "year": now.strftime("%Y"),
+    }
+
+
+# Declaración de la función para Function Calling
+GET_DATETIME_DECLARATION = types.FunctionDeclaration(
+    name="get_current_datetime",
+    description="Obtiene la fecha y hora actuales del sistema. Usa esta función cuando necesites saber qué día es hoy, qué hora es ahora, o cualquier información temporal actual.",
+    parameters={
+        "type": "object",
+        "properties": {},  # No requiere parámetros
+        "required": []
+    }
+)
+
 # Prompts del sistema
 FLASH_SYSTEM_PROMPT = """
 Eres un asistente financiero rápido y eficiente especializado en:
 - Consultas generales del mercado y definiciones financieras
-- Búsquedas web de información actualizada 
-- Análisis de contenido de URLs
+- Búsquedas web de información actualizada mediante Google Search
+- Análisis de contenido de URLs específicas
+- Obtener información temporal actual (fecha y hora)
 - Resúmenes concisos y respuestas directas
 
-Utiliza las herramientas disponibles cuando sea necesario y proporciona respuestas precisas y útiles.
+HERRAMIENTAS DISPONIBLES:
+1. **Google Search**: Úsala cuando necesites información actual sobre precios, noticias, eventos recientes o datos que puedan haber cambiado recientemente.
+2. **URL Context**: Úsala cuando el usuario proporcione URLs específicas para analizar.
+3. **get_current_datetime**: Úsala cuando necesites saber la fecha u hora actual.
+
+Utiliza las herramientas de manera inteligente y solo cuando sea necesario. Proporciona respuestas precisas y útiles.
 """
 
 PRO_SYSTEM_PROMPT = """
@@ -64,6 +110,10 @@ Eres un analista financiero experto especializado en análisis profundo de docum
 - Identifica riesgos, oportunidades y patrones
 - Proporciona insights accionables y fundamentados
 - Mantén una perspectiva crítica y objetiva
+
+HERRAMIENTAS DISPONIBLES:
+1. **URL Context**: Para analizar URLs específicas proporcionadas por el usuario.
+2. **get_current_datetime**: Para obtener información temporal actual.
 
 Enfócate en la calidad del análisis sobre la velocidad.
 """
@@ -101,10 +151,31 @@ class ChatAgentService:
             "active_sessions": self.active_sessions,
             "capabilities": [
                 "financial_analysis",
+                "google_search_grounding",  # ✅ Nuevo
+                "url_context_analysis",     # ✅ Nuevo
+                "function_calling",          # ✅ Nuevo
+                "real_time_datetime",        # ✅ Nuevo
                 "web_search", 
                 "url_analysis",
                 "document_analysis",
-                "real_time_data"
+                "citation_generation"        # ✅ Nuevo
+            ],
+            "tools": [
+                {
+                    "name": "google_search",
+                    "description": "Búsqueda en Google para información actualizada",
+                    "enabled": True
+                },
+                {
+                    "name": "url_context",
+                    "description": "Análisis de contenido de URLs específicas",
+                    "enabled": True
+                },
+                {
+                    "name": "get_current_datetime",
+                    "description": "Obtener fecha y hora actuales del sistema",
+                    "enabled": True
+                }
             ]
         }
     
@@ -136,36 +207,125 @@ class ChatAgentService:
         }
     
     def _choose_model_and_tools(self, query: str, file_path: Optional[str] = None, url: Optional[str] = None) -> tuple:
-        """Elegir modelo y herramientas basado en el tipo de consulta"""
+        """
+        Elegir modelo y herramientas basado en el tipo de consulta.
+        
+        IMPORTANTE: NO se pueden mezclar Function Calling con Grounding Tools (Google Search, URL Context)
+        en la misma llamada según la API de Gemini.
+        
+        Returns:
+            tuple: (model_name, list_of_tool_objects, list_of_tool_names)
+        """
+        tools = []
+        tool_names = []
         
         # Si hay archivo local, usar Pro para análisis profundo
         if file_path:
-            return settings.model_pro, []
+            # Pro con URL Context (sin function calling)
+            url_context_tool = types.Tool(url_context=types.UrlContext())
+            tools.append(url_context_tool)
+            tool_names.append("url_context")
+            return settings.model_pro, tools, tool_names
         
-        # Si hay URL o necesita búsqueda web, usar Flash con herramientas
-        if url or self._needs_web_search(query):
-            tools = []
-            if self._has_google_search():
-                tools.append("Google Search")
-            return settings.model_flash, tools
+        # Si hay URL explícita, agregar URL Context (sin function calling)
+        if url:
+            url_context_tool = types.Tool(url_context=types.UrlContext())
+            tools.append(url_context_tool)
+            tool_names.append("url_context")
+            return settings.model_flash, tools, tool_names
         
-        # Para consultas generales, usar Flash
-        return settings.model_flash, []
+        # Si necesita búsqueda web, agregar Google Search (sin function calling)
+        if self._needs_web_search(query):
+            google_search_tool = types.Tool(google_search=types.GoogleSearch())
+            tools.append(google_search_tool)
+            tool_names.append("google_search")
+            return settings.model_flash, tools, tool_names
+        
+        # Si necesita información temporal, usar SOLO function calling
+        if self._needs_datetime(query):
+            datetime_tool = types.Tool(function_declarations=[GET_DATETIME_DECLARATION])
+            tools.append(datetime_tool)
+            tool_names.append("get_current_datetime")
+            return settings.model_flash, tools, tool_names
+        
+        # Para consultas generales, NO usar herramientas
+        return settings.model_flash, tools, tool_names
     
     def _needs_web_search(self, query: str) -> bool:
-        """Determinar si la consulta necesita búsqueda web"""
+        """
+        Determinar si la consulta necesita búsqueda web.
+        Detecta keywords que indican necesidad de información actualizada.
+        """
         web_keywords = [
-            "precio actual", "cotización", "últimas noticias", "hoy", "ahora",
+            "precio actual", "cotización", "últimas noticias",
             "precio de", "valor actual", "mercado actual", "tendencia actual",
-            "noticias de", "actualización", "estado actual"
+            "noticias de", "actualización", "estado actual", "reciente",
+            "últimas", "actual", "en este momento", "stock price",
+            "cotiza", "vale", "cuesta", "subió", "bajó", "cayó",
+            "noticias", "hoy", "eventos", "sucedido", "acontecido"
         ]
         query_lower = query.lower()
         return any(keyword in query_lower for keyword in web_keywords)
     
-    def _has_google_search(self) -> bool:
-        """Verificar si Google Search está disponible"""
-        # Por ahora retornamos False, se puede implementar más tarde
-        return False
+    def _needs_datetime(self, query: str) -> bool:
+        """
+        Determinar si la consulta necesita información de fecha/hora.
+        Solo retorna True si NO necesita búsqueda web (para evitar conflictos).
+        """
+        # No usar datetime si ya necesita web search
+        if self._needs_web_search(query):
+            return False
+        
+        # Keywords que indican solo fecha/hora sin búsqueda
+        datetime_keywords = [
+            "qué hora es", "qué día es", "fecha actual", "hora actual",
+            "qué fecha es", "hora es ahora", "día de la semana",
+            "cuándo es", "mes actual", "año actual"
+        ]
+        query_lower = query.lower()
+        return any(keyword in query_lower for keyword in datetime_keywords)
+    
+    def _extract_urls_from_query(self, query: str) -> List[str]:
+        """Extraer URLs del mensaje del usuario"""
+        # Patrón para detectar URLs
+        url_pattern = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+        urls = re.findall(url_pattern, query)
+        return urls
+    
+    def _add_citations_to_text(self, text: str, grounding_metadata) -> str:
+        """
+        Agregar citaciones en línea al texto basado en groundingMetadata.
+        Implementación basada en el tutorial.md
+        """
+        if not grounding_metadata:
+            return text
+        
+        try:
+            supports = grounding_metadata.grounding_supports
+            chunks = grounding_metadata.grounding_chunks
+            
+            if not supports or not chunks:
+                return text
+            
+            # Ordenar supports por end_index en orden descendente para evitar problemas de desplazamiento
+            sorted_supports = sorted(supports, key=lambda s: s.segment.end_index, reverse=True)
+            
+            for support in sorted_supports:
+                end_index = support.segment.end_index
+                if support.grounding_chunk_indices:
+                    # Crear string de citación como [1](link1), [2](link2)
+                    citation_links = []
+                    for i in support.grounding_chunk_indices:
+                        if i < len(chunks):
+                            uri = chunks[i].web.uri
+                            citation_links.append(f"[{i + 1}]({uri})")
+                    citation_string = " " + ", ".join(citation_links)
+                    text = text[:end_index] + citation_string + text[end_index:]
+            
+            return text
+        except Exception as e:
+            print(f"⚠️ Error agregando citaciones: {e}")
+            return text
     
     # =====================
     # Informe de análisis de portafolio
@@ -572,7 +732,12 @@ class ChatAgentService:
         url: Optional[str] = None,
         context: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
-        """Procesar mensaje del usuario"""
+        """
+        Procesar mensaje del usuario con herramientas de grounding y function calling.
+        
+        NOTA: Google Search y URL Context no se pueden mezclar con Function Calling,
+        pero Google Search puede inferir la fecha actual por contexto.
+        """
         
         try:
             # Crear sesión si no existe
@@ -583,12 +748,18 @@ class ChatAgentService:
             
             session = self.sessions[session_id]
             
+            # Detectar URLs en el mensaje si no se proporcionó url explícita
+            detected_urls = self._extract_urls_from_query(message)
+            if detected_urls and not url:
+                url = detected_urls[0]  # Usar la primera URL detectada
+            
             # Elegir modelo y herramientas
             if model_preference:
                 model = settings.model_pro if model_preference.lower() == "pro" else settings.model_flash
-                tools = []
+                # Aún así incluir herramientas básicas
+                _, tools, tool_names = self._choose_model_and_tools(message, file_path, url)
             else:
-                model, tools = self._choose_model_and_tools(message, file_path, url)
+                model, tools, tool_names = self._choose_model_and_tools(message, file_path, url)
             
             session["model_used"] = model
             
@@ -599,13 +770,6 @@ class ChatAgentService:
                 timestamp=datetime.now().isoformat()
             )
             session["messages"].append(user_message.model_dump())
-            
-            # Preparar configuración para Gemini
-            config = types.GenerateContentConfig(
-                temperature=0.7,
-                top_p=0.9,
-                max_output_tokens=2048,
-            )
             
             # Preparar prompt del sistema
             system_prompt = PRO_SYSTEM_PROMPT if model == settings.model_pro else FLASH_SYSTEM_PROMPT
@@ -627,35 +791,68 @@ class ChatAgentService:
                     parts=[types.Part.from_text(text=msg["content"])]
                 ))
             
+            # Si no hay herramientas pero necesita datetime + search, priorizar search
+            # Google Search puede inferir la fecha actual por contexto
+            if not tools and self._needs_web_search(message):
+                google_search_tool = types.Tool(google_search=types.GoogleSearch())
+                tools.append(google_search_tool)
+                tool_names.append("google_search")
+            
             # Agregar mensaje actual
             conversation_history.append(types.Content(
                 role="user",
                 parts=[types.Part.from_text(text=message)]
             ))
             
-            # Generar respuesta
-            response = await self._generate_response(model, conversation_history, config)
+            # Generar respuesta con herramientas
+            response_data = await self._generate_response_with_tools(
+                model=model, 
+                conversation_history=conversation_history, 
+                tools=tools
+            )
+            
+            response_text = response_data["text"]
+            grounding_metadata = response_data.get("grounding_metadata")
+            function_calls_made = response_data.get("function_calls", [])
             
             # Agregar respuesta al historial
             assistant_message = ChatMessage(
                 role=MessageRole.ASSISTANT,
-                content=response,
+                content=response_text,
                 timestamp=datetime.now().isoformat()
             )
             session["messages"].append(assistant_message.model_dump())
             session["last_activity"] = datetime.now().isoformat()
             
-            return {
-                "response": response,
-                "session_id": session_id,
-                "model_used": model,
-                "tools_used": tools,
-                "metadata": {
+            # Construir metadata enriquecida
+            metadata = {
                     "message_count": len(session["messages"]),
                     "context_provided": context is not None,
                     "file_analyzed": file_path is not None,
-                    "url_analyzed": url is not None
-                }
+                "url_analyzed": url is not None or bool(detected_urls),
+                "detected_urls": detected_urls if detected_urls else None,
+                "function_calls_made": function_calls_made if function_calls_made else None,
+            }
+            
+            # Agregar información de grounding si está disponible
+            if grounding_metadata:
+                metadata["grounding_used"] = True
+                if hasattr(grounding_metadata, "web_search_queries"):
+                    metadata["search_queries"] = grounding_metadata.web_search_queries
+                if hasattr(grounding_metadata, "grounding_chunks"):
+                    chunks = grounding_metadata.grounding_chunks
+                    if chunks:
+                        metadata["sources"] = [
+                            {"title": chunk.web.title, "uri": chunk.web.uri} 
+                            for chunk in chunks if hasattr(chunk, "web")
+                        ]
+            
+            return {
+                "response": response_text,
+                "session_id": session_id,
+                "model_used": model,
+                "tools_used": tool_names,
+                "metadata": metadata
             }
             
         except Exception as e:
@@ -671,23 +868,134 @@ class ChatAgentService:
                 "metadata": {"error": error_msg}
             }
     
-    async def _generate_response(self, model: str, conversation_history: List, config) -> str:
-        """Generar respuesta usando el modelo especificado"""
+    async def _generate_response_with_tools(
+        self, 
+        model: str, 
+        conversation_history: List, 
+        tools: List
+    ) -> Dict[str, Any]:
+        """
+        Generar respuesta usando herramientas (grounding, function calling).
+        Maneja el ciclo completo de function calling si es necesario.
+        
+        Returns:
+            Dict con: text, grounding_metadata, function_calls
+        """
         try:
+            # Configuración base
+            config = types.GenerateContentConfig(
+                temperature=0.7,
+                top_p=0.9,
+                max_output_tokens=2048,
+                tools=tools if tools else None
+            )
+            
+            # Primera llamada al modelo
             response = await self.client.aio.models.generate_content(
                 model=model,
                 contents=conversation_history,
                 config=config
             )
             
-            if response and response.text:
-                return response.text.strip()
-            else:
-                return "No pude generar una respuesta. Por favor intenta reformular tu pregunta."
+            function_calls_made = []
+            max_function_call_rounds = 5  # Límite de seguridad
+            current_round = 0
+            
+            # Ciclo de function calling
+            while current_round < max_function_call_rounds:
+                # Verificar si hay llamadas a funciones
+                if not response.candidates:
+                    break
+                
+                candidate = response.candidates[0]
+                if not hasattr(candidate.content, 'parts'):
+                    break
+                
+                # Buscar function calls en las partes
+                has_function_call = False
+                for part in candidate.content.parts:
+                    if hasattr(part, 'function_call') and part.function_call:
+                        has_function_call = True
+                        function_call = part.function_call
+                        function_name = function_call.name
+                        
+                        print(f"🔧 Ejecutando función: {function_name}")
+                        
+                        # Ejecutar la función
+                        if function_name == "get_current_datetime":
+                            function_result = get_current_datetime()
+                            function_calls_made.append({
+                                "name": function_name,
+                                "result": function_result
+                            })
+                            
+                            # Agregar resultado al historial
+                            conversation_history.append(types.Content(
+                                role="model",
+                                parts=[part]
+                            ))
+                            
+                            conversation_history.append(types.Content(
+                                role="user",
+                                parts=[types.Part.from_function_response(
+                                    name=function_name,
+                                    response=function_result
+                                )]
+                            ))
+                            
+                            # Continuar la conversación
+                            response = await self.client.aio.models.generate_content(
+                                model=model,
+                                contents=conversation_history,
+                                config=config
+                            )
+                            
+                            break  # Salir del loop de parts
+                        else:
+                            print(f"⚠️ Función desconocida: {function_name}")
+                
+                if not has_function_call:
+                    break  # No hay más llamadas a funciones
+                
+                current_round += 1
+            
+            # Extraer texto y metadata
+            response_text = ""
+            grounding_metadata = None
+            
+            if response and response.candidates:
+                candidate = response.candidates[0]
+                
+                # Obtener texto
+                if hasattr(response, 'text'):
+                    response_text = response.text.strip()
+                
+                # Obtener grounding metadata
+                if hasattr(candidate, 'grounding_metadata'):
+                    grounding_metadata = candidate.grounding_metadata
+                    
+                    # Agregar citaciones al texto si hay grounding
+                    if grounding_metadata:
+                        print("📚 Agregando citaciones al texto...")
+                        response_text = self._add_citations_to_text(response_text, grounding_metadata)
+            
+            if not response_text:
+                response_text = "No pude generar una respuesta. Por favor intenta reformular tu pregunta."
+            
+            return {
+                "text": response_text,
+                "grounding_metadata": grounding_metadata,
+                "function_calls": function_calls_made
+            }
                 
         except Exception as e:
-            print(f"❌ Error generando respuesta: {e}")
-            return f"Error generando respuesta: {str(e)}"
+            print(f"❌ Error generando respuesta con herramientas: {e}")
+            traceback.print_exc()
+            return {
+                "text": f"Error generando respuesta: {str(e)}",
+                "grounding_metadata": None,
+                "function_calls": []
+            }
     
     def close_session(self, session_id: str) -> bool:
         """Cerrar sesión"""
