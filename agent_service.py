@@ -257,12 +257,18 @@ class ChatAgentService:
         Detecta keywords que indican necesidad de información actualizada.
         """
         web_keywords = [
+            # Español
             "precio actual", "cotización", "últimas noticias",
             "precio de", "valor actual", "mercado actual", "tendencia actual",
             "noticias de", "actualización", "estado actual", "reciente",
-            "últimas", "actual", "en este momento", "stock price",
+            "últimas", "actual", "en este momento",
             "cotiza", "vale", "cuesta", "subió", "bajó", "cayó",
-            "noticias", "hoy", "eventos", "sucedido", "acontecido"
+            "noticias", "hoy", "eventos", "sucedido", "acontecido",
+            # Inglés
+            "latest news", "current price", "stock price", "today",
+            "what happened", "recent", "latest", "news about",
+            "current", "now", "breaking news", "update on",
+            "price of", "market", "trending", "happened today"
         ]
         query_lower = query.lower()
         return any(keyword in query_lower for keyword in web_keywords)
@@ -966,16 +972,24 @@ class ChatAgentService:
             if response and response.candidates:
                 candidate = response.candidates[0]
                 
-                # Obtener texto
-                if hasattr(response, 'text'):
+                # Obtener texto - con manejo robusto de None
+                if hasattr(response, 'text') and response.text is not None:
                     response_text = response.text.strip()
+                elif hasattr(candidate, 'content') and hasattr(candidate.content, 'parts'):
+                    # Intentar extraer texto de las partes
+                    text_parts = []
+                    for part in candidate.content.parts:
+                        if hasattr(part, 'text') and part.text:
+                            text_parts.append(part.text)
+                    if text_parts:
+                        response_text = " ".join(text_parts).strip()
                 
                 # Obtener grounding metadata
                 if hasattr(candidate, 'grounding_metadata'):
                     grounding_metadata = candidate.grounding_metadata
                     
                     # Agregar citaciones al texto si hay grounding
-                    if grounding_metadata:
+                    if grounding_metadata and response_text:
                         print("📚 Agregando citaciones al texto...")
                         response_text = self._add_citations_to_text(response_text, grounding_metadata)
             
