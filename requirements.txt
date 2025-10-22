@@ -11,3 +11,4 @@ tenacity>=8.0.0
 typing-extensions>=4.5.0
 httpx>=0.25.0
 supabase>=2.6.0
+json-repair>=0.0.2

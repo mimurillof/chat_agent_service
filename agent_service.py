@@ -4,11 +4,15 @@ Servicio independiente del agente de chat Horizon
 Adaptado para funcionar como microservicio separado
 """
 import os
+import re
 import uuid
 import traceback
 from datetime import datetime
 from typing import Optional, Dict, Any, List
 import json
+from json import JSONDecodeError
+
+from pydantic import ValidationError
 from config import settings
 from models import ChatMessage, MessageRole, PortfolioReportRequest, PortfolioReportResponse, Report
 
@@ -36,6 +40,12 @@ try:
     _has_supabase = True
 except Exception:
     _has_supabase = False
+
+try:
+    from json_repair import repair_json
+    _has_json_repair = True
+except Exception:
+    _has_json_repair = False
 
 # Prompts del sistema
 FLASH_SYSTEM_PROMPT = """
@@ -233,6 +243,138 @@ class ChatAgentService:
             }
         }
 
+    def _persist_raw_response(self, model_name: str, raw_text: str) -> Optional[str]:
+        """Guarda la respuesta raw en disco para depuración y retorna la ruta."""
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        debug_file = f"debug_raw_response_{timestamp}.txt"
+        try:
+            with open(debug_file, 'w', encoding='utf-8') as f:
+                f.write(f"MODELO: {model_name}\n")
+                f.write(f"TIMESTAMP: {timestamp}\n")
+                f.write("=" * 60 + "\n")
+                f.write(raw_text)
+            print(f"💾 Respuesta raw guardada en: {debug_file}")
+            return debug_file
+        except Exception as save_error:
+            print(f"⚠️ No se pudo guardar la respuesta raw para depuración: {save_error}")
+            return None
+
+    def _extract_json_candidate(self, raw_text: str) -> Optional[str]:
+        """Extrae el bloque de JSON más probable desde la respuesta raw."""
+        if not raw_text:
+            return None
+
+        text = raw_text.strip()
+
+        # Quitar bloques de código tipo ```json ... ```
+        fence_match = re.search(r"```(?:json)?\s*(\{.*\})\s*```", text, re.DOTALL)
+        if fence_match:
+            return fence_match.group(1).strip()
+
+        first_brace = text.find('{')
+        if first_brace == -1:
+            return None
+
+        last_brace = text.rfind('}')
+        if last_brace == -1 or last_brace < first_brace:
+            return text[first_brace:].strip()
+
+        return text[first_brace:last_brace + 1].strip()
+
+    def _parse_report_from_text(self, raw_text: str, model_name: str) -> Optional[Report]:
+        """Intenta parsear el JSON del modelo aplicando reparaciones progresivas."""
+        self._persist_raw_response(model_name, raw_text)
+
+        candidate = self._extract_json_candidate(raw_text)
+        if not candidate:
+            print("⚠️ No se encontró un bloque JSON claro en la respuesta del modelo.")
+            return None
+
+        attempts: List[Dict[str, str]] = []
+
+        def enqueue(text: str, reason: str):
+            normalized = text.strip()
+            if not normalized:
+                return
+            if any(entry["text"] == normalized for entry in attempts):
+                return
+            attempts.append({"text": normalized, "reason": reason})
+
+        enqueue(candidate, "respuesta original")
+
+        # Intentar quitar bloque de cierre de code fence residual
+        if candidate.endswith("```"):
+            trimmed = candidate[:candidate.rfind("```")].strip()
+            enqueue(trimmed, "remover cierre ```")
+
+        # Intentar quitar coma final
+        if candidate.rstrip().endswith(','):
+            enqueue(candidate.rstrip(', \n\t'), "eliminar coma final")
+
+        # Balancear llaves si faltan
+        brace_diff = candidate.count('{') - candidate.count('}')
+        if brace_diff > 0:
+            enqueue(candidate + ('}' * brace_diff), f"balancear llaves (+{brace_diff})")
+        elif brace_diff < 0:
+            trimmed = candidate
+            diff = brace_diff
+            while diff < 0 and trimmed.endswith('}'):
+                trimmed = trimmed[:-1]
+                diff += 1
+            enqueue(trimmed, f"remover llaves sobrantes ({abs(brace_diff)})")
+
+        last_error: Optional[Exception] = None
+        idx = 0
+
+        while idx < len(attempts):
+            attempt = attempts[idx]
+            attempt_text = attempt["text"]
+            reason = attempt["reason"]
+            try:
+                parsed_json = json.loads(attempt_text)
+                report = Report.model_validate(parsed_json)
+                if reason == "respuesta original":
+                    print("✅ JSON parseado correctamente sin reparaciones adicionales")
+                else:
+                    print(f"✅ JSON parseado tras ajuste: {reason}")
+                return report
+            except JSONDecodeError as json_error:
+                last_error = json_error
+                print(f"⚠️ JSONDecodeError ({reason}): {json_error}")
+
+                if _has_json_repair:
+                    try:
+                        repaired = repair_json(attempt_text)
+                        enqueue(repaired, f"json_repair ({reason})")
+                    except Exception as repair_error:
+                        print(f"⚠️ json_repair no logró reparar el JSON ({reason}): {repair_error}")
+                else:
+                    print("⚠️ json_repair no está disponible para intentos de reparación automática")
+
+                # Intentar ajustes adicionales específicos de este intento
+                if attempt_text.rstrip().endswith(','):
+                    enqueue(attempt_text.rstrip(', \n\t'), f"eliminar coma final ({reason})")
+
+                brace_diff_attempt = attempt_text.count('{') - attempt_text.count('}')
+                if brace_diff_attempt > 0:
+                    enqueue(attempt_text + ('}' * brace_diff_attempt), f"balancear llaves (+{brace_diff_attempt}) ({reason})")
+
+                idx += 1
+            except ValidationError as validation_error:
+                last_error = validation_error
+                print(f"⚠️ Validación Pydantic falló ({reason}): {validation_error}")
+                idx += 1
+            except Exception as unexpected_error:
+                last_error = unexpected_error
+                print(f"⚠️ Error inesperado intentando parsear JSON ({reason}): {unexpected_error}")
+                idx += 1
+
+        if last_error:
+            print(f"❌ No se pudo reparar la respuesta JSON: {last_error}")
+        else:
+            print("❌ No se logró parsear la respuesta JSON por motivos desconocidos")
+        return None
+
     async def ejecutar_generacion_informe_portafolio(self, req: PortfolioReportRequest) -> Dict[str, Any]:
         """Construye prompt y genera un informe de portafolio en JSON usando el esquema Report."""
         session_id = req.session_id or self.create_session()
@@ -381,88 +523,8 @@ class ChatAgentService:
                 parsed_report = resp.parsed
                 print(f"✅ Salida estructurada parseada correctamente con {successful_model}")
             elif hasattr(resp, "text") and resp.text:
-                try:
-                    # Fallback: parsear manualmente el JSON
-                    print(f"🔧 Intentando parsear manualmente el JSON de {successful_model}")
-                    
-                    # Debug: Guardar la respuesta raw para diagnóstico
-                    raw_text = resp.text
-                    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-                    debug_file = f"debug_raw_response_{timestamp}.txt"
-                    
-                    try:
-                        with open(debug_file, 'w', encoding='utf-8') as f:
-                            f.write(f"MODELO: {successful_model}\n")
-                            f.write(f"TIMESTAMP: {timestamp}\n")
-                            f.write("="*60 + "\n")
-                            f.write(raw_text)
-                        print(f"💾 Respuesta raw guardada en: {debug_file}")
-                    except Exception:
-                        pass
-                    
-                    # Intentar limpiar JSON malformado
-                    cleaned_text = raw_text.strip()
-                    
-                    # Si el JSON está claramente truncado, intentar completarlo
-                    if len(cleaned_text) > 3000 and not cleaned_text.endswith('}'):
-                        print("🔧 JSON parece estar truncado, intentando completar...")
-                        
-                        # Contar llaves abiertas vs cerradas
-                        open_braces = cleaned_text.count('{')
-                        close_braces = cleaned_text.count('}')
-                        missing_braces = open_braces - close_braces
-                        
-                        print(f"   Llaves abiertas: {open_braces}, cerradas: {close_braces}, faltantes: {missing_braces}")
-                        
-                        # Intentar cerrar el JSON
-                        if missing_braces > 0:
-                            # Remover texto incompleto al final
-                            lines = cleaned_text.split('\n')
-                            
-                            # Buscar la última línea válida
-                            valid_lines = []
-                            for line in lines:
-                                if line.strip() and not line.strip().endswith(',') and not line.strip().endswith('{'):
-                                    if '"' in line and line.count('"') % 2 == 0:  # Comillas balanceadas
-                                        valid_lines.append(line)
-                                    elif not '"' in line:  # No tiene comillas
-                                        valid_lines.append(line)
-                                elif line.strip().endswith(',') or line.strip().endswith('{'):
-                                    valid_lines.append(line)
-                                else:
-                                    # Línea problemática, truncar aquí
-                                    break
-                            
-                            # Reconstruir JSON
-                            cleaned_text = '\n'.join(valid_lines)
-                            
-                            # Remover coma final si existe
-                            if cleaned_text.rstrip().endswith(','):
-                                cleaned_text = cleaned_text.rstrip()[:-1]
-                            
-                            # Añadir llaves faltantes
-                            cleaned_text += '}' * missing_braces
-                            
-                            print(f"   JSON completado automáticamente")
-                    
-                    # Si termina con coma, intentar completar
-                    elif cleaned_text.endswith(','):
-                        cleaned_text = cleaned_text[:-1]
-                    
-                    # Si no termina con }, intentar cerrar
-                    elif not cleaned_text.endswith('}'):
-                        cleaned_text += '}'
-                    
-                    parsed_json = json.loads(cleaned_text)
-                    parsed_report = Report.model_validate(parsed_json)
-                    print(f"✅ Salida parseada manualmente desde .text con {successful_model} (después de limpieza)")
-                except Exception as parse_error:
-                    print(f"❌ Error parseando JSON desde .text: {parse_error}")
-                    # Mostrar una muestra del texto para diagnóstico
-                    if hasattr(resp, "text") and resp.text:
-                        sample_text = resp.text[:500] + "..." if len(resp.text) > 500 else resp.text
-                        print(f"🔍 Muestra del texto recibido: {sample_text}")
-                    parsed_report = None
+                print(f"🔧 Intentando parsear manualmente el JSON de {successful_model}")
+                parsed_report = self._parse_report_from_text(resp.text, successful_model)
 
             if not parsed_report:
                 raise ValueError("No se pudo parsear la salida estructurada del modelo")
