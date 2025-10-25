@@ -1198,9 +1198,15 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver una lista de los I
             
             portfolio_response: Optional[Dict[str, Any]] = None
             lowered_message = message.lower()
-            if auth_token and any(
+            has_auth = bool(auth_token)
+            has_keyword = any(
                 keyword in lowered_message for keyword in ("portafolio", "portfolio", "cartera", "inversiones")
-            ):
+            )
+            
+            print(f"🔍 DEBUG: auth_token presente: {has_auth}, keyword detectado: {has_keyword}, mensaje: '{message[:50]}...'")
+            
+            if auth_token and has_keyword:
+                print(f"✅ Activando flujo de análisis de portafolio para usuario {user_id}")
                 portfolio_response = await self._process_portfolio_query(
                     message=message,
                     user_id=user_id,
