@@ -539,13 +539,13 @@ class ChatAgentService:
 
             text = file_bytes.decode("utf-8", errors="replace") if isinstance(file_bytes, (bytes, bytearray)) else str(file_bytes)
 
-                if ext == ".json":
-                    try:
-                        json_docs[name] = json.loads(text)
-                    except Exception:
-                        json_docs[name] = {"_raw": text}
-                else:
-                    markdown_docs[name] = text
+            if ext == ".json":
+                try:
+                    json_docs[name] = json.loads(text)
+                except Exception:
+                    json_docs[name] = {"_raw": text}
+            else:
+                markdown_docs[name] = text
 
         if not json_docs and not markdown_docs and not images:
             return {}
