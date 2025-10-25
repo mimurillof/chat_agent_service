@@ -686,7 +686,6 @@ IMPORTANTE: Selecciona MÁXIMO 7 archivos, priorizando según relevancia:
 4. Archivos PDF 
 
 DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archivos ESENCIALES (máximo 7).
-Selecciona imágenes y PDFs SOLO si son directamente relevantes para responder la consulta del usuario.
 """
             
             # Usar el tool de selección de archivos
