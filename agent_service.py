@@ -1287,7 +1287,10 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archiv
             lowered_message = message.lower()
             has_auth = bool(auth_token)
             has_keyword = any(
-                keyword in lowered_message for keyword in ("portafolio", "portfolio", "cartera", "inversiones")
+                keyword in lowered_message for keyword in (
+                    "portafolio", "portfolio", "cartera", "inversiones",
+                    "reporte", "informe", "report", "documento", "análisis"
+                )
             )
             
             print(f"🔍 DEBUG: auth_token presente: {has_auth}, keyword detectado: {has_keyword}, mensaje: '{message[:50]}...'")
@@ -1447,7 +1450,10 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archiv
             lowered_message = message.lower()
             has_auth = bool(auth_token)
             has_keyword = any(
-                keyword in lowered_message for keyword in ("portafolio", "portfolio", "cartera", "inversiones")
+                keyword in lowered_message for keyword in (
+                    "portafolio", "portfolio", "cartera", "inversiones",
+                    "reporte", "informe", "report", "documento", "análisis"
+                )
             )
             
             full_response_text = ""
