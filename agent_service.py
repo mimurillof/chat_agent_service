@@ -1196,26 +1196,26 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver una lista de los I
                 parts=[types.Part.from_text(text=message)]
             ))
             
-        portfolio_response: Optional[Dict[str, Any]] = None
-        lowered_message = message.lower()
-        if auth_token and any(
-            keyword in lowered_message for keyword in ("portafolio", "portfolio", "cartera", "inversiones")
-        ):
-            portfolio_response = await self._process_portfolio_query(
-                message=message,
-                user_id=user_id,
+            portfolio_response: Optional[Dict[str, Any]] = None
+            lowered_message = message.lower()
+            if auth_token and any(
+                keyword in lowered_message for keyword in ("portafolio", "portfolio", "cartera", "inversiones")
+            ):
+                portfolio_response = await self._process_portfolio_query(
+                    message=message,
+                    user_id=user_id,
+                    model=model,
+                    conversation_history=conversation_history,
+                    tools=tools,
+                    auth_token=auth_token,
+                    session=session,
+                )
+
+            response_data = portfolio_response or await self._generate_response_with_tools(
                 model=model,
                 conversation_history=conversation_history,
                 tools=tools,
-                auth_token=auth_token,
-                session=session,
             )
-
-        response_data = portfolio_response or await self._generate_response_with_tools(
-            model=model,
-            conversation_history=conversation_history,
-            tools=tools,
-        )
             
             response_text = response_data["text"]
             grounding_metadata = response_data.get("grounding_metadata")
