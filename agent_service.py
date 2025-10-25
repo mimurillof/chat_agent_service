@@ -590,11 +590,11 @@ class ChatAgentService:
         try:
             print(f"\n🔍 Detectada consulta de portafolio para usuario {user_id}")
             
-            # Paso 1: Listar archivos disponibles del usuario (solo JSON y MD, sin imágenes)
+            # Paso 1: Listar archivos disponibles del usuario (incluyendo imágenes y PDFs)
             files = await self._backend_list_files(
                 user_id=user_id,
                 auth_token=auth_token,
-                extensions=["json", "md"],  # Sin PNG para evitar timeouts
+                extensions=["json", "md", "png", "jpg", "jpeg", "gif", "webp", "pdf"],
             )
             
             if not files:
@@ -679,13 +679,16 @@ A continuación, se presenta una lista de archivos disponibles en Supabase con s
 {metadatos_str}
 --- FIN DE ARCHIVOS DISPONIBLES ---
 
-IMPORTANTE: Selecciona MÁXIMO 7 archivos, priorizando según relevancia:
-1. Archivos JSON con datos de análisis 
-2. Archivos MD (Markdown) con resúmenes 
-3. Imágenes PNG/JPG/JPEG 
-4. Archivos PDF 
+IMPORTANTE: Selecciona MÁXIMO 10 archivos relevantes para responder la consulta:
+1. Archivos JSON: Contienen datos estructurados de análisis
+2. Archivos MD (Markdown): Contienen resúmenes y narrativas
+3. Imágenes (PNG/JPG/JPEG/GIF/WEBP): Gráficos, visualizaciones y diagramas
+4. Archivos PDF: Documentos completos, reportes generados
 
-DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archivos ESENCIALES (máximo 7).
+REGLAS ESPECIALES:
+- Si el usuario menciona "reporte", "informe" o "documento": PRIORIZA archivos PDF e json y md e imágenes.
+
+DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archivos ESENCIALES (máximo 10).
 """
             
             # Usar el tool de selección de archivos
@@ -706,11 +709,23 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archiv
                 archivos_seleccionados = call_args.get('archivos_a_analizar', [])
                 
                 # Forzar límite de archivos para evitar timeout
-                MAX_FILES = 7
-                MAX_JSON = 3
-                MAX_MD = 2
-                MAX_IMAGES = 1
-                MAX_PDF = 1
+                MAX_FILES = 10
+                
+                # Detectar si el usuario menciona "reporte" para priorizar PDFs e imágenes
+                is_report_query = any(word in prompt.lower() for word in ['reporte', 'informe', 'report', 'documento'])
+                
+                if is_report_query:
+                    # Para reportes: más PDFs e imágenes
+                    MAX_JSON = 3
+                    MAX_MD = 3
+                    MAX_IMAGES = 2
+                    MAX_PDF = 2
+                else:
+                    # Para análisis general: más datos estructurados
+                    MAX_JSON = 4
+                    MAX_MD = 3
+                    MAX_IMAGES = 2
+                    MAX_PDF = 1
                 
                 if len(archivos_seleccionados) > MAX_FILES:
                     print(f"⚠️ Gemini seleccionó {len(archivos_seleccionados)} archivos, limitando a {MAX_FILES}")
@@ -721,13 +736,23 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archiv
                     image_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp'))]
                     pdf_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.pdf')]
                     
-                    # Combinar con prioridad: JSON > MD > Images > PDF
-                    archivos_seleccionados = (
-                        json_files[:MAX_JSON] + 
-                        md_files[:MAX_MD] + 
-                        image_files[:MAX_IMAGES] + 
-                        pdf_files[:MAX_PDF]
-                    )
+                    # Combinar con prioridad según el tipo de consulta
+                    if is_report_query:
+                        # Para reportes: priorizar PDFs e imágenes
+                        archivos_seleccionados = (
+                            pdf_files[:MAX_PDF] + 
+                            image_files[:MAX_IMAGES] + 
+                            json_files[:MAX_JSON] + 
+                            md_files[:MAX_MD]
+                        )
+                    else:
+                        # Para análisis: priorizar datos
+                        archivos_seleccionados = (
+                            json_files[:MAX_JSON] + 
+                            md_files[:MAX_MD] + 
+                            image_files[:MAX_IMAGES] + 
+                            pdf_files[:MAX_PDF]
+                        )
                     archivos_seleccionados = archivos_seleccionados[:MAX_FILES]
                 
                 print(f"📋 Gemini seleccionó {len(archivos_seleccionados)} archivo(s) para análisis:")
@@ -1714,11 +1739,11 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archiv
         try:
             print(f"\n🔍 Detectada consulta de portafolio para usuario {user_id}")
             
-            # Paso 1: Listar archivos
+            # Paso 1: Listar archivos (incluyendo imágenes y PDFs)
             files = await self._backend_list_files(
                 user_id=user_id,
                 auth_token=auth_token,
-                extensions=["json", "md"],  # Sin imágenes para evitar timeout
+                extensions=["json", "md", "png", "jpg", "jpeg", "gif", "webp", "pdf"],
             )
             
             if not files:
