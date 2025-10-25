@@ -445,15 +445,15 @@ class ChatAgentService:
             payload = response.json()
             files = payload.get("files")
             if not isinstance(files, list):
-                return []
+            return []
             normalized: List[Dict[str, Any]] = []
             for item in files:
                 name = item.get("name")
                 if not name:
-                    continue
+                continue
                 normalized.append({
-                    "name": name,
-                    "user_id": user_id,
+                "name": name,
+                "user_id": user_id,
                     "ext": f".{item.get('ext', '').lower()}" if item.get("ext") else None,
                     "path": item.get("full_path"),
                     "size": item.get("size"),
@@ -539,13 +539,13 @@ class ChatAgentService:
 
             text = file_bytes.decode("utf-8", errors="replace") if isinstance(file_bytes, (bytes, bytearray)) else str(file_bytes)
 
-            if ext == ".json":
-                try:
-                    json_docs[name] = json.loads(text)
-                except Exception:
-                    json_docs[name] = {"_raw": text}
-            else:
-                markdown_docs[name] = text
+                if ext == ".json":
+                    try:
+                        json_docs[name] = json.loads(text)
+                    except Exception:
+                        json_docs[name] = {"_raw": text}
+                else:
+                    markdown_docs[name] = text
 
         if not json_docs and not markdown_docs and not images:
             return {}
@@ -577,11 +577,11 @@ class ChatAgentService:
         try:
             print(f"\n🔍 Detectada consulta de portafolio para usuario {user_id}")
             
-            # Paso 1: Listar archivos disponibles del usuario
+            # Paso 1: Listar archivos disponibles del usuario (solo JSON y MD, sin imágenes)
             files = await self._backend_list_files(
                 user_id=user_id,
                 auth_token=auth_token,
-                extensions=["json", "md", "png"],
+                extensions=["json", "md"],  # Sin PNG para evitar timeouts
             )
             
             if not files:
@@ -666,13 +666,13 @@ A continuación, se presenta una lista de archivos disponibles en Supabase con s
 {metadatos_str}
 --- FIN DE ARCHIVOS DISPONIBLES ---
 
-IMPORTANTE: Selecciona MÁXIMO 8 archivos, priorizando:
+IMPORTANTE: Selecciona MÁXIMO 7 archivos, priorizando:
 1. Archivos JSON con datos de análisis (máximo 4)
 2. Archivos MD (Markdown) con resúmenes (máximo 3)
-3. Máximo 1 imagen PNG (solo la MÁS relevante: portfolio_growth.png o efficient_frontier.png)
+3. NO incluyas archivos PNG (imágenes). Los datos en JSON/MD son suficientes.
 
-Las imágenes son opcionales. Solo incluye una si es absolutamente necesaria para responder.
-DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archivos ESENCIALES (máximo 8) para responder al prompt.
+DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archivos ESENCIALES (máximo 7).
+PROHIBIDO incluir archivos .png en la selección.
 """
             
             # Usar el tool de selección de archivos
@@ -692,32 +692,26 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archiv
                 call_args = call.args or {}
                 archivos_seleccionados = call_args.get('archivos_a_analizar', [])
                 
-                # Forzar límite de archivos para evitar timeout
-                MAX_FILES = 8
+                # Forzar límite de archivos para evitar timeout (sin imágenes)
+                MAX_FILES = 7
                 MAX_JSON = 4
                 MAX_MD = 3
-                MAX_IMAGES = 1  # Solo 1 imagen para minimizar tiempo de procesamiento
+                
+                # Filtrar archivos PNG completamente
+                archivos_seleccionados = [f for f in archivos_seleccionados if not f.get('nombre_archivo', '').lower().endswith('.png')]
                 
                 if len(archivos_seleccionados) > MAX_FILES:
                     print(f"⚠️ Gemini seleccionó {len(archivos_seleccionados)} archivos, limitando a {MAX_FILES}")
                     
-                    # Priorizar: JSON > MD > PNG (máximo 1 imagen)
+                    # Priorizar: JSON > MD (sin imágenes)
                     json_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.json')]
                     md_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.md')]
-                    png_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.png')]
                     
                     # Combinar con prioridad estricta
-                    archivos_seleccionados = json_files[:MAX_JSON] + md_files[:MAX_MD] + png_files[:MAX_IMAGES]
+                    archivos_seleccionados = json_files[:MAX_JSON] + md_files[:MAX_MD]
                     archivos_seleccionados = archivos_seleccionados[:MAX_FILES]
-                elif len([f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.png')]) > MAX_IMAGES:
-                    # Si tiene más de 1 imagen pero menos de MAX_FILES total, limitar imágenes
-                    print(f"⚠️ Limitando imágenes PNG a {MAX_IMAGES}")
-                    json_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.json')]
-                    md_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.md')]
-                    png_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.png')]
-                    archivos_seleccionados = json_files + md_files + png_files[:MAX_IMAGES]
                 
-                print(f"📋 Gemini seleccionó {len(archivos_seleccionados)} archivo(s) para análisis:")
+                print(f"📋 Gemini seleccionó {len(archivos_seleccionados)} archivo(s) para análisis (sin imágenes):")
                 for arch in archivos_seleccionados:
                     print(f"  - {arch.get('nombre_archivo')}")
                 
@@ -1259,8 +1253,8 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archiv
                 portfolio_response = await self._process_portfolio_query(
                     message=message,
                     user_id=user_id,
-                    model=model,
-                    conversation_history=conversation_history,
+                model=model, 
+                conversation_history=conversation_history, 
                     tools=tools,
                     auth_token=auth_token,
                     session=session,
@@ -1328,6 +1322,167 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archiv
                 "tools_used": [],
                 "metadata": {"error": error_msg}
             }
+    
+    async def process_message_stream(
+        self,
+        message: str,
+        user_id: str,
+        session_id: Optional[str] = None,
+        model_preference: Optional[str] = None,
+        file_path: Optional[str] = None,
+        url: Optional[str] = None,
+        context: Optional[Dict[str, Any]] = None,
+        auth_token: Optional[str] = None,
+    ):
+        """
+        Versión de streaming de process_message que yielde chunks en tiempo real.
+        Yields: dict con {"text": str} para chunks de texto o {"done": True, "metadata": dict} al finalizar
+        """
+        try:
+            # Crear sesión si no existe
+            if not session_id:
+                session_id = self.create_session()
+            elif session_id not in self.sessions:
+                session_id = self.create_session()
+            
+            session = self.sessions[session_id]
+            
+            # Detectar URLs
+            detected_urls = self._extract_urls_from_query(message)
+            if detected_urls and not url:
+                url = detected_urls[0]
+            
+            # Elegir modelo y herramientas
+            if model_preference:
+                model = settings.model_pro if model_preference.lower() == "pro" else settings.model_flash
+                _, tools, tool_names = self._choose_model_and_tools(message, file_path, url)
+            else:
+                model, tools, tool_names = self._choose_model_and_tools(message, file_path, url)
+            
+            session["model_used"] = model
+            
+            # Agregar mensaje del usuario al historial
+            user_message = ChatMessage(
+                role=MessageRole.USER,
+                content=message,
+                timestamp=datetime.now().isoformat()
+            )
+            session["messages"].append(user_message.model_dump())
+            
+            # Preparar prompt del sistema
+            system_prompt = PRO_SYSTEM_PROMPT if model == settings.model_pro else FLASH_SYSTEM_PROMPT
+            
+            # Preparar historial de conversación
+            conversation_history = []
+            conversation_history.append(types.Content(
+                role="user",
+                parts=[types.Part.from_text(text=f"[SISTEMA] {system_prompt}")]
+            ))
+            
+            # Agregar historial de mensajes previos
+            recent_messages = session["messages"][-10:]
+            for msg in recent_messages[:-1]:
+                conversation_history.append(types.Content(
+                    role="user" if msg["role"] == "user" else "model",
+                    parts=[types.Part.from_text(text=msg["content"])]
+                ))
+            
+            # Agregar Google Search si es necesario
+            if not tools and self._needs_web_search(message):
+                google_search_tool = types.Tool(google_search=types.GoogleSearch())
+                tools.append(google_search_tool)
+                tool_names.append("google_search")
+            
+            # Agregar mensaje actual
+            conversation_history.append(types.Content(
+                role="user",
+                parts=[types.Part.from_text(text=message)]
+            ))
+            
+            # Verificar si es consulta de portafolio
+            lowered_message = message.lower()
+            has_auth = bool(auth_token)
+            has_keyword = any(
+                keyword in lowered_message for keyword in ("portafolio", "portfolio", "cartera", "inversiones")
+            )
+            
+            full_response_text = ""
+            grounding_metadata = None
+            function_calls_made = []
+            
+            if auth_token and has_keyword:
+                print(f"✅ Activando flujo de análisis de portafolio STREAMING para usuario {user_id}")
+                # Stream portfolio analysis
+                async for chunk_data in self._process_portfolio_query_stream(
+                    message=message,
+                    user_id=user_id,
+                    model=model,
+                    conversation_history=conversation_history,
+                    tools=tools,
+                    auth_token=auth_token,
+                    session=session,
+                ):
+                    if "text" in chunk_data:
+                        full_response_text += chunk_data["text"]
+                        yield chunk_data
+            else:
+                # Stream normal response
+                async for chunk_data in self._generate_response_with_tools_stream(
+                    model=model,
+                    conversation_history=conversation_history,
+                    tools=tools,
+                ):
+                    if "text" in chunk_data:
+                        full_response_text += chunk_data["text"]
+                    if "grounding_metadata" in chunk_data:
+                        grounding_metadata = chunk_data["grounding_metadata"]
+                    if "function_calls" in chunk_data:
+                        function_calls_made = chunk_data["function_calls"]
+                    yield chunk_data
+            
+            # Agregar respuesta al historial
+            assistant_message = ChatMessage(
+                role=MessageRole.ASSISTANT,
+                content=full_response_text,
+                timestamp=datetime.now().isoformat()
+            )
+            session["messages"].append(assistant_message.model_dump())
+            session["last_activity"] = datetime.now().isoformat()
+            
+            # Construir metadata
+            metadata = {
+                "message_count": len(session["messages"]),
+                "context_provided": context is not None,
+                "file_analyzed": file_path is not None,
+                "url_analyzed": url is not None or bool(detected_urls),
+                "detected_urls": detected_urls if detected_urls else None,
+                "function_calls_made": function_calls_made if function_calls_made else None,
+                "session_id": session_id,
+                "model_used": model,
+                "tools_used": tool_names,
+            }
+            
+            # Agregar información de grounding
+            if grounding_metadata:
+                metadata["grounding_used"] = True
+                if hasattr(grounding_metadata, "web_search_queries"):
+                    metadata["search_queries"] = grounding_metadata.web_search_queries
+                if hasattr(grounding_metadata, "grounding_chunks"):
+                    chunks = grounding_metadata.grounding_chunks
+                    if chunks:
+                        metadata["sources"] = [
+                            {"title": chunk.web.title, "uri": chunk.web.uri}
+                            for chunk in chunks if hasattr(chunk, "web")
+                        ]
+            
+            # Señal final con metadata
+            yield {"done": True, "metadata": metadata}
+            
+        except Exception as e:
+            error_msg = f"Error procesando mensaje: {str(e)}"
+            print(f"❌ {error_msg}")
+            traceback.print_exc()
+            yield {"error": error_msg, "done": True}
     
     async def _generate_response_with_tools(
         self, 
@@ -1465,6 +1620,186 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archiv
                 "grounding_metadata": None,
                 "function_calls": []
             }
+    
+    async def _generate_response_with_tools_stream(
+        self,
+        model: str,
+        conversation_history: List,
+        tools: List
+    ):
+        """
+        Versión de streaming de _generate_response_with_tools.
+        Yields: dict con {"text": str} para chunks o {"grounding_metadata": obj, "function_calls": list} al final
+        """
+        try:
+            config = types.GenerateContentConfig(
+                temperature=0.7,
+                top_p=0.9,
+                max_output_tokens=2048,
+                tools=tools if tools else None
+            )
+            
+            # Usar generate_content_stream para streaming
+            response_stream = await self.client.aio.models.generate_content_stream(
+                model=model,
+                contents=conversation_history,
+                config=config
+            )
+            
+            grounding_metadata = None
+            full_text = ""
+            
+            async for chunk in response_stream:
+                if hasattr(chunk, 'text') and chunk.text:
+                    full_text += chunk.text
+                    yield {"text": chunk.text}
+                
+                # Capturar metadata del último chunk
+                if chunk.candidates and hasattr(chunk.candidates[0], 'grounding_metadata'):
+                    grounding_metadata = chunk.candidates[0].grounding_metadata
+            
+            # Agregar citaciones si hay grounding (al final)
+            if grounding_metadata and full_text:
+                print("📚 Agregando citaciones al texto...")
+                cited_text = self._add_citations_to_text(full_text, grounding_metadata)
+                # Enviar solo la diferencia (citaciones)
+                if cited_text != full_text:
+                    diff = cited_text[len(full_text):]
+                    yield {"text": diff}
+            
+            # Enviar metadata al final
+            yield {
+                "grounding_metadata": grounding_metadata,
+                "function_calls": []
+            }
+            
+        except Exception as e:
+            print(f"❌ Error en streaming: {e}")
+            traceback.print_exc()
+            yield {"text": f"Error generando respuesta: {str(e)}"}
+    
+    async def _process_portfolio_query_stream(
+        self,
+        message: str,
+        user_id: str,
+        model: str,
+        conversation_history: List,
+        tools: List,
+        auth_token: Optional[str],
+        session: Dict[str, Any],
+    ):
+        """
+        Versión de streaming de _process_portfolio_query.
+        Yields: dict con {"text": str} para chunks de texto
+        """
+        try:
+            print(f"\n🔍 Detectada consulta de portafolio para usuario {user_id}")
+            
+            # Paso 1: Listar archivos
+            files = await self._backend_list_files(
+                user_id=user_id,
+                auth_token=auth_token,
+                extensions=["json", "md"],  # Sin imágenes para evitar timeout
+            )
+            
+            if not files:
+                yield {"text": "No se encontraron archivos de portafolio para analizar."}
+                return
+            
+            # Filtrar archivos
+            excluded_extensions = ('.html', '-.emptyFolder', '.gitkeep')
+            filtered_files = [
+                f for f in files
+                if not any(f.get("name", "").endswith(ext) for ext in excluded_extensions)
+            ]
+            
+            if not filtered_files:
+                yield {"text": "No hay archivos relevantes en tu portafolio."}
+                return
+            
+            print(f"📁 Encontrados {len(filtered_files)} archivos relevantes")
+            
+            # Paso 2: Seleccionar archivos con Gemini
+            selected_files = await self._select_files_via_gemini(message, filtered_files, model)
+            
+            if not selected_files:
+                yield {"text": "No pude identificar archivos específicos para tu consulta. ¿Podrías ser más específico?"}
+                return
+            
+            print(f"✅ Gemini seleccionó {len(selected_files)} archivo(s)")
+            
+            # Paso 3: Descargar archivos
+            final_contents = []
+            total_size_bytes = 0
+            
+            for file_info in selected_files:
+                filename = file_info.get("nombre_archivo")
+                if not filename:
+                    continue
+                
+                try:
+                    file_data = await self._backend_download_file(
+                        user_id=user_id,
+                        filename=filename,
+                        auth_token=auth_token
+                    )
+                    
+                    file_bytes = file_data["content"]
+                    total_size_bytes += len(file_bytes)
+                    
+                    # Procesar según tipo
+                    if filename.lower().endswith('.json'):
+                        json_content = file_bytes.decode('utf-8')
+                        final_contents.append(json_content)
+                        print(f"   ✅ Añadido JSON: {filename} ({len(file_bytes)/(1024*1024):.2f} MB)")
+                    elif filename.lower().endswith('.md'):
+                        md_content = file_bytes.decode('utf-8')
+                        final_contents.append(md_content)
+                        print(f"   ✅ Añadido MD: {filename} ({len(file_bytes)/(1024*1024):.2f} MB)")
+                
+                except Exception as e:
+                    print(f"⚠️ Error descargando {filename}: {e}")
+                    continue
+            
+            if not final_contents:
+                yield {"text": "No pude descargar los archivos necesarios para el análisis."}
+                return
+            
+            # Agregar el prompt del usuario
+            final_contents.append(message)
+            
+            total_size_mb = total_size_bytes / (1024 * 1024)
+            print(f"\n📤 Enviando {len(final_contents)} elementos a Gemini ({total_size_mb:.2f} MB total)...")
+            
+            # Paso 4: Enviar a Gemini con streaming
+            try:
+                response_stream = await self.client.aio.models.generate_content_stream(
+                    model=model,
+                    contents=final_contents
+                )
+                
+                chunk_count = 0
+                async for chunk in response_stream:
+                    chunk_count += 1
+                    if hasattr(chunk, 'text') and chunk.text:
+                        yield {"text": chunk.text}
+                        
+                        # Log cada 10 chunks
+                        if chunk_count % 10 == 0:
+                            print(f"   📝 Enviados {chunk_count} chunks al cliente...")
+                
+                print(f"✅ Análisis streaming completado ({chunk_count} chunks totales)")
+            
+            except Exception as e:
+                error_msg = f"Error en el análisis: {str(e)}"
+                print(f"❌ {error_msg}")
+                yield {"text": f"\n\nLo siento, ocurrió un error durante el análisis: {error_msg}"}
+        
+        except Exception as e:
+            error_msg = f"Error en consulta de portafolio: {str(e)}"
+            print(f"❌ {error_msg}")
+            traceback.print_exc()
+            yield {"text": f"Lo siento, ocurrió un error procesando tu consulta de portafolio."}
     
     def close_session(self, session_id: str) -> bool:
         """Cerrar sesión"""

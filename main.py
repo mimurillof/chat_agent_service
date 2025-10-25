@@ -3,11 +3,12 @@ Aplicación FastAPI para el servicio independiente del agente de chat
 """
 from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks, Header
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 import uvicorn
 import uuid
+import json
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import List, Dict, Any, AsyncGenerator
 
 from config import settings
 from models import (
@@ -185,12 +186,12 @@ async def generar_informe_portafolio(request: PortfolioReportRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generando informe de portafolio: {str(e)}")
 
-@app.post("/chat", response_model=ChatResponse)
+@app.post("/chat")
 async def chat(
     request: ChatRequest,
     authorization: str | None = Header(default=None, alias="Authorization"),
 ):
-    """Endpoint principal para el chat - requiere user_id"""
+    """Endpoint principal para el chat con streaming - requiere user_id"""
     try:
         bearer_token = None
         if authorization and authorization.lower().startswith("bearer "):
@@ -198,18 +199,42 @@ async def chat(
         elif request.auth_token:
             bearer_token = request.auth_token
 
-        result = await chat_service.process_message(
-            message=request.message,
-            user_id=request.user_id,  # ✅ Pasar user_id al servicio
-            session_id=request.session_id,
-            model_preference=request.model_preference,
-            file_path=request.file_path,
-            url=request.url,
-            context=request.context,
-            auth_token=bearer_token,
-        )
+        async def event_generator() -> AsyncGenerator[str, None]:
+            """Genera eventos SSE para streaming"""
+            try:
+                # Procesar mensaje con streaming
+                async for chunk in chat_service.process_message_stream(
+                    message=request.message,
+                    user_id=request.user_id,
+                    session_id=request.session_id,
+                    model_preference=request.model_preference,
+                    file_path=request.file_path,
+                    url=request.url,
+                    context=request.context,
+                    auth_token=bearer_token,
+                ):
+                    # Formato SSE: data: {json}\n\n
+                    yield f"data: {json.dumps(chunk, ensure_ascii=False)}\n\n"
+                
+                # Señal de finalización
+                yield f"data: {json.dumps({'done': True})}\n\n"
+            
+            except Exception as e:
+                error_data = {
+                    "error": str(e),
+                    "done": True
+                }
+                yield f"data: {json.dumps(error_data)}\n\n"
         
-        return ChatResponse(**result)
+        return StreamingResponse(
+            event_generator(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",  # Nginx: disable buffering
+            }
+        )
         
     except Exception as e:
         raise HTTPException(
