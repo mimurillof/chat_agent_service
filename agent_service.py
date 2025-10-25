@@ -666,12 +666,13 @@ A continuación, se presenta una lista de archivos disponibles en Supabase con s
 {metadatos_str}
 --- FIN DE ARCHIVOS DISPONIBLES ---
 
-IMPORTANTE: Selecciona MÁXIMO 10 archivos, priorizando:
-1. Archivos JSON con datos de análisis
-2. Archivos MD (Markdown) con resúmenes
-3. Máximo 3 imágenes PNG (solo las más relevantes como portfolio_growth.png, allocation_chart.png, efficient_frontier.png)
+IMPORTANTE: Selecciona MÁXIMO 8 archivos, priorizando:
+1. Archivos JSON con datos de análisis (máximo 4)
+2. Archivos MD (Markdown) con resúmenes (máximo 3)
+3. Máximo 1 imagen PNG (solo la MÁS relevante: portfolio_growth.png o efficient_frontier.png)
 
-DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archivos ESENCIALES (máximo 10) para responder al prompt.
+Las imágenes son opcionales. Solo incluye una si es absolutamente necesaria para responder.
+DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archivos ESENCIALES (máximo 8) para responder al prompt.
 """
             
             # Usar el tool de selección de archivos
@@ -692,20 +693,29 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archiv
                 archivos_seleccionados = call_args.get('archivos_a_analizar', [])
                 
                 # Forzar límite de archivos para evitar timeout
-                MAX_FILES = 10
-                MAX_IMAGES = 3
+                MAX_FILES = 8
+                MAX_JSON = 4
+                MAX_MD = 3
+                MAX_IMAGES = 1  # Solo 1 imagen para minimizar tiempo de procesamiento
                 
                 if len(archivos_seleccionados) > MAX_FILES:
                     print(f"⚠️ Gemini seleccionó {len(archivos_seleccionados)} archivos, limitando a {MAX_FILES}")
                     
-                    # Priorizar: JSON > MD > PNG (máximo 3 imágenes)
+                    # Priorizar: JSON > MD > PNG (máximo 1 imagen)
                     json_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.json')]
                     md_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.md')]
                     png_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.png')]
                     
-                    # Combinar con prioridad
-                    archivos_seleccionados = json_files[:5] + md_files[:3] + png_files[:MAX_IMAGES]
+                    # Combinar con prioridad estricta
+                    archivos_seleccionados = json_files[:MAX_JSON] + md_files[:MAX_MD] + png_files[:MAX_IMAGES]
                     archivos_seleccionados = archivos_seleccionados[:MAX_FILES]
+                elif len([f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.png')]) > MAX_IMAGES:
+                    # Si tiene más de 1 imagen pero menos de MAX_FILES total, limitar imágenes
+                    print(f"⚠️ Limitando imágenes PNG a {MAX_IMAGES}")
+                    json_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.json')]
+                    md_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.md')]
+                    png_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.png')]
+                    archivos_seleccionados = json_files + md_files + png_files[:MAX_IMAGES]
                 
                 print(f"📋 Gemini seleccionó {len(archivos_seleccionados)} archivo(s) para análisis:")
                 for arch in archivos_seleccionados:
@@ -791,18 +801,31 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archiv
             total_size_mb = total_size_bytes / (1024 * 1024)
             print(f"\n📤 Enviando {len(final_contents)} elementos a Gemini ({total_size_mb:.2f} MB total)...")
             
-            # Generar respuesta (sin reintentos para evitar timeout de Heroku)
+            # Generar respuesta usando STREAMING para evitar timeout
             try:
-                response = await self.client.aio.models.generate_content(
+                # Usar generate_content_stream para recibir respuesta de forma incremental
+                response_stream = await self.client.aio.models.generate_content_stream(
                     model=model,
                     contents=final_contents
                 )
                 
-                if hasattr(response, 'text') and response.text:
-                    print("✅ Análisis completado exitosamente")
-                    return response.text
+                # Recolectar todos los chunks de la respuesta
+                full_text = ""
+                chunk_count = 0
+                
+                async for chunk in response_stream:
+                    chunk_count += 1
+                    if hasattr(chunk, 'text') and chunk.text:
+                        full_text += chunk.text
+                        # Log cada 5 chunks para no saturar logs
+                        if chunk_count % 5 == 0:
+                            print(f"   📝 Recibidos {chunk_count} chunks de Gemini...")
+                
+                if full_text:
+                    print(f"✅ Análisis completado exitosamente ({chunk_count} chunks, {len(full_text)} caracteres)")
+                    return full_text
                 else:
-                    print("⚠️ Respuesta sin texto")
+                    print("⚠️ Respuesta sin texto después del streaming")
                     return None
                     
             except Exception as exc:
