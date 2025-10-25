@@ -445,15 +445,15 @@ class ChatAgentService:
             payload = response.json()
             files = payload.get("files")
             if not isinstance(files, list):
-            return []
+                return []
             normalized: List[Dict[str, Any]] = []
             for item in files:
                 name = item.get("name")
                 if not name:
-                continue
+                    continue
                 normalized.append({
-                "name": name,
-                "user_id": user_id,
+                    "name": name,
+                    "user_id": user_id,
                     "ext": f".{item.get('ext', '').lower()}" if item.get("ext") else None,
                     "path": item.get("full_path"),
                     "size": item.get("size"),
