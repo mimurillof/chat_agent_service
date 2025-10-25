@@ -680,10 +680,10 @@ A continuación, se presenta una lista de archivos disponibles en Supabase con s
 --- FIN DE ARCHIVOS DISPONIBLES ---
 
 IMPORTANTE: Selecciona MÁXIMO 7 archivos, priorizando según relevancia:
-1. Archivos JSON con datos de análisis (máximo 3)
-2. Archivos MD (Markdown) con resúmenes (máximo 2)
-3. Imágenes PNG/JPG/JPEG - SOLO si son relevantes para el análisis
-4. Archivos PDF (máximo 1) - SOLO si contienen información crítica
+1. Archivos JSON con datos de análisis 
+2. Archivos MD (Markdown) con resúmenes 
+3. Imágenes PNG/JPG/JPEG 
+4. Archivos PDF 
 
 DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archivos ESENCIALES (máximo 7).
 Selecciona imágenes y PDFs SOLO si son directamente relevantes para responder la consulta del usuario.
