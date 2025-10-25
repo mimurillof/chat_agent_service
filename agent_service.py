@@ -643,6 +643,7 @@ class ChatAgentService:
         """
         Usa Gemini Function Calling para seleccionar archivos relevantes.
         Basado en paso_1_decision del ejemplo.
+        LÍMITE: Máximo 10 archivos para evitar timeouts.
         """
         try:
             # Preparar metadatos en formato legible
@@ -665,7 +666,12 @@ A continuación, se presenta una lista de archivos disponibles en Supabase con s
 {metadatos_str}
 --- FIN DE ARCHIVOS DISPONIBLES ---
 
-DEBES utilizar la función 'SelectorDeArchivos' para devolver una lista de los IDs y nombres de los archivos que sean necesarios para responder al prompt del usuario. Analiza los metadatos y selecciona los archivos relevantes.
+IMPORTANTE: Selecciona MÁXIMO 10 archivos, priorizando:
+1. Archivos JSON con datos de análisis
+2. Archivos MD (Markdown) con resúmenes
+3. Máximo 3 imágenes PNG (solo las más relevantes como portfolio_growth.png, allocation_chart.png, efficient_frontier.png)
+
+DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archivos ESENCIALES (máximo 10) para responder al prompt.
 """
             
             # Usar el tool de selección de archivos
@@ -685,7 +691,23 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver una lista de los I
                 call_args = call.args or {}
                 archivos_seleccionados = call_args.get('archivos_a_analizar', [])
                 
-                print(f"📋 Gemini seleccionó {len(archivos_seleccionados)} archivo(s):")
+                # Forzar límite de archivos para evitar timeout
+                MAX_FILES = 10
+                MAX_IMAGES = 3
+                
+                if len(archivos_seleccionados) > MAX_FILES:
+                    print(f"⚠️ Gemini seleccionó {len(archivos_seleccionados)} archivos, limitando a {MAX_FILES}")
+                    
+                    # Priorizar: JSON > MD > PNG (máximo 3 imágenes)
+                    json_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.json')]
+                    md_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.md')]
+                    png_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.png')]
+                    
+                    # Combinar con prioridad
+                    archivos_seleccionados = json_files[:5] + md_files[:3] + png_files[:MAX_IMAGES]
+                    archivos_seleccionados = archivos_seleccionados[:MAX_FILES]
+                
+                print(f"📋 Gemini seleccionó {len(archivos_seleccionados)} archivo(s) para análisis:")
                 for arch in archivos_seleccionados:
                     print(f"  - {arch.get('nombre_archivo')}")
                 
@@ -712,6 +734,7 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver una lista de los I
         """
         try:
             inline_parts = []
+            total_size_bytes = 0
             
             for item in selected_files:
                 file_name = item.get('nombre_archivo')
@@ -731,15 +754,20 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver una lista de los I
                     if mime_type is None:
                         mime_type = content_type or 'application/octet-stream'
                     
+                    # Rastrear tamaño
+                    file_size = len(file_bytes)
+                    total_size_bytes += file_size
+                    size_mb = file_size / (1024 * 1024)
+                    
                     # Agregar como parte inline
                     if file_name.lower().endswith('.json'):
                         json_content = file_bytes.decode('utf-8')
                         inline_parts.append(json_content)
-                        print(f"   ✅ Añadido archivo JSON: {file_name}")
+                        print(f"   ✅ Añadido JSON: {file_name} ({size_mb:.2f} MB)")
                     elif file_name.lower().endswith('.md'):
                         md_content = file_bytes.decode('utf-8')
                         inline_parts.append(md_content)
-                        print(f"   ✅ Añadido archivo MD: {file_name}")
+                        print(f"   ✅ Añadido MD: {file_name} ({size_mb:.2f} MB)")
                     else:
                         inline_parts.append(
                             types.Part.from_bytes(
@@ -747,7 +775,7 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver una lista de los I
                                 mime_type=mime_type,
                             )
                         )
-                        print(f"   ✅ Añadido archivo binario: {file_name} ({mime_type})")
+                        print(f"   ✅ Añadido imagen: {file_name} ({size_mb:.2f} MB, {mime_type})")
                         
                 except Exception as exc:
                     print(f"⚠️ Error procesando {file_name}: {exc}")
@@ -760,34 +788,32 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver una lista de los I
             # Agregar el prompt del usuario
             final_contents = inline_parts + [message]
             
-            print(f"\n📤 Enviando {len(final_contents)} elementos a Gemini para análisis...")
+            total_size_mb = total_size_bytes / (1024 * 1024)
+            print(f"\n📤 Enviando {len(final_contents)} elementos a Gemini ({total_size_mb:.2f} MB total)...")
             
-            # Generar respuesta con reintentos para 503
-            max_retries = 3
-            for attempt in range(max_retries):
-                try:
-                    response = await self.client.aio.models.generate_content(
-                        model=model,
-                        contents=final_contents
-                    )
+            # Generar respuesta (sin reintentos para evitar timeout de Heroku)
+            try:
+                response = await self.client.aio.models.generate_content(
+                    model=model,
+                    contents=final_contents
+                )
+                
+                if hasattr(response, 'text') and response.text:
+                    print("✅ Análisis completado exitosamente")
+                    return response.text
+                else:
+                    print("⚠️ Respuesta sin texto")
+                    return None
                     
-                    if hasattr(response, 'text') and response.text:
-                        print("✅ Análisis completado exitosamente")
-                        return response.text
-                    else:
-                        print("⚠️ Respuesta sin texto")
-                        return None
-                        
-                except Exception as exc:
-                    if "503" in str(exc) or "UNAVAILABLE" in str(exc):
-                        if attempt < max_retries - 1:
-                            print(f"⚠️ Modelo sobrecargado, reintentando en 10s... (intento {attempt + 1}/{max_retries})")
-                            import asyncio
-                            await asyncio.sleep(10)
-                            continue
-                    raise
-            
-            return None
+            except Exception as exc:
+                error_msg = str(exc)
+                if "503" in error_msg or "UNAVAILABLE" in error_msg:
+                    print(f"⚠️ Modelo Gemini no disponible (503). Intenta de nuevo en unos momentos.")
+                elif "timeout" in error_msg.lower():
+                    print(f"⚠️ Timeout procesando archivos. Considera reducir el número de imágenes.")
+                else:
+                    print(f"❌ Error llamando a Gemini: {error_msg}")
+                return None
             
         except Exception as exc:
             print(f"❌ Error en _analyze_files_inline: {exc}")
