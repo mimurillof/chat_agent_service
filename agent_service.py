@@ -1738,13 +1738,12 @@ PROHIBIDO incluir archivos .png en la selección.
                     continue
                 
                 try:
-                    file_data = await self._backend_download_file(
+                    file_bytes, content_type = await self._backend_download_file(
                         user_id=user_id,
                         filename=filename,
                         auth_token=auth_token
                     )
                     
-                    file_bytes = file_data["content"]
                     total_size_bytes += len(file_bytes)
                     
                     # Procesar según tipo
