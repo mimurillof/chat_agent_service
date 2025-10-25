@@ -8,6 +8,7 @@ import re
 import uuid
 import traceback
 import mimetypes
+import base64
 from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List, Tuple
 import json
@@ -500,16 +501,17 @@ class ChatAgentService:
             raise
 
     async def _gather_storage_context(self, user_id: str, auth_token: Optional[str]) -> Dict[str, Any]:
-        """Compila contexto desde el backend: JSON/MD + imágenes."""
+        """Compila contexto desde el backend: JSON/MD/PDF + imágenes."""
         files = await self._backend_list_files(
             user_id=user_id,
             auth_token=auth_token,
-            extensions=["json", "md", "png"],
+            extensions=["json", "md", "png", "jpg", "jpeg", "pdf"],
         )
 
         json_docs: Dict[str, Any] = {}
         markdown_docs: Dict[str, str] = {}
         images: List[Dict[str, Any]] = []
+        pdfs: List[Dict[str, Any]] = []
 
         for file_info in files:
             name = file_info.get("name")
@@ -517,10 +519,20 @@ class ChatAgentService:
             if not name or not ext:
                 continue
 
-            if ext == ".png":
+            # Manejar imágenes
+            if ext in {".png", ".jpg", ".jpeg", ".gif", ".webp"}:
                 images.append({
                     "bucket": self.supabase_bucket,
                     "path": file_info.get("path") or f"{user_id}/{name}",
+                })
+                continue
+
+            # Manejar PDFs como referencias
+            if ext == ".pdf":
+                pdfs.append({
+                    "bucket": self.supabase_bucket,
+                    "path": file_info.get("path") or f"{user_id}/{name}",
+                    "name": name,
                 })
                 continue
 
@@ -547,7 +559,7 @@ class ChatAgentService:
             else:
                 markdown_docs[name] = text
 
-        if not json_docs and not markdown_docs and not images:
+        if not json_docs and not markdown_docs and not images and not pdfs:
             return {}
 
         return {
@@ -555,6 +567,7 @@ class ChatAgentService:
                 "bucket": self.supabase_bucket,
                 "user_id": user_id,
                 "images": images,
+                "pdfs": pdfs,
                 "json_docs": json_docs,
                 "markdown_docs": markdown_docs,
             }
@@ -666,13 +679,14 @@ A continuación, se presenta una lista de archivos disponibles en Supabase con s
 {metadatos_str}
 --- FIN DE ARCHIVOS DISPONIBLES ---
 
-IMPORTANTE: Selecciona MÁXIMO 7 archivos, priorizando:
-1. Archivos JSON con datos de análisis (máximo 4)
-2. Archivos MD (Markdown) con resúmenes (máximo 3)
-3. NO incluyas archivos PNG (imágenes). Los datos en JSON/MD son suficientes.
+IMPORTANTE: Selecciona MÁXIMO 7 archivos, priorizando según relevancia:
+1. Archivos JSON con datos de análisis (máximo 3)
+2. Archivos MD (Markdown) con resúmenes (máximo 2)
+3. Imágenes PNG/JPG/JPEG - SOLO si son relevantes para el análisis
+4. Archivos PDF (máximo 1) - SOLO si contienen información crítica
 
 DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archivos ESENCIALES (máximo 7).
-PROHIBIDO incluir archivos .png en la selección.
+Selecciona imágenes y PDFs SOLO si son directamente relevantes para responder la consulta del usuario.
 """
             
             # Usar el tool de selección de archivos
@@ -692,26 +706,32 @@ PROHIBIDO incluir archivos .png en la selección.
                 call_args = call.args or {}
                 archivos_seleccionados = call_args.get('archivos_a_analizar', [])
                 
-                # Forzar límite de archivos para evitar timeout (sin imágenes)
+                # Forzar límite de archivos para evitar timeout
                 MAX_FILES = 7
-                MAX_JSON = 4
-                MAX_MD = 3
-                
-                # Filtrar archivos PNG completamente
-                archivos_seleccionados = [f for f in archivos_seleccionados if not f.get('nombre_archivo', '').lower().endswith('.png')]
+                MAX_JSON = 3
+                MAX_MD = 2
+                MAX_IMAGES = 1
+                MAX_PDF = 1
                 
                 if len(archivos_seleccionados) > MAX_FILES:
                     print(f"⚠️ Gemini seleccionó {len(archivos_seleccionados)} archivos, limitando a {MAX_FILES}")
                     
-                    # Priorizar: JSON > MD (sin imágenes)
+                    # Clasificar archivos por tipo
                     json_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.json')]
                     md_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.md')]
+                    image_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp'))]
+                    pdf_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.pdf')]
                     
-                    # Combinar con prioridad estricta
-                    archivos_seleccionados = json_files[:MAX_JSON] + md_files[:MAX_MD]
+                    # Combinar con prioridad: JSON > MD > Images > PDF
+                    archivos_seleccionados = (
+                        json_files[:MAX_JSON] + 
+                        md_files[:MAX_MD] + 
+                        image_files[:MAX_IMAGES] + 
+                        pdf_files[:MAX_PDF]
+                    )
                     archivos_seleccionados = archivos_seleccionados[:MAX_FILES]
                 
-                print(f"📋 Gemini seleccionó {len(archivos_seleccionados)} archivo(s) para análisis (sin imágenes):")
+                print(f"📋 Gemini seleccionó {len(archivos_seleccionados)} archivo(s) para análisis:")
                 for arch in archivos_seleccionados:
                     print(f"  - {arch.get('nombre_archivo')}")
                 
@@ -1745,16 +1765,46 @@ PROHIBIDO incluir archivos .png en la selección.
                     )
                     
                     total_size_bytes += len(file_bytes)
+                    filename_lower = filename.lower()
                     
                     # Procesar según tipo
-                    if filename.lower().endswith('.json'):
+                    if filename_lower.endswith('.json'):
                         json_content = file_bytes.decode('utf-8')
                         final_contents.append(json_content)
                         print(f"   ✅ Añadido JSON: {filename} ({len(file_bytes)/(1024*1024):.2f} MB)")
-                    elif filename.lower().endswith('.md'):
+                    
+                    elif filename_lower.endswith('.md'):
                         md_content = file_bytes.decode('utf-8')
                         final_contents.append(md_content)
                         print(f"   ✅ Añadido MD: {filename} ({len(file_bytes)/(1024*1024):.2f} MB)")
+                    
+                    elif filename_lower.endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')):
+                        # Imágenes: usar inline data
+                        mime_type = content_type or 'image/png'
+                        if filename_lower.endswith('.jpg') or filename_lower.endswith('.jpeg'):
+                            mime_type = 'image/jpeg'
+                        elif filename_lower.endswith('.gif'):
+                            mime_type = 'image/gif'
+                        elif filename_lower.endswith('.webp'):
+                            mime_type = 'image/webp'
+                        
+                        final_contents.append({
+                            "inline_data": {
+                                "mime_type": mime_type,
+                                "data": base64.b64encode(file_bytes).decode('utf-8')
+                            }
+                        })
+                        print(f"   ✅ Añadida imagen: {filename} ({len(file_bytes)/(1024*1024):.2f} MB)")
+                    
+                    elif filename_lower.endswith('.pdf'):
+                        # PDF: usar inline data con base64
+                        final_contents.append({
+                            "inline_data": {
+                                "mime_type": "application/pdf",
+                                "data": base64.b64encode(file_bytes).decode('utf-8')
+                            }
+                        })
+                        print(f"   ✅ Añadido PDF: {filename} ({len(file_bytes)/(1024*1024):.2f} MB)")
                 
                 except Exception as e:
                     print(f"⚠️ Error descargando {filename}: {e}")
