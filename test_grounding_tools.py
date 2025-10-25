@@ -28,7 +28,8 @@ async def test_google_search_grounding():
         result = await chat_service.process_message(
             message=query,
             user_id="test_user_grounding",
-            session_id=None
+            session_id=None,
+            auth_token=None,
         )
         
         print(f"\n✅ Respuesta del agente:")
@@ -62,7 +63,8 @@ async def test_url_context():
         result = await chat_service.process_message(
             message=query,
             user_id="test_user_url_context",
-            session_id=None
+            session_id=None,
+            auth_token=None,
         )
         
         print(f"\n✅ Respuesta del agente:")
@@ -96,7 +98,8 @@ async def test_datetime_function():
         result = await chat_service.process_message(
             message=query,
             user_id="test_user_datetime",
-            session_id=None
+            session_id=None,
+            auth_token=None,
         )
         
         print(f"\n✅ Respuesta del agente:")
@@ -142,7 +145,8 @@ async def test_google_search_with_temporal_context():
         result = await chat_service.process_message(
             message=query,
             user_id="test_user_temporal",
-            session_id=None
+            session_id=None,
+            auth_token=None,
         )
         
         print(f"\n✅ Respuesta del agente:")

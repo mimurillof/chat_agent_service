@@ -15,7 +15,8 @@ async def test_google_search():
     
     result = await chat_service.process_message(
         message="¿Cuál es el precio actual de Bitcoin?",
-        user_id="test_quick"
+        user_id="test_quick",
+        auth_token=None,
     )
     
     print(f"✅ Respuesta: {result['response'][:200]}...")
@@ -35,7 +36,8 @@ async def test_url_context():
     
     result = await chat_service.process_message(
         message="Resume https://en.wikipedia.org/wiki/Finance",
-        user_id="test_quick"
+        user_id="test_quick",
+        auth_token=None,
     )
     
     print(f"✅ Respuesta: {result['response'][:200]}...")
@@ -55,7 +57,8 @@ async def test_datetime():
     
     result = await chat_service.process_message(
         message="¿Qué día de la semana es?",
-        user_id="test_quick"
+        user_id="test_quick",
+        auth_token=None,
     )
     
     print(f"✅ Respuesta: {result['response']}")

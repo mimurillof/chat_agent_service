@@ -1,7 +1,7 @@
 """
 Aplicación FastAPI para el servicio independiente del agente de chat
 """
-from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
@@ -11,7 +11,7 @@ from typing import List, Dict, Any
 
 from config import settings
 from models import (
-    ChatRequest, ChatResponse, HealthResponse, SessionInfo, 
+    ChatRequest, ChatResponse, HealthResponse, SessionInfo,
     ErrorResponse, MessageRole,
     PortfolioReportRequest, PortfolioReportResponse
 )
@@ -186,9 +186,18 @@ async def generar_informe_portafolio(request: PortfolioReportRequest):
         raise HTTPException(status_code=500, detail=f"Error generando informe de portafolio: {str(e)}")
 
 @app.post("/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest):
+async def chat(
+    request: ChatRequest,
+    authorization: str | None = Header(default=None, alias="Authorization"),
+):
     """Endpoint principal para el chat - requiere user_id"""
     try:
+        bearer_token = None
+        if authorization and authorization.lower().startswith("bearer "):
+            bearer_token = authorization.split(" ", 1)[1]
+        elif request.auth_token:
+            bearer_token = request.auth_token
+
         result = await chat_service.process_message(
             message=request.message,
             user_id=request.user_id,  # ✅ Pasar user_id al servicio
@@ -196,7 +205,8 @@ async def chat(request: ChatRequest):
             model_preference=request.model_preference,
             file_path=request.file_path,
             url=request.url,
-            context=request.context
+            context=request.context,
+            auth_token=bearer_token,
         )
         
         return ChatResponse(**result)

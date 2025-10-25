@@ -20,17 +20,20 @@ Servicio independiente de agente de chat financiero con capacidades avanzadas de
 # El agente usa herramientas automáticamente según tu consulta
 await chat_service.process_message(
     message="¿Cuál es el precio actual de las acciones de Apple?",  # → Usa Google Search
-    user_id="tu_user_id"
+    user_id="tu_user_id",
+    auth_token="<JWT>"
 )
 
 await chat_service.process_message(
     message="Analiza este artículo: https://example.com/...",  # → Usa URL Context
-    user_id="tu_user_id"
+    user_id="tu_user_id",
+    auth_token="<JWT>"
 )
 
 await chat_service.process_message(
     message="¿Qué hora es?",  # → Usa get_current_datetime()
-    user_id="tu_user_id"
+    user_id="tu_user_id",
+    auth_token="<JWT>"
 )
 ```
 

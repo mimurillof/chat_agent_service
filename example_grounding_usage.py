@@ -26,7 +26,8 @@ async def example_1_datetime():
     
     result = await chat_service.process_message(
         message="¿Qué día y hora es ahora?",
-        user_id="demo_user"
+        user_id="demo_user",
+        auth_token=None,
     )
     
     print(f"🤖 Respuesta: {result['response']}\n")
@@ -51,7 +52,8 @@ async def example_2_stock_price():
     
     result = await chat_service.process_message(
         message="¿Cuál es el precio actual de las acciones de Microsoft?",
-        user_id="demo_user"
+        user_id="demo_user",
+        auth_token=None,
     )
     
     print(f"🤖 Respuesta: {result['response']}\n")
@@ -82,7 +84,8 @@ async def example_3_url_analysis():
     
     result = await chat_service.process_message(
         message=f"Resume los conceptos clave de este artículo: {url}",
-        user_id="demo_user"
+        user_id="demo_user",
+        auth_token=None,
     )
     
     print(f"🤖 Respuesta: {result['response']}\n")
@@ -106,7 +109,8 @@ async def example_4_temporal_with_search():
     
     result = await chat_service.process_message(
         message="¿Qué noticias financieras importantes han sucedido hoy?",
-        user_id="demo_user"
+        user_id="demo_user",
+        auth_token=None,
     )
     
     print(f"🤖 Respuesta: {result['response']}\n")
@@ -130,7 +134,8 @@ async def example_5_financial_context():
     
     result = await chat_service.process_message(
         message="¿Cuál es la cotización actual del S&P 500 y qué factores están influyendo en su movimiento hoy?",
-        user_id="demo_user"
+        user_id="demo_user",
+        auth_token=None,
     )
     
     print(f"🤖 Respuesta: {result['response']}\n")

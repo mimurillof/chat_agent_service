@@ -17,7 +17,8 @@ async def test_latest_news():
     try:
         result = await chat_service.process_message(
             message="What's the latest news?",
-            user_id="test_fix_user"
+            user_id="test_fix_user",
+            auth_token=None,
         )
         
         print(f"✅ Respuesta exitosa:")
@@ -60,7 +61,8 @@ async def test_various_queries():
         try:
             result = await chat_service.process_message(
                 message=query,
-                user_id="test_stability"
+                user_id="test_stability",
+                auth_token=None,
             )
             
             if result['response'] and not result['response'].startswith("Lo siento"):

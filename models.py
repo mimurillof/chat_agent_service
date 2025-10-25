@@ -18,6 +18,12 @@ class ChatRequest(BaseModel):
     """Modelo para solicitud de chat"""
     message: str = Field(..., description="Mensaje del usuario")
     user_id: str = Field(..., description="ID del usuario autenticado (requerido)")
+    auth_token: Optional[str] = Field(
+        None,
+        description=(
+            "Token JWT del usuario (Bearer). Si se suministra, el servicio lo reenviará al backend."
+        ),
+    )
     session_id: Optional[str] = Field(None, description="ID de sesión para mantener contexto")
     model_preference: Optional[str] = Field(None, description="Preferencia de modelo (flash/pro)")
     file_path: Optional[str] = Field(None, description="Ruta a archivo para análisis")

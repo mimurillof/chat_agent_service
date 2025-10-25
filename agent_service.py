@@ -7,12 +7,14 @@ import os
 import re
 import uuid
 import traceback
+import mimetypes
 from datetime import datetime, timezone
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Tuple
 import json
 from json import JSONDecodeError
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError, Field
+import httpx
 from config import settings
 from models import ChatMessage, MessageRole, PortfolioReportRequest, PortfolioReportResponse, Report
 
@@ -34,12 +36,6 @@ try:
 except Exception as e:
     print(f"❌ Error configurando Gemini: {e}")
     client = None
-
-try:
-    from supabase import create_client
-    _has_supabase = True
-except Exception:
-    _has_supabase = False
 
 try:
     from json_repair import repair_json
@@ -87,6 +83,40 @@ GET_DATETIME_DECLARATION = types.FunctionDeclaration(
     }
 )
 
+# Herramienta de selección de archivos (basada en gemini_supabase/main.py)
+FILE_SELECTION_TOOL = types.Tool(
+    function_declarations=[
+        types.FunctionDeclaration(
+            name="SelectorDeArchivos",
+            description="Herramienta para seleccionar la lista de archivos más relevantes de Supabase.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "archivos_a_analizar": {
+                        "type": "array",
+                        "description": "Lista de los IDs y nombres de los archivos que el modelo ha determinado que son cruciales para responder la pregunta.",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id_archivo": {
+                                    "type": "string",
+                                    "description": "El ID único del archivo (ej. 'rep_Q4') que debe ser analizado."
+                                },
+                                "nombre_archivo": {
+                                    "type": "string",
+                                    "description": "El nombre completo del archivo (ej. 'reporte_ventas_Q4.pdf')."
+                                }
+                            },
+                            "required": ["id_archivo", "nombre_archivo"]
+                        }
+                    }
+                },
+                "required": ["archivos_a_analizar"]
+            }
+        )
+    ]
+)
+
 # Prompts del sistema
 FLASH_SYSTEM_PROMPT = """
 Eres un asistente financiero rápido y eficiente especializado en:
@@ -118,6 +148,61 @@ HERRAMIENTAS DISPONIBLES:
 Enfócate en la calidad del análisis sobre la velocidad.
 """
 
+class ArchivoSeleccionado(BaseModel):
+    """Representa un archivo seleccionado para análisis."""
+
+    id_archivo: str = Field(..., description="Identificador único dentro del bucket")
+    nombre_archivo: str = Field(..., description="Nombre del archivo")
+
+
+class SelectorDeArchivos(BaseModel):
+    """Esquema de tool calling para seleccionar archivos relevantes."""
+
+    archivos_a_analizar: List[ArchivoSeleccionado] = Field(
+        ..., description="Listado de archivos que el modelo necesita para responder"
+    )
+
+
+def _build_tool_from_schema(schema: BaseModel) -> types.Tool:
+    parameters_schema = {
+        "type": "object",
+        "properties": {
+            "archivos_a_analizar": {
+                "type": "array",
+                "description": schema.model_fields["archivos_a_analizar"].description,
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "id_archivo": {
+                            "type": "string",
+                            "description": ArchivoSeleccionado.model_fields["id_archivo"].description,
+                        },
+                        "nombre_archivo": {
+                            "type": "string",
+                            "description": ArchivoSeleccionado.model_fields["nombre_archivo"].description,
+                        },
+                    },
+                    "required": ["id_archivo", "nombre_archivo"],
+                },
+            }
+        },
+        "required": ["archivos_a_analizar"],
+    }
+
+    return types.Tool(
+        function_declarations=[
+            types.FunctionDeclaration(
+                name=schema.__name__,
+                description=schema.__doc__,
+                parameters=parameters_schema,
+            )
+        ]
+    )
+
+
+FILE_SELECTION_TOOL = _build_tool_from_schema(SelectorDeArchivos)
+
+
 class ChatAgentService:
     """Servicio independiente del agente de chat"""
     
@@ -125,17 +210,12 @@ class ChatAgentService:
         self.client = client
         self.sessions: Dict[str, Dict] = {}
         self.active_sessions = 0
+        self.http_client = httpx.AsyncClient(timeout=30.0)
+        self._backend_base_url = settings.get_backend_url().rstrip("/")
         self.supabase = None
         
         if not self.client:
             raise Exception("Cliente Gemini no disponible")
-        
-        # Inicializar Supabase si hay credenciales
-        if _has_supabase and settings.supabase_url and settings.supabase_service_role_key:
-            try:
-                self.supabase = create_client(settings.supabase_url, settings.supabase_service_role_key)
-            except Exception as e:
-                print(f"⚠️ No se pudo inicializar Supabase: {e}")
         
         self.supabase_bucket = settings.supabase_bucket_name or "portfolio-files"
         
@@ -336,78 +416,383 @@ class ChatAgentService:
     # =====================
     # Informe de análisis de portafolio
     # =====================
-    def _list_supabase_files(self, user_id: str) -> List[Dict[str, Any]]:
-        """Lista archivos en el bucket del usuario. Filtra por extensiones permitidas."""
-        if not self.supabase:
-            return []
-        allowed = {".json", ".md", ".png"}
-        files: List[Dict[str, Any]] = []
-        
-        # Listar archivos en la carpeta del usuario: {user_id}/
+    async def _close(self) -> None:
         try:
-            items = self.supabase.storage.from_(self.supabase_bucket).list(user_id or "")
-        except Exception as e:
-            print(f"⚠️ Error listando Storage para user_id '{user_id}': {e}")
+            await self.http_client.aclose()
+        except Exception:
+            pass
+
+    async def _backend_list_files(
+        self,
+        user_id: str,
+        auth_token: Optional[str],
+        extensions: Optional[List[str]] = None,
+    ) -> List[Dict[str, Any]]:
+        if not auth_token:
             return []
 
-        for it in (items or []):
-            name = str(it.get("name") or "")
-            lower = name.lower()
-            if not any(lower.endswith(ext) for ext in allowed):
-                continue
-            full_path = f"{user_id}/{name}"
-            files.append({
-                "name": name,
-                "path": full_path,
-                "user_id": user_id,
-                "ext": lower[lower.rfind("."):],
-            })
-        return files
+        ext_param = ",".join(extensions) if extensions else None
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        url = f"{self._backend_base_url}/api/storage/files"
 
-    def _read_supabase_text_files(self, files: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Descarga y devuelve contenidos de .json y .md en dicts separados."""
-        if not self.supabase:
-            return {"json_docs": {}, "markdown_docs": {}}
+        try:
+            response = await self.http_client.get(
+                url,
+                params={"extensions": ext_param, "limit": 100},
+                headers=headers,
+            )
+            response.raise_for_status()
+            payload = response.json()
+            files = payload.get("files")
+            if not isinstance(files, list):
+                return []
+            normalized: List[Dict[str, Any]] = []
+            for item in files:
+                name = item.get("name")
+                if not name:
+                    continue
+                normalized.append({
+                    "name": name,
+                    "user_id": user_id,
+                    "ext": f".{item.get('ext', '').lower()}" if item.get("ext") else None,
+                    "path": item.get("full_path"),
+                    "size": item.get("size"),
+                    "updated_at": item.get("updated_at"),
+                })
+            return normalized
+        except httpx.HTTPStatusError as exc:
+            status_code = exc.response.status_code
+            if status_code == 401:
+                raise HTTPException(status_code=401, detail="Token inválido para acceso a storage") from exc
+            print(f"⚠️ Error HTTP listando archivos de backend: {exc}")
+            return []
+        except Exception as exc:
+            print(f"⚠️ Error listando archivos vía backend: {exc}")
+            return []
+
+    async def _backend_download_file(
+        self,
+        user_id: str,
+        filename: str,
+        auth_token: Optional[str],
+    ) -> Tuple[bytes, str]:
+        if not auth_token:
+            raise PermissionError("Se requiere token de autenticación para descargar archivos")
+
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        url = f"{self._backend_base_url}/api/storage/download"
+
+        try:
+            response = await self.http_client.get(
+                url,
+                params={"filename": filename},
+                headers=headers,
+            )
+            response.raise_for_status()
+            content_type = response.headers.get("content-type", "application/octet-stream")
+            return response.content, content_type
+        except httpx.HTTPStatusError as exc:
+            status_code = exc.response.status_code
+            if status_code == 404:
+                raise FileNotFoundError(f"Archivo {filename} no encontrado para el usuario") from exc
+            if status_code == 401:
+                raise PermissionError("Token inválido o expirado") from exc
+            raise
+
+    async def _gather_storage_context(self, user_id: str, auth_token: Optional[str]) -> Dict[str, Any]:
+        """Compila contexto desde el backend: JSON/MD + imágenes."""
+        files = await self._backend_list_files(
+            user_id=user_id,
+            auth_token=auth_token,
+            extensions=["json", "md", "png"],
+        )
+
         json_docs: Dict[str, Any] = {}
         markdown_docs: Dict[str, str] = {}
-        for f in files:
-            ext = f.get("ext")
-            path = f.get("path")
-            name = f.get("name")
-            if ext not in (".json", ".md"):
-                continue
-            try:
-                data = self.supabase.storage.from_(self.supabase_bucket).download(path)
-                text = data.decode("utf-8", errors="replace") if isinstance(data, (bytes, bytearray)) else str(data)
-                if ext == ".json":
-                    try:
-                        json_docs[name] = json.loads(text)
-                    except Exception:
-                        json_docs[name] = {"_raw": text}
-                else:
-                    markdown_docs[name] = text
-            except Exception as e:
-                print(f"⚠️ No se pudo descargar {path}: {e}")
-        return {"json_docs": json_docs, "markdown_docs": markdown_docs}
+        images: List[Dict[str, Any]] = []
 
-    def _gather_storage_context(self, user_id: str) -> Dict[str, Any]:
-        """Compila contexto desde Storage: JSON/MD contenidos y lista de imágenes PNG del usuario específico."""
-        if not self.supabase:
+        for file_info in files:
+            name = file_info.get("name")
+            ext = (file_info.get("ext") or "").lower()
+            if not name or not ext:
+                continue
+
+            if ext == ".png":
+                images.append({
+                    "bucket": self.supabase_bucket,
+                    "path": file_info.get("path") or f"{user_id}/{name}",
+                })
+                continue
+
+            if ext not in {".json", ".md"}:
+                continue
+
+            try:
+                file_bytes, content_type = await self._backend_download_file(
+                    user_id=user_id,
+                    filename=name,
+                    auth_token=auth_token,
+                )
+            except Exception as exc:
+                print(f"⚠️ No se pudo descargar {name}: {exc}")
+                continue
+
+            text = file_bytes.decode("utf-8", errors="replace") if isinstance(file_bytes, (bytes, bytearray)) else str(file_bytes)
+
+            if ext == ".json":
+                try:
+                    json_docs[name] = json.loads(text)
+                except Exception:
+                    json_docs[name] = {"_raw": text}
+            else:
+                markdown_docs[name] = text
+
+        if not json_docs and not markdown_docs and not images:
             return {}
-        files = self._list_supabase_files(user_id)
-        text_ctx = self._read_supabase_text_files(files)
-        images = [
-            {"bucket": self.supabase_bucket, "path": f["path"]}
-            for f in files if f.get("ext") == ".png"
-        ]
+
         return {
             "storage": {
                 "bucket": self.supabase_bucket,
                 "user_id": user_id,
                 "images": images,
-                **text_ctx,
+                "json_docs": json_docs,
+                "markdown_docs": markdown_docs,
             }
         }
+
+    async def _process_portfolio_query(
+        self,
+        message: str,
+        user_id: str,
+        model: str,
+        conversation_history: List,
+        tools: List,
+        auth_token: Optional[str],
+        session: Dict[str, Any],
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Procesa consultas de portafolio usando el flujo de selección de archivos + análisis inline.
+        Basado en el ejemplo gemini_supabase/main.py
+        """
+        try:
+            print(f"\n🔍 Detectada consulta de portafolio para usuario {user_id}")
+            
+            # Paso 1: Listar archivos disponibles del usuario
+            files = await self._backend_list_files(
+                user_id=user_id,
+                auth_token=auth_token,
+                extensions=["json", "md", "png"],
+            )
+            
+            if not files:
+                print("⚠️ No se encontraron archivos para el usuario")
+                return None
+            
+            # Filtrar archivos no deseados (similar al ejemplo)
+            excluded_extensions = ('.html', '-.emptyFolder', '.gitkeep')
+            filtered_files = [
+                f for f in files 
+                if not any(f.get("name", "").endswith(ext) for ext in excluded_extensions)
+            ]
+            
+            if not filtered_files:
+                print("⚠️ No hay archivos relevantes después del filtrado")
+                return None
+            
+            print(f"📁 Encontrados {len(filtered_files)} archivos relevantes")
+            
+            # Paso 2: Gemini selecciona los archivos necesarios (Function Calling)
+            selected_files = await self._select_files_via_gemini(message, filtered_files, model)
+            
+            if not selected_files:
+                print("⚠️ Gemini no seleccionó archivos para el análisis")
+                return None
+            
+            print(f"✅ Gemini seleccionó {len(selected_files)} archivo(s)")
+            
+            # Paso 3: Descargar y analizar archivos inline
+            response_text = await self._analyze_files_inline(
+                message=message,
+                selected_files=selected_files,
+                user_id=user_id,
+                auth_token=auth_token,
+                model=model,
+            )
+            
+            if not response_text:
+                print("⚠️ No se pudo generar respuesta del análisis")
+                return None
+            
+            return {
+                "text": response_text,
+                "grounding_metadata": None,
+                "function_calls": [{"name": "portfolio_file_analysis", "files": len(selected_files)}],
+            }
+            
+        except Exception as exc:
+            print(f"❌ Error en _process_portfolio_query: {exc}")
+            traceback.print_exc()
+            return None
+    
+    async def _select_files_via_gemini(
+        self,
+        prompt: str,
+        files_metadata: List[Dict[str, Any]],
+        model: str,
+    ) -> List[Dict[str, Any]]:
+        """
+        Usa Gemini Function Calling para seleccionar archivos relevantes.
+        Basado en paso_1_decision del ejemplo.
+        """
+        try:
+            # Preparar metadatos en formato legible
+            formatted_metadata = []
+            for f in files_metadata:
+                formatted_metadata.append({
+                    "nombre": f.get("name"),
+                    "id_archivo": f.get("name"),  # Usar nombre como ID
+                    "tipo": f.get("ext", "").lstrip(".").upper(),
+                    "tamaño_MB": round(f.get("size", 0) / (1024 * 1024), 2) if f.get("size") else 0,
+                })
+            
+            metadatos_str = json.dumps(formatted_metadata, indent=2, ensure_ascii=False)
+            
+            decision_prompt = f"""
+El usuario ha proporcionado el siguiente prompt: '{prompt}'.
+
+A continuación, se presenta una lista de archivos disponibles en Supabase con sus metadatos:
+--- ARCHIVOS DISPONIBLES ---
+{metadatos_str}
+--- FIN DE ARCHIVOS DISPONIBLES ---
+
+DEBES utilizar la función 'SelectorDeArchivos' para devolver una lista de los IDs y nombres de los archivos que sean necesarios para responder al prompt del usuario. Analiza los metadatos y selecciona los archivos relevantes.
+"""
+            
+            # Usar el tool de selección de archivos
+            response = await self.client.aio.models.generate_content(
+                model=model,
+                contents=[decision_prompt],
+                config=types.GenerateContentConfig(
+                    tools=[FILE_SELECTION_TOOL],
+                    tool_config=types.ToolConfig(
+                        function_calling_config=types.FunctionCallingConfig(mode="ANY")
+                    )
+                )
+            )
+            
+            if response.function_calls:
+                call = response.function_calls[0]
+                call_args = call.args or {}
+                archivos_seleccionados = call_args.get('archivos_a_analizar', [])
+                
+                print(f"📋 Gemini seleccionó {len(archivos_seleccionados)} archivo(s):")
+                for arch in archivos_seleccionados:
+                    print(f"  - {arch.get('nombre_archivo')}")
+                
+                return archivos_seleccionados
+            else:
+                print("⚠️ Gemini no devolvió llamada a función")
+                return []
+                
+        except Exception as exc:
+            print(f"❌ Error en _select_files_via_gemini: {exc}")
+            return []
+    
+    async def _analyze_files_inline(
+        self,
+        message: str,
+        selected_files: List[Dict[str, Any]],
+        user_id: str,
+        auth_token: Optional[str],
+        model: str,
+    ) -> Optional[str]:
+        """
+        Descarga archivos seleccionados y los envía inline a Gemini para análisis.
+        Basado en paso_2_analisis_inline del ejemplo.
+        """
+        try:
+            inline_parts = []
+            
+            for item in selected_files:
+                file_name = item.get('nombre_archivo')
+                if not file_name:
+                    continue
+                
+                try:
+                    # Descargar archivo vía backend
+                    file_bytes, content_type = await self._backend_download_file(
+                        user_id=user_id,
+                        filename=file_name,
+                        auth_token=auth_token,
+                    )
+                    
+                    # Determinar mime type
+                    mime_type, _ = mimetypes.guess_type(file_name)
+                    if mime_type is None:
+                        mime_type = content_type or 'application/octet-stream'
+                    
+                    # Agregar como parte inline
+                    if file_name.lower().endswith('.json'):
+                        json_content = file_bytes.decode('utf-8')
+                        inline_parts.append(json_content)
+                        print(f"   ✅ Añadido archivo JSON: {file_name}")
+                    elif file_name.lower().endswith('.md'):
+                        md_content = file_bytes.decode('utf-8')
+                        inline_parts.append(md_content)
+                        print(f"   ✅ Añadido archivo MD: {file_name}")
+                    else:
+                        inline_parts.append(
+                            types.Part.from_bytes(
+                                data=file_bytes,
+                                mime_type=mime_type,
+                            )
+                        )
+                        print(f"   ✅ Añadido archivo binario: {file_name} ({mime_type})")
+                        
+                except Exception as exc:
+                    print(f"⚠️ Error procesando {file_name}: {exc}")
+                    continue
+            
+            if not inline_parts:
+                print("❌ No se pudo procesar ningún archivo")
+                return None
+            
+            # Agregar el prompt del usuario
+            final_contents = inline_parts + [message]
+            
+            print(f"\n📤 Enviando {len(final_contents)} elementos a Gemini para análisis...")
+            
+            # Generar respuesta con reintentos para 503
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    response = await self.client.aio.models.generate_content(
+                        model=model,
+                        contents=final_contents
+                    )
+                    
+                    if hasattr(response, 'text') and response.text:
+                        print("✅ Análisis completado exitosamente")
+                        return response.text
+                    else:
+                        print("⚠️ Respuesta sin texto")
+                        return None
+                        
+                except Exception as exc:
+                    if "503" in str(exc) or "UNAVAILABLE" in str(exc):
+                        if attempt < max_retries - 1:
+                            print(f"⚠️ Modelo sobrecargado, reintentando en 10s... (intento {attempt + 1}/{max_retries})")
+                            import asyncio
+                            await asyncio.sleep(10)
+                            continue
+                    raise
+            
+            return None
+            
+        except Exception as exc:
+            print(f"❌ Error en _analyze_files_inline: {exc}")
+            traceback.print_exc()
+            return None
 
     def _persist_raw_response(self, model_name: str, raw_text: str) -> Optional[str]:
         """Guarda la respuesta raw en disco para depuración y retorna la ruta."""
@@ -617,7 +1002,7 @@ class ChatAgentService:
 
         # Contexto desde Supabase Storage (JSON/MD/PNGs) + contexto del request
         # ✅ Usar user_id para obtener archivos específicos del usuario
-        storage_ctx = self._gather_storage_context(user_id)
+        storage_ctx = await self._gather_storage_context(user_id, req.auth_token if hasattr(req, "auth_token") else None)
         merged_ctx: Dict[str, Any] = {}
         if isinstance(req.context, dict):
             merged_ctx.update(req.context)
@@ -736,7 +1121,8 @@ class ChatAgentService:
         model_preference: Optional[str] = None,
         file_path: Optional[str] = None,
         url: Optional[str] = None,
-        context: Optional[Dict[str, Any]] = None
+        context: Optional[Dict[str, Any]] = None,
+        auth_token: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Procesar mensaje del usuario con herramientas de grounding y function calling.
@@ -810,12 +1196,26 @@ class ChatAgentService:
                 parts=[types.Part.from_text(text=message)]
             ))
             
-            # Generar respuesta con herramientas
-            response_data = await self._generate_response_with_tools(
-                model=model, 
-                conversation_history=conversation_history, 
-                tools=tools
+        portfolio_response: Optional[Dict[str, Any]] = None
+        lowered_message = message.lower()
+        if auth_token and any(
+            keyword in lowered_message for keyword in ("portafolio", "portfolio", "cartera", "inversiones")
+        ):
+            portfolio_response = await self._process_portfolio_query(
+                message=message,
+                user_id=user_id,
+                model=model,
+                conversation_history=conversation_history,
+                tools=tools,
+                auth_token=auth_token,
+                session=session,
             )
+
+        response_data = portfolio_response or await self._generate_response_with_tools(
+            model=model,
+            conversation_history=conversation_history,
+            tools=tools,
+        )
             
             response_text = response_data["text"]
             grounding_metadata = response_data.get("grounding_metadata")
