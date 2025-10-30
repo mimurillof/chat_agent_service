@@ -17,7 +17,7 @@ from json import JSONDecodeError
 from pydantic import BaseModel, ValidationError, Field
 import httpx
 from config import settings
-from models import ChatMessage, MessageRole, PortfolioReportRequest, PortfolioReportResponse, Report
+from models import ChatMessage, MessageRole, PortfolioReportRequest, PortfolioReportResponse, Report, AlertsAnalysisRequest
 
 try:
     from google import genai
@@ -1195,6 +1195,270 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archiv
             print(f"❌ Error generando informe de portafolio: {e}")
             return {
                 "error": "Error generando informe",
+                "detail": str(e),
+                "session_id": session_id,
+                "model_used": model,
+            }
+
+    async def ejecutar_analisis_alertas(
+        self,
+        req: AlertsAnalysisRequest
+    ) -> Dict[str, Any]:
+        """
+        Ejecuta análisis de alertas y oportunidades basado en los 4 archivos específicos
+        del usuario en Supabase Storage.
+        """
+        import json as json_module
+        
+        session_id = req.session_id or self.create_session()
+        user_id = req.user_id
+        
+        # Por defecto usar PRO para análisis profundo
+        if req.model_preference:
+            model = settings.model_pro if req.model_preference.lower() == "pro" else settings.model_flash
+        else:
+            model = settings.model_pro
+        
+        # Archivos específicos a leer
+        required_files = [
+            "mercado_analisis.json",
+            "mercado_informe.md",
+            "portfolio_analisis.json",
+            "portfolio_informe.md"
+        ]
+        
+        # Leer los archivos específicos desde Supabase
+        file_contents = {}
+        missing_files = []
+        
+        for filename in required_files:
+            try:
+                file_bytes, content_type = await self._backend_download_file(
+                    user_id=user_id,
+                    filename=filename,
+                    auth_token=req.auth_token,
+                )
+                text = file_bytes.decode("utf-8", errors="replace")
+                
+                if filename.endswith(".json"):
+                    try:
+                        file_contents[filename] = json_module.loads(text)
+                    except:
+                        file_contents[filename] = {"_raw": text}
+                else:
+                    file_contents[filename] = text
+                    
+            except FileNotFoundError:
+                missing_files.append(filename)
+                print(f"⚠️ Archivo {filename} no encontrado")
+            except Exception as e:
+                print(f"⚠️ Error leyendo {filename}: {e}")
+                missing_files.append(filename)
+        
+        if len(missing_files) == len(required_files):
+            return {
+                "error": "No se pudieron leer los archivos requeridos",
+                "detail": f"Archivos faltantes: {', '.join(missing_files)}",
+                "session_id": session_id,
+            }
+        
+        # Construir el prompt del sistema según las especificaciones
+        system_prompt = (
+            "Rol Primario (Persona): Actúa como un Asesor de Inversiones Cuantitativo Senior y Gestor de Portafolios de nivel 'quant'. "
+            "Tu reputación se basa en generar alfa a través de acciones decisivas y análisis de alta convicción.\n\n"
+            
+            "Directiva Principal (Tu Misión): Tu única función es la interpretación y la acción. Analiza los 4 archivos proporcionados "
+            "(portfolio_analisis.json, portfolio_informe.md, mercado_analisis.json y mercado_informe.md). "
+            "Tu audiencia (el inversor) espera órdenes de trading explícitas, no resúmenes de datos.\n\n"
+            
+            "PROCESO DE EJECUCIÓN OBLIGATORIO (Razonamiento Interno):\n\n"
+            
+            "Antes de generar el informe final, DEBES realizar un análisis interno estructurado usando etiquetas <pensamiento>. "
+            "Este proceso no debe ser visible en la salida final, pero es un paso obligatorio para tu razonamiento.\n\n"
+            
+            "<pensamiento>\n"
+            "Paso 1. Identificar el analysis_timestamp de los archivos.\n"
+            "Paso 2. Iniciar el análisis de portfolio_analisis.json. Iterar por cada activo.\n"
+            "Paso 3. Para cada activo del portafolio, identificar su recommendation y sus alerts (ej. tipo, valor).\n"
+            "Paso 4. Aplicar las 'Reglas de Decisión de Reclasificación' (ver abajo). "
+            "La recomendación \"MANTENER\" de los archivos es una entrada, no una salida. "
+            "Mi salida debe ser una acción (COMPRAR, VENDER, MANTENER FUERTE, MANTENER Y VIGILAR).\n"
+            "* Caso NVDA: recommendation: \"MANTENER\", alert: \"SOBRECOMPRA (RSI: 73)\". Regla 1A aplica. Mi acción será VENDER. "
+            "Mi justificación se centrará en el riesgo de corrección y la sobreextensión.\n"
+            "* Caso [Otro Activo]: (Repetir lógica)\n"
+            "Paso 5. Iniciar el análisis de mercado_analisis.json. Iterar por cada activo.\n"
+            "Paso 6. Aplicar las 'Reglas de Decisión' para identificar oportunidades (SOBREVENTA) o riesgos (SOBRECOMPRA, MERCADO_LATERAL).\n"
+            "Paso 7. Formular justificaciones directas y cuantitativas para cada acción.\n"
+            "Paso 8. Construir el 'INFORME DE ACCIÓN INMEDIATA' final basado únicamente en los resultados de los pasos 4 y 6. "
+            "El tono debe ser autoritativo.\n"
+            "</pensamiento>\n\n"
+            
+            "REGLAS DE DECISIÓN DE RECLASIFICACIÓN (Lógica Obligatoria):\n\n"
+            
+            "Tu valor principal es reclasificar las recomendaciones pasivas de \"MANTENER\" basadas en datos técnicos:\n\n"
+            
+            "MANTENER + SOBRECOMPRA: Si recommendation: \"MANTENER\" y existe una alerta type: \"SOBRECOMPRA\" (ej. RSI > 70):\n"
+            "Acción: VENDER o REDUCIR POSICIÓN.\n"
+            "Justificación: El activo está sobreextendido. El riesgo de corrección bajista es inminente. Tomar ganancias.\n\n"
+            
+            "MANTENER + SOBREVENTA: Si recommendation: \"MANTENER\" y existe una alerta type: \"SOBREVENTA\" (ej. RSI < 30):\n"
+            "Acción: COMPRAR o ACUMULAR.\n"
+            "Justificación: El activo está infravalorado y presenta una clara oportunidad de entrada.\n\n"
+            
+            "MANTENER + MERCADO LATERAL: Si recommendation: \"MANTENER\" y la alerta es type: \"MERCADO_LATERAL\" (ej. ADX bajo):\n"
+            "Acción: MANTENER POSICIÓN, NO COMPRAR MÁS.\n"
+            "Justificación: No hay tendencia clara. Esperar una ruptura confirmada.\n\n"
+            
+            "MANTENER + SIN SEÑALES: Si recommendation: \"MANTENER\" y la alerta es type: \"SIN_SEÑALES\":\n"
+            "Acción: MANTENER Y VIGILAR.\n"
+            "Justificación: El activo se mueve como se esperaba, sin nuevas señales técnicas que justifiquen una acción.\n\n"
+            
+            "RESTRICCIONES DE COMUNICACIÓN (Tono y Estilo):\n\n"
+            
+            "PROHIBIDO (Ambigüedad): No usarás lenguaje ambiguo o pasivo (ej. 'podría', 'tal vez', 'parece', 'sugiere', 'se recomienda').\n\n"
+            
+            "PROHIBIDO (Resumir): No describirás el contenido de los archivos. Solo actuarás sobre ellos.\n\n"
+            
+            "OBLIGATORIO (Tono Autoritativo): Tu tono debe ser decisivo y generar urgencia. Usa comandos directos y de alta convicción: "
+            "\"VENDER AHORA\", \"COMPRAR\", \"ACUMULAR\", \"REDUCIR POSICIÓN\", \"Alerta de caída\", \"Oportunidad de compra clara\".\n\n"
+            
+            "FORMATO DE SALIDA FINAL (Obligatorio):\n\n"
+            
+            "Genera tu respuesta EXACTAMENTE con la siguiente estructura Markdown:\n\n"
+            
+            "# INFORME DE ACCIÓN INMEDIATA\n"
+            "Fecha del Análisis: [Extrae la fecha del analysis_timestamp]\n\n"
+            
+            "## 1. 💼 Acciones de Portafolio (Mi Portafolio)\n\n"
+            "### Activos Críticos (Acción Requerida):\n\n"
+            "[Ticker del Activo, ej: NVDA]\n\n"
+            "**Acción Recomendada:** VENDER / REDUCIR POSICIÓN.\n\n"
+            "**Justificación:** El activo muestra síntomas claros de [ej: 'sobrecompra extrema (RSI: 73)']. "
+            "El riesgo de una corrección bajista es inminente. Recomiendo tomar ganancias ahora.\n\n"
+            "[Siguiente Ticker con Alerta]\n\n"
+            "**Acción Recomendada:** [COMPRAR / VENDER / MANTENER FUERTE]\n\n"
+            "**Justificación:** [Tu análisis directo y cuantitativo]\n\n"
+            
+            "### Activos en Vigilancia (Mantener):\n\n"
+            "[Ticker del Activo, ej: BTC-USD]\n\n"
+            "**Acción Recomendada:** MANTENER Y VIGILAR.\n\n"
+            "**Justificación:** [ej: 'El activo está en una tendencia débil sin señales claras (SIN_SEÑALES). "
+            "No es momento de añadir ni de vender. Mantener la posición actual.']\n\n"
+            
+            "## 2. 🌍 Oportunidades y Riesgos del Mercado (Radar)\n\n"
+            "### Oportunidades Potenciales (Comprar):\n\n"
+            "(Actualmente no se detectan oportunidades claras de compra en el radar de mercado, "
+            "ya que la mayoría de los activos están en MERCADO_LATERAL.)\n\n"
+            
+            "### Riesgos del Mercado (Evitar):\n\n"
+            "[Ticker del Mercado, ej: V]\n\n"
+            "**Acción Recomendada:** NO COMPRAR / EVITAR.\n\n"
+            "**Justificación:** El activo [ej: 'V'] está en un MERCADO_LATERAL (ADX bajo). "
+            "No hay tendencia que seguir. Entrar ahora es riesgoso.\n\n"
+            "[Siguiente Ticker del Mercado]\n\n"
+            "**Acción Recomendada:** NO COMPRAR.\n\n"
+            "**Justificación:** [Tu análisis directo]"
+        )
+        
+        # Construir el contenido del mensaje con los archivos
+        files_context = {
+            "portfolio_analisis": file_contents.get("portfolio_analisis.json", {}),
+            "portfolio_informe": file_contents.get("portfolio_informe.md", ""),
+            "mercado_analisis": file_contents.get("mercado_analisis.json", {}),
+            "mercado_informe": file_contents.get("mercado_informe.md", ""),
+        }
+        
+        contents = [
+            types.Content(
+                role="user",
+                parts=[types.Part.from_text(text=system_prompt)]
+            ),
+            types.Content(
+                role="user",
+                parts=[types.Part.from_text(
+                    text=f"ARCHIVOS_ANALISIS=\n{json_module.dumps(files_context, ensure_ascii=False, indent=2)}"
+                )]
+            )
+        ]
+        
+        config = types.GenerateContentConfig(
+            temperature=0.2,  # Baja temperatura para análisis preciso
+            top_p=0.9,
+            max_output_tokens=16384,
+        )
+        
+        try:
+            # Intentar con diferentes modelos si hay sobrecarga
+            models_to_try = [model]
+            if model == "gemini-2.5-pro":
+                models_to_try.extend(["gemini-2.5-flash", "gemini-2.5-flash-lite"])
+            elif model == "gemini-2.5-flash":
+                models_to_try.extend(["gemini-2.5-flash-lite", "gemini-2.0-flash"])
+            
+            successful_model = None
+            resp = None
+            
+            for try_model in models_to_try:
+                try:
+                    resp = await self.client.aio.models.generate_content(
+                        model=try_model,
+                        contents=contents,
+                        config=config,
+                    )
+                    successful_model = try_model
+                    break
+                except Exception as model_error:
+                    error_str = str(model_error)
+                    if "overloaded" in error_str or "503" in error_str:
+                        print(f"⚠️ Modelo {try_model} sobrecargado, probando siguiente...")
+                        continue
+                    else:
+                        raise model_error
+            
+            if not resp or not successful_model:
+                raise ValueError("Todos los modelos están sobrecargados, intenta más tarde")
+            
+            # Extraer el texto de la respuesta
+            analysis_text = ""
+            if hasattr(resp, "text") and resp.text:
+                analysis_text = resp.text
+            elif hasattr(resp, "candidates") and resp.candidates:
+                for candidate in resp.candidates:
+                    if hasattr(candidate, "content") and candidate.content:
+                        if hasattr(candidate.content, "parts"):
+                            for part in candidate.content.parts:
+                                if hasattr(part, "text"):
+                                    analysis_text += part.text
+            
+            if not analysis_text:
+                raise ValueError("No se pudo extraer el análisis de la respuesta del modelo")
+            
+            # Registrar mensaje en la sesión
+            try:
+                summary_added = ChatMessage(
+                    role=MessageRole.ASSISTANT,
+                    content="[ANALISIS_ALERTAS_GENERADO]",
+                    timestamp=datetime.now().isoformat()
+                )
+                self.sessions[session_id]["messages"].append(summary_added.model_dump())
+                self.sessions[session_id]["last_activity"] = datetime.now().isoformat()
+            except Exception:
+                pass
+            
+            return {
+                "analysis": analysis_text,
+                "session_id": session_id,
+                "model_used": successful_model,
+                "metadata": {
+                    "files_read": list(file_contents.keys()),
+                    "missing_files": missing_files,
+                }
+            }
+            
+        except Exception as e:
+            print(f"❌ Error generando análisis de alertas: {e}")
+            return {
+                "error": "Error generando análisis de alertas",
                 "detail": str(e),
                 "session_id": session_id,
                 "model_used": model,

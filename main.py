@@ -14,7 +14,8 @@ from config import settings
 from models import (
     ChatRequest, ChatResponse, HealthResponse, SessionInfo,
     ErrorResponse, MessageRole,
-    PortfolioReportRequest, PortfolioReportResponse
+    PortfolioReportRequest, PortfolioReportResponse,
+    AlertsAnalysisRequest, AlertsAnalysisResponse
 )
 from agent_service import chat_service
 
@@ -78,6 +79,38 @@ async def process_report_generation_task(task_id: str, request: PortfolioReportR
         
         # Generar reporte
         result = await chat_service.ejecutar_generacion_informe_portafolio(request)
+        
+        if isinstance(result, dict) and result.get("error"):
+            # Error en la generación
+            task_statuses[task_id]["status"] = "error"
+            task_statuses[task_id]["error"] = result.get("detail") or result.get("error")
+            task_statuses[task_id]["updated_at"] = datetime.now().isoformat()
+        else:
+            # Éxito
+            task_statuses[task_id]["status"] = "completed"
+            task_statuses[task_id]["result"] = result
+            task_statuses[task_id]["updated_at"] = datetime.now().isoformat()
+            task_statuses[task_id]["completed_at"] = datetime.now().isoformat()
+    
+    except Exception as e:
+        # Error inesperado
+        task_statuses[task_id]["status"] = "error"
+        task_statuses[task_id]["error"] = str(e)
+        task_statuses[task_id]["updated_at"] = datetime.now().isoformat()
+
+
+async def process_alerts_analysis_task(task_id: str, request: AlertsAnalysisRequest):
+    """
+    Función auxiliar que procesa el análisis de alertas en background.
+    Actualiza el estado en task_statuses.
+    """
+    try:
+        # Actualizar estado a "processing"
+        task_statuses[task_id]["status"] = "processing"
+        task_statuses[task_id]["updated_at"] = datetime.now().isoformat()
+        
+        # Generar análisis de alertas
+        result = await chat_service.ejecutar_analisis_alertas(request)
         
         if isinstance(result, dict) and result.get("error"):
             # Error en la generación
@@ -241,6 +274,88 @@ async def chat(
             status_code=500,
             detail=f"Error procesando chat: {str(e)}"
         )
+
+@app.post("/acciones/analisis_alertas/start")
+async def analisis_alertas_start(
+    request: AlertsAnalysisRequest,
+    background_tasks: BackgroundTasks,
+    authorization: str | None = Header(default=None, alias="Authorization"),
+):
+    """
+    Inicia el análisis asíncrono de alertas y oportunidades.
+    Retorna inmediatamente con un task_id para hacer polling.
+    """
+    # Extraer token de autorización si está presente
+    bearer_token = None
+    if authorization and authorization.lower().startswith("bearer "):
+        bearer_token = authorization.split(" ", 1)[1]
+    elif request.auth_token:
+        bearer_token = request.auth_token
+    
+    # Actualizar el token en el request
+    request.auth_token = bearer_token
+    
+    # Generar ID único para la tarea
+    task_id = str(uuid.uuid4())
+    
+    # Crear estado inicial
+    task_statuses[task_id] = {
+        "task_id": task_id,
+        "status": "pending",
+        "created_at": datetime.now().isoformat(),
+        "updated_at": datetime.now().isoformat(),
+        "model_preference": request.model_preference,
+    }
+    
+    # Iniciar procesamiento en background
+    background_tasks.add_task(
+        process_alerts_analysis_task,
+        task_id,
+        request
+    )
+    
+    return {
+        "task_id": task_id,
+        "status": "pending",
+        "message": "Análisis de alertas iniciado. Use el endpoint /acciones/analisis_alertas/status/{task_id} para verificar el progreso.",
+        "poll_url": f"/acciones/analisis_alertas/status/{task_id}",
+        "created_at": task_statuses[task_id]["created_at"]
+    }
+
+
+@app.get("/acciones/analisis_alertas/status/{task_id}")
+async def analisis_alertas_status(task_id: str):
+    """
+    Obtiene el estado actual de una tarea de análisis de alertas.
+    Estados posibles: pending, processing, completed, error
+    """
+    if task_id not in task_statuses:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Tarea con ID {task_id} no encontrada"
+        )
+    
+    status_info = task_statuses[task_id]
+    
+    # Respuesta básica para todos los estados
+    response = {
+        "task_id": status_info["task_id"],
+        "status": status_info["status"],
+        "created_at": status_info["created_at"],
+        "updated_at": status_info["updated_at"],
+    }
+    
+    # Agregar información específica según el estado
+    if status_info["status"] == "completed":
+        response["result"] = status_info.get("result")
+        response["completed_at"] = status_info.get("completed_at")
+    elif status_info["status"] == "error":
+        response["error"] = status_info.get("error")
+    elif status_info["status"] in ["pending", "processing"]:
+        response["message"] = "Análisis en proceso. Vuelva a consultar en unos segundos."
+    
+    return response
+
 
 @app.post("/sessions/create", response_model=dict)
 async def create_session():
