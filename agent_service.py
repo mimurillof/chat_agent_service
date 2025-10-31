@@ -1498,13 +1498,26 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archiv
             
             for file_name in file_names:
                 try:
-                    content = await self._read_user_file_from_supabase(user_id, file_name, req.auth_token)
-                    if content:
-                        file_contents[file_name] = content
-                        logger.info(f"✅ Archivo leído: {file_name}")
+                    file_bytes, content_type = await self._backend_download_file(
+                        user_id=user_id,
+                        filename=file_name,
+                        auth_token=req.auth_token,
+                    )
+                    text = file_bytes.decode("utf-8", errors="replace")
+                    
+                    if file_name.endswith(".json"):
+                        try:
+                            file_contents[file_name] = json_module.loads(text)
+                        except:
+                            file_contents[file_name] = {"_raw": text}
                     else:
-                        missing_files.append(file_name)
-                        logger.warning(f"⚠️ Archivo vacío: {file_name}")
+                        file_contents[file_name] = text
+                    
+                    logger.info(f"✅ Archivo leído: {file_name}")
+                    
+                except FileNotFoundError:
+                    missing_files.append(file_name)
+                    logger.warning(f"⚠️ Archivo {file_name} no encontrado")
                 except Exception as e:
                     missing_files.append(file_name)
                     logger.error(f"❌ Error leyendo {file_name}: {str(e)}")
@@ -1572,11 +1585,15 @@ Después de la cadena de pensamiento, genera un objeto MD (y nada más) que cont
 """
             
             # 3. Construir el mensaje del usuario con los datos
-            mensaje_usuario = "¿Qué proyecciones futuras ves del portafolio?\n\n"
-            mensaje_usuario += "A continuación te proporciono los datos necesarios:\n\n"
+            files_context = {
+                "quantitative_engine_output": file_contents.get("quantitative_engine_output.json", {}),
+                "api_response_B": file_contents.get("api_response_B.json", {}),
+                "informe_video_premercado": file_contents.get("informe_video_premercado.md", ""),
+                "portfolio_analisis": file_contents.get("portfolio_analisis.json", {}),
+            }
             
-            for file_name, content in file_contents.items():
-                mensaje_usuario += f"### Archivo: {file_name}\n```\n{content}\n```\n\n"
+            mensaje_usuario = "¿Qué proyecciones futuras ves del portafolio?\n\n"
+            mensaje_usuario += f"ARCHIVOS_ANALISIS=\n{json_module.dumps(files_context, ensure_ascii=False, indent=2)}"
             
             # 4. Llamar al modelo Gemini
             client = genai.Client(api_key=settings.GEMINI_API_KEY)
