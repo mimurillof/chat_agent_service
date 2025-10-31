@@ -9,6 +9,7 @@ import uuid
 import traceback
 import mimetypes
 import base64
+import logging
 from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List, Tuple
 import json
@@ -18,6 +19,9 @@ from pydantic import BaseModel, ValidationError, Field
 import httpx
 from config import settings
 from models import ChatMessage, MessageRole, PortfolioReportRequest, PortfolioReportResponse, Report, AlertsAnalysisRequest, FutureProjectionsRequest
+
+# Configurar logger
+logger = logging.getLogger(__name__)
 
 try:
     from google import genai
