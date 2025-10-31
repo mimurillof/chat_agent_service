@@ -132,6 +132,38 @@ async def process_alerts_analysis_task(task_id: str, request: AlertsAnalysisRequ
         task_statuses[task_id]["updated_at"] = datetime.now().isoformat()
 
 
+async def process_future_projections_task(task_id: str, request: FutureProjectionsRequest):
+    """
+    Función auxiliar que procesa las proyecciones futuras en background.
+    Actualiza el estado en task_statuses.
+    """
+    try:
+        # Actualizar estado a "processing"
+        task_statuses[task_id]["status"] = "processing"
+        task_statuses[task_id]["updated_at"] = datetime.now().isoformat()
+        
+        # Generar proyecciones
+        result = await chat_service.ejecutar_proyecciones_futuras(request)
+        
+        if isinstance(result, dict) and result.get("error"):
+            # Error en la generación
+            task_statuses[task_id]["status"] = "error"
+            task_statuses[task_id]["error"] = result.get("detail") or result.get("error")
+            task_statuses[task_id]["updated_at"] = datetime.now().isoformat()
+        else:
+            # Éxito
+            task_statuses[task_id]["status"] = "completed"
+            task_statuses[task_id]["result"] = result
+            task_statuses[task_id]["updated_at"] = datetime.now().isoformat()
+            task_statuses[task_id]["completed_at"] = datetime.now().isoformat()
+    
+    except Exception as e:
+        # Error inesperado
+        task_statuses[task_id]["status"] = "error"
+        task_statuses[task_id]["error"] = str(e)
+        task_statuses[task_id]["updated_at"] = datetime.now().isoformat()
+
+
 @app.post("/acciones/generar_informe_portafolio/start")
 async def generar_informe_portafolio_start(
     request: PortfolioReportRequest,
