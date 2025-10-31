@@ -17,7 +17,7 @@ from json import JSONDecodeError
 from pydantic import BaseModel, ValidationError, Field
 import httpx
 from config import settings
-from models import ChatMessage, MessageRole, PortfolioReportRequest, PortfolioReportResponse, Report, AlertsAnalysisRequest
+from models import ChatMessage, MessageRole, PortfolioReportRequest, PortfolioReportResponse, Report, AlertsAnalysisRequest, FutureProjectionsRequest
 
 try:
     from google import genai
@@ -1459,6 +1459,158 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archiv
             print(f"❌ Error generando análisis de alertas: {e}")
             return {
                 "error": "Error generando análisis de alertas",
+                "detail": str(e),
+                "session_id": session_id,
+                "model_used": model,
+            }
+
+    async def ejecutar_proyecciones_futuras(
+        self,
+        req: FutureProjectionsRequest
+    ) -> Dict[str, Any]:
+        """
+        Ejecuta análisis de proyecciones futuras basado en 4 archivos específicos
+        del usuario en Supabase Storage.
+        """
+        import json as json_module
+        
+        session_id = req.session_id or self.create_session()
+        user_id = req.user_id
+        model = req.model_preference or "flash"
+        
+        logger.info(f"🔮 Iniciando proyecciones futuras para user_id={user_id}, session={session_id}")
+        
+        try:
+            # 1. Obtener los 4 archivos específicos desde Supabase
+            file_names = [
+                "quantitative_engine_output.json",
+                "api_response_B.json",
+                "informe_video_premercado.md",
+                "portfolio_analisis.json"
+            ]
+            
+            file_contents = {}
+            missing_files = []
+            
+            for file_name in file_names:
+                try:
+                    content = await self._read_user_file_from_supabase(user_id, file_name, req.auth_token)
+                    if content:
+                        file_contents[file_name] = content
+                        logger.info(f"✅ Archivo leído: {file_name}")
+                    else:
+                        missing_files.append(file_name)
+                        logger.warning(f"⚠️ Archivo vacío: {file_name}")
+                except Exception as e:
+                    missing_files.append(file_name)
+                    logger.error(f"❌ Error leyendo {file_name}: {str(e)}")
+            
+            if not file_contents:
+                return {
+                    "error": "No se pudieron leer los archivos necesarios desde Supabase",
+                    "missing_files": missing_files,
+                    "session_id": session_id,
+                    "model_used": model,
+                }
+            
+            # 2. Construir el prompt especializado
+            prompt_sistema = """Eres "QuantSynth", un Asistente Experto en Análisis de Portafolios Cuantitativos. Tu tarea es analizar un conjunto de datos financieros dispares para generar una proyección futura concisa y accionable para un usuario.
+
+Basa tu análisis única y exclusivamente en los datos proporcionados dentro de las siguientes archivos. No utilices ningún conocimiento externo.
+
+**Datos_Rendimiento_Actual** Fuente= api_response_B.json
+
+**Datos_Motor_Cuantitativo** Fuente= quantitative_engine_output.json
+
+**Datos_Macro_Mercado** Fuente= informe_video_premercado.md
+
+**Datos_Analisis_portfolio** Fuente= portfolio_analisis.json
+
+Tu tarea es responder la pregunta del usuario **¿Qué proyecciones futuras ves del portafolio?**. Debes seguir este proceso de dos pasos:
+
+**Paso 1: Cadena de Pensamiento Interna (CoT)**
+Genera tu razonamiento dentro de una etiqueta <Cadena_de_Pensamiento_Interna>. Este razonamiento debe incluir:
+
+1. **Análisis de Situación Actual**: Describe el rendimiento pasado y la composición actual del portafolio.
+
+2. **Análisis de Riesgo Macro**: Evalúa cómo el contexto macro (IPC, Tasas Fed) impacta las tenencias clave del portafolio (NVDA, ^SPX), citando el informe de pre-mercado.
+
+3. **Análisis de Señales Cuantitativas**: Interpreta las señales de RSI del motor cuantitativo.
+
+4. **Identificación de Conflictos (Autocrítica)**: Identifica y explica las discrepancias clave en los datos. Específicamente:
+   - El conflicto entre el rendimiento pasado (excelente) y el riesgo macro (alto).
+   - El conflicto entre la recomendación actual ("Mantener") y los resultados de ambos motores de optimización.
+   - El conflicto entre los dos modelos de optimización (uno sugiere 76% PAXG, el otro 49.6% PAXG y 41% NVDA).
+
+5. **Síntesis de Proyección**: Basado en los conflictos, formula la proyección más probable.
+
+**Paso 2: Generación de Respuesta MD**
+Después de la cadena de pensamiento, genera un objeto MD (y nada más) que contenga la respuesta final, utilizando la siguiente estructura:
+
+```markdown
+# Proyecciones Futuras del Portafolio
+
+## Resumen Ejecutivo
+[Respuesta breve (1-2 frases) a la pregunta del usuario]
+
+## Análisis de Riesgo Macro
+[Explicación de los riesgos externos (IPC, Fed, Tasas) y su impacto específico en el portafolio (sector tecnológico)]
+
+## Análisis Cuantitativo
+[Interpretación de las señales técnicas (RSI) y lo que sugieren los modelos de optimización]
+
+## Conflicto de Datos Clave
+[Declaración explícita de las principales contradicciones encontradas en los datos]
+
+## Proyección Sintetizada
+[La conclusión final sobre las perspectivas futuras del portafolio]
+```
+"""
+            
+            # 3. Construir el mensaje del usuario con los datos
+            mensaje_usuario = "¿Qué proyecciones futuras ves del portafolio?\n\n"
+            mensaje_usuario += "A continuación te proporciono los datos necesarios:\n\n"
+            
+            for file_name, content in file_contents.items():
+                mensaje_usuario += f"### Archivo: {file_name}\n```\n{content}\n```\n\n"
+            
+            # 4. Llamar al modelo Gemini
+            client = genai.Client(api_key=settings.GEMINI_API_KEY)
+            model_id = "gemini-2.0-flash-exp" if model == "flash" else "gemini-1.5-pro"
+            
+            logger.info(f"🤖 Llamando a Gemini {model_id}...")
+            
+            response = client.models.generate_content(
+                model=model_id,
+                contents=[
+                    types.Part.from_text(prompt_sistema),
+                    types.Part.from_text(mensaje_usuario)
+                ],
+                config=types.GenerateContentConfig(
+                    temperature=0.3,
+                    max_output_tokens=4000,
+                )
+            )
+            
+            if not response or not response.text:
+                raise ValueError("Respuesta vacía del modelo")
+            
+            projections_text = response.text.strip()
+            
+            logger.info(f"✅ Proyecciones generadas exitosamente")
+            
+            return {
+                "projections": projections_text,
+                "session_id": session_id,
+                "model_used": model_id,
+                "files_processed": list(file_contents.keys()),
+                "missing_files": missing_files if missing_files else None
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ Error en proyecciones futuras: {str(e)}")
+            return {
+                "error": "Error generando proyecciones futuras",
                 "detail": str(e),
                 "session_id": session_id,
                 "model_used": model,

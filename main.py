@@ -15,7 +15,8 @@ from models import (
     ChatRequest, ChatResponse, HealthResponse, SessionInfo,
     ErrorResponse, MessageRole,
     PortfolioReportRequest, PortfolioReportResponse,
-    AlertsAnalysisRequest, AlertsAnalysisResponse
+    AlertsAnalysisRequest, AlertsAnalysisResponse,
+    FutureProjectionsRequest, FutureProjectionsResponse
 )
 from agent_service import chat_service
 
@@ -353,6 +354,83 @@ async def analisis_alertas_status(task_id: str):
         response["error"] = status_info.get("error")
     elif status_info["status"] in ["pending", "processing"]:
         response["message"] = "Análisis en proceso. Vuelva a consultar en unos segundos."
+    
+    return response
+
+
+@app.post("/acciones/proyecciones_futuras/start")
+async def proyecciones_futuras_start(
+    request: FutureProjectionsRequest,
+    background_tasks: BackgroundTasks,
+    authorization: str | None = Header(default=None, alias="Authorization"),
+):
+    """
+    Inicia el análisis asíncrono de proyecciones futuras.
+    Retorna inmediatamente con un task_id para hacer polling.
+    """
+    # Extraer token de autorización si está presente
+    bearer_token = None
+    if authorization and authorization.lower().startswith("bearer "):
+        bearer_token = authorization.split(" ", 1)[1]
+    elif request.auth_token:
+        bearer_token = request.auth_token
+    
+    # Actualizar el token en el request
+    request.auth_token = bearer_token
+    
+    # Generar task_id único
+    task_id = f"proj_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{id(request)}"
+    
+    # Inicializar estado de la tarea
+    task_statuses[task_id] = {
+        "task_id": task_id,
+        "status": "pending",
+        "created_at": datetime.now().isoformat(),
+        "updated_at": datetime.now().isoformat(),
+    }
+    
+    # Agregar tarea en background
+    background_tasks.add_task(process_future_projections_task, task_id, request)
+    
+    return {
+        "task_id": task_id,
+        "status": "pending",
+        "message": "Análisis de proyecciones futuras iniciado",
+        "poll_url": f"/acciones/proyecciones_futuras/status/{task_id}",
+        "created_at": task_statuses[task_id]["created_at"]
+    }
+
+
+@app.get("/acciones/proyecciones_futuras/status/{task_id}")
+async def proyecciones_futuras_status(task_id: str):
+    """
+    Obtiene el estado actual de una tarea de proyecciones futuras.
+    Estados posibles: pending, processing, completed, error
+    """
+    if task_id not in task_statuses:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Tarea con ID {task_id} no encontrada"
+        )
+    
+    status_info = task_statuses[task_id]
+    
+    # Respuesta básica para todos los estados
+    response = {
+        "task_id": status_info["task_id"],
+        "status": status_info["status"],
+        "created_at": status_info["created_at"],
+        "updated_at": status_info["updated_at"],
+    }
+    
+    # Agregar información específica según el estado
+    if status_info["status"] == "completed":
+        response["result"] = status_info.get("result")
+        response["completed_at"] = status_info.get("completed_at")
+    elif status_info["status"] == "error":
+        response["error"] = status_info.get("error")
+    elif status_info["status"] in ["pending", "processing"]:
+        response["message"] = "Proyecciones futuras en proceso. Vuelva a consultar en unos segundos."
     
     return response
 
