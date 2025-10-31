@@ -1480,9 +1480,14 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archiv
         
         session_id = req.session_id or self.create_session()
         user_id = req.user_id
-        model = req.model_preference or "flash"
         
-        logger.info(f"🔮 Iniciando proyecciones futuras para user_id={user_id}, session={session_id}")
+        # Mapear modelo como en alertas
+        if req.model_preference:
+            model = settings.model_pro if req.model_preference.lower() == "pro" else settings.model_flash
+        else:
+            model = settings.model_flash
+        
+        logger.info(f"🔮 Iniciando proyecciones futuras para user_id={user_id}, session={session_id}, model={model}")
         
         try:
             # 1. Obtener los 4 archivos específicos desde Supabase
@@ -1595,35 +1600,76 @@ Después de la cadena de pensamiento, genera un objeto MD (y nada más) que cont
             mensaje_usuario = "¿Qué proyecciones futuras ves del portafolio?\n\n"
             mensaje_usuario += f"ARCHIVOS_ANALISIS=\n{json_module.dumps(files_context, ensure_ascii=False, indent=2)}"
             
-            # 4. Llamar al modelo Gemini
-            client = genai.Client(api_key=settings.GEMINI_API_KEY)
-            model_id = "gemini-2.0-flash-exp" if model == "flash" else "gemini-1.5-pro"
-            
-            logger.info(f"🤖 Llamando a Gemini {model_id}...")
-            
-            response = client.models.generate_content(
-                model=model_id,
-                contents=[
-                    types.Part.from_text(prompt_sistema),
-                    types.Part.from_text(mensaje_usuario)
-                ],
-                config=types.GenerateContentConfig(
-                    temperature=0.3,
-                    max_output_tokens=4000,
+            # 4. Construir el contenido para Gemini (similar a alertas)
+            contents = [
+                types.Content(
+                    role="user",
+                    parts=[types.Part.from_text(text=prompt_sistema)]
+                ),
+                types.Content(
+                    role="user",
+                    parts=[types.Part.from_text(text=mensaje_usuario)]
                 )
+            ]
+            
+            config = types.GenerateContentConfig(
+                temperature=0.3,
+                max_output_tokens=4000,
             )
             
-            if not response or not response.text:
-                raise ValueError("Respuesta vacía del modelo")
+            # 5. Llamar al modelo Gemini usando self.client (como en alertas)
+            # Intentar con diferentes modelos si hay sobrecarga (como en alertas)
+            models_to_try = [model]
+            if model == settings.model_pro:
+                models_to_try.extend([settings.model_flash, "gemini-2.5-flash"])
+            elif model == settings.model_flash:
+                models_to_try.extend(["gemini-2.5-flash", "gemini-2.5-flash-lite"])
             
-            projections_text = response.text.strip()
+            successful_model = None
+            resp = None
             
-            logger.info(f"✅ Proyecciones generadas exitosamente")
+            for try_model in models_to_try:
+                try:
+                    resp = await self.client.aio.models.generate_content(
+                        model=try_model,
+                        contents=contents,
+                        config=config,
+                    )
+                    successful_model = try_model
+                    break
+                except Exception as model_error:
+                    error_str = str(model_error)
+                    if "overloaded" in error_str or "503" in error_str:
+                        logger.warning(f"⚠️ Modelo {try_model} sobrecargado, probando siguiente...")
+                        continue
+                    else:
+                        raise model_error
+            
+            if not resp or not successful_model:
+                raise ValueError("Todos los modelos están sobrecargados, intenta más tarde")
+            
+            # Extraer el texto de la respuesta (como en alertas)
+            projections_text = ""
+            if hasattr(resp, "text") and resp.text:
+                projections_text = resp.text.strip()
+            elif hasattr(resp, "candidates") and resp.candidates:
+                for candidate in resp.candidates:
+                    if hasattr(candidate, "content") and candidate.content:
+                        if hasattr(candidate.content, "parts"):
+                            for part in candidate.content.parts:
+                                if hasattr(part, "text"):
+                                    projections_text += part.text
+                projections_text = projections_text.strip()
+            
+            if not projections_text:
+                raise ValueError("No se pudo extraer las proyecciones de la respuesta del modelo")
+            
+            logger.info(f"✅ Proyecciones generadas exitosamente con modelo {successful_model}")
             
             return {
                 "projections": projections_text,
                 "session_id": session_id,
-                "model_used": model_id,
+                "model_used": successful_model,
                 "files_processed": list(file_contents.keys()),
                 "missing_files": missing_files if missing_files else None
             }
