@@ -18,7 +18,7 @@ from json import JSONDecodeError
 from pydantic import BaseModel, ValidationError, Field
 import httpx
 from config import settings
-from models import ChatMessage, MessageRole, PortfolioReportRequest, PortfolioReportResponse, Report, AlertsAnalysisRequest, FutureProjectionsRequest
+from models import ChatMessage, MessageRole, PortfolioReportRequest, PortfolioReportResponse, Report, AlertsAnalysisRequest, FutureProjectionsRequest, PerformanceAnalysisRequest
 
 # Configurar logger
 logger = logging.getLogger(__name__)
@@ -1678,6 +1678,231 @@ Después de la cadena de pensamiento, genera un objeto MD (y nada más) que cont
             logger.error(f"❌ Error en proyecciones futuras: {str(e)}")
             return {
                 "error": "Error generando proyecciones futuras",
+                "detail": str(e),
+                "session_id": session_id,
+                "model_used": model,
+            }
+
+    async def ejecutar_analisis_rendimiento(
+        self,
+        req: "PerformanceAnalysisRequest"
+    ) -> Dict[str, Any]:
+        """
+        Ejecuta análisis de rendimiento del portafolio basado en 2 archivos específicos
+        del usuario en Supabase Storage: portfolio_data.json y portfolio_analisis.json
+        """
+        import json as json_module
+        
+        session_id = req.session_id or self.create_session()
+        user_id = req.user_id
+        
+        # Mapear modelo como en alertas y proyecciones
+        if req.model_preference:
+            model = settings.model_pro if req.model_preference.lower() == "pro" else settings.model_flash
+        else:
+            model = settings.model_flash
+        
+        logger.info(f"📊 Iniciando análisis de rendimiento para user_id={user_id}, session={session_id}, model={model}")
+        
+        try:
+            # Archivos a leer
+            file_names = [
+                "portfolio_data.json",
+                "portfolio_analisis.json"
+            ]
+            
+            file_contents = {}
+            missing_files = []
+            
+            for file_name in file_names:
+                try:
+                    file_bytes, content_type = await self._backend_download_file(
+                        user_id=user_id,
+                        filename=file_name,
+                        auth_token=req.auth_token,
+                    )
+                    text = file_bytes.decode("utf-8", errors="replace")
+                    if file_name.endswith(".json"):
+                        try:
+                            file_contents[file_name] = json_module.loads(text)
+                        except:
+                            file_contents[file_name] = {"_raw": text}
+                    else:
+                        file_contents[file_name] = text
+                    logger.info(f"✅ Archivo leído: {file_name}")
+                except FileNotFoundError:
+                    missing_files.append(file_name)
+                    logger.warning(f"⚠️ Archivo {file_name} no encontrado")
+                except Exception as e:
+                    missing_files.append(file_name)
+                    logger.error(f"❌ Error leyendo {file_name}: {str(e)}")
+            
+            if not file_contents:
+                return {
+                    "error": "No se pudieron leer los archivos necesarios desde Supabase",
+                    "missing_files": missing_files,
+                    "session_id": session_id,
+                    "model_used": model,
+                }
+            
+            # Prompt del sistema para análisis de rendimiento
+            prompt_sistema = """Eres "AnalystAI", un asistente de IA experto en análisis financiero y de portafolios. Tu especialidad es recibir datos, extraer información clave, sintetizarla y presentar un "Reporte de Estado de Portafolio" accionable. Tu análisis debe ser preciso y tu tono, profesional y directo.
+
+[TAREA]
+
+Tu tarea es generar un "Reporte de Estado y Señales" del portafolio de tu usuario. Recibirás dos archivos JSON que contienen el estado actual y un análisis técnico.
+
+Tu objetivo es generar un reporte unificado en Markdown que muestre el valor, la asignación, el rendimiento y las señales técnicas. En la conclusión, debes aportar una breve visión experta sobre el estado general (ej. "el portafolio muestra un buen rendimiento pero las señales sugieren cautela").
+
+[ARCHIVOS DE ENTRADA]
+
+1.  **Archivo de Estado Actual (ej. portfolio_data.json):** Contiene el estado de mercado, asignaciones y métricas de rendimiento.
+
+2.  **Archivo de Análisis Técnico (ej. portfolio_analisis.json):** Contiene señales de trading y análisis de régimen de mercado.
+
+[PROCESO DE EJECUCIÓN OBLIGATORIO (Chain-of-Thought)]
+
+Sigue estas fases estrictamente:
+
+**Fase 1: Razonamiento Interno y Extracción de Datos (Tu "Scratchpad")**
+
+Antes de generar cualquier salida, piensa paso a paso. Extrae todos los datos requeridos de AMBOS archivos y colócalos en un bloque de pensamiento interno (usa etiquetas <scratchpad>). Este bloque no será parte de la salida final, pero es obligatorio para tu proceso.
+
+<scratchpad>
+  // Extrayendo datos de portfolio_data.json
+  Valor_Total: [Extraído de summary.total_value]
+  Sharpe_Ratio: [Extraído de summary.sharpe_ratio]
+  Retorno_Total: [Extraído de summary.total_return_percent]
+  Max_Drawdown: [Extraído de summary.max_drawdown_percent]
+  
+  // Extrayendo datos de portfolio_analisis.json
+  Regimen_Mercado: [Extraído de filters.market_regime]
+  // Combinando datos por activo
+  Activo_1_Símbolo: [De positions[0].symbol]
+  Activo_1_Valor: [De positions[0].position_value]
+  Activo_1_Asig: [De positions[0].allocation_percent]
+  Activo_1_Señal: [De analysis donde symbol coincida]
+  Activo_2_Símbolo: [De positions[1].symbol]
+  Activo_2_Valor: [De positions[1].position_value]
+  Activo_2_Asig: [De positions[1].allocation_percent]
+  Activo_2_Señal: [De analysis donde symbol coincida]
+  ... (etc. para todos los activos)
+</scratchpad>
+
+**Fase 2: Síntesis y Reporte (Salida Final)**
+
+Usando **únicamente** los datos extraídos en tu <scratchpad> de la Fase 1, genera el reporte final siguiendo el formato Markdown obligatorio.
+
+[RESTRICCIONES Y MANEJO DE ERRORES]
+
+1.  **Formato Estricto:** La salida final debe ser SÓLO el reporte en Markdown. No incluyas el <scratchpad> en la respuesta al usuario.
+
+2.  **Datos Faltantes:** Si un campo específico (ej. `sharpe_ratio` o `market_regime`) no se encuentra en los archivos JSON, debes escribir "N/A" en la celda o campo correspondiente del reporte. No inventes datos.
+
+[FORMATO DE RESPUESTA OBLIGATORIO (Markdown)]
+
+Reporte de Estado de Portafolio
+===
+
+### Resumen General
+
+El valor total actual de tu portafolio es de **$[Valor_Total]**. A continuación se detalla su estado actual y las señales técnicas correspondientes.
+
+### 1. Estado Actual y Señales Técnicas
+
+| Activo | Valor Actual ($) | Asignación (%) | Señal Técnica | Régimen de Mercado |
+| :--- | :--- | :--- | :--- | :--- |
+| [Símbolo_1] | $[Valor_Activo_1] | [Asig_Pct_1]% | **[Señal_1]** | [Regimen_Mercado] |
+| [Símbolo_2] | $[Valor_Activo_2] | [Asig_Pct_2]% | **[Señal_2]** | [Regimen_Mercado] |
+| ... | ... | ... | ... | ... |
+
+### 2. Métricas de Rendimiento Recientes
+
+* **Retorno Total (período):** [Retorno_Total]%
+* **Ratio de Sharpe:** [Sharpe_Ratio]
+* **Máximo Drawdown:** [Max_Drawdown]%
+
+### Conclusión del Análisis
+
+[Escribe aquí tu visión experta de 1-2 frases resumiendo el estado y la postura recomendada. Ej: "Tu portafolio de $[Valor_Total] mantiene una postura de [Señal_General] en un mercado de [Regimen_Mercado]. El rendimiento es sólido, aunque se aconseja monitorear [Activo_con_peor_Señal]..."]"""
+            
+            # Preparar contexto de archivos
+            files_context = {
+                "portfolio_data": file_contents.get("portfolio_data.json", {}),
+                "portfolio_analisis": file_contents.get("portfolio_analisis.json", {}),
+            }
+            
+            mensaje_usuario = "Genera el reporte de estado y señales del portafolio basándote en los archivos proporcionados.\n\n"
+            mensaje_usuario += f"ARCHIVOS_ANALISIS=\n{json_module.dumps(files_context, ensure_ascii=False, indent=2)}"
+            
+            # Construir contenido para Gemini
+            contents = [
+                types.Content(role="user", parts=[types.Part.from_text(text=prompt_sistema)]),
+                types.Content(role="user", parts=[types.Part.from_text(text=mensaje_usuario)])
+            ]
+            
+            config = types.GenerateContentConfig(temperature=0.3, max_output_tokens=4000)
+            
+            # Modelos a intentar con fallback
+            models_to_try = [model]
+            if model == settings.model_pro:
+                models_to_try.extend([settings.model_flash, "gemini-2.5-flash"])
+            elif model == settings.model_flash:
+                models_to_try.extend(["gemini-2.5-flash", "gemini-2.5-flash-lite"])
+            
+            successful_model = None
+            resp = None
+            
+            for try_model in models_to_try:
+                try:
+                    resp = await self.client.aio.models.generate_content(
+                        model=try_model,
+                        contents=contents,
+                        config=config,
+                    )
+                    successful_model = try_model
+                    break
+                except Exception as model_error:
+                    error_str = str(model_error)
+                    if "overloaded" in error_str or "503" in error_str:
+                        logger.warning(f"⚠️ Modelo {try_model} sobrecargado, probando siguiente...")
+                        continue
+                    else:
+                        raise model_error
+            
+            if not resp or not successful_model:
+                raise ValueError("Todos los modelos están sobrecargados, intenta más tarde")
+            
+            # Extraer el texto de la respuesta
+            analysis_text = ""
+            if hasattr(resp, "text") and resp.text:
+                analysis_text = resp.text.strip()
+            elif hasattr(resp, "candidates") and resp.candidates:
+                for candidate in resp.candidates:
+                    if hasattr(candidate, "content") and candidate.content:
+                        if hasattr(candidate.content, "parts"):
+                            for part in candidate.content.parts:
+                                if hasattr(part, "text"):
+                                    analysis_text += part.text
+                analysis_text = analysis_text.strip()
+            
+            if not analysis_text:
+                raise ValueError("No se pudo extraer el análisis de la respuesta del modelo")
+            
+            logger.info(f"✅ Análisis de rendimiento generado exitosamente con modelo {successful_model}")
+            
+            return {
+                "analysis": analysis_text,
+                "session_id": session_id,
+                "model_used": successful_model,
+                "files_processed": list(file_contents.keys()),
+                "missing_files": missing_files if missing_files else None
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ Error en análisis de rendimiento: {str(e)}")
+            return {
+                "error": "Error generando análisis de rendimiento",
                 "detail": str(e),
                 "session_id": session_id,
                 "model_used": model,

@@ -162,3 +162,21 @@ class FutureProjectionsResponse(BaseModel):
     session_id: str = Field(..., description="ID de sesión")
     model_used: str = Field(..., description="Modelo utilizado")
     metadata: Optional[Dict[str, Any]] = None
+
+
+# ====== Modelos para Análisis de Rendimiento ======
+
+class PerformanceAnalysisRequest(BaseModel):
+    """Solicitud para generar análisis de rendimiento del portafolio"""
+    user_id: str = Field(..., description="ID del usuario autenticado (requerido)")
+    session_id: Optional[str] = Field(None, description="ID de sesión para el agente")
+    model_preference: Optional[str] = Field(None, description="flash | pro")
+    auth_token: Optional[str] = Field(None, description="Token JWT para autenticación")
+
+
+class PerformanceAnalysisResponse(BaseModel):
+    """Respuesta del análisis de rendimiento"""
+    analysis: str = Field(..., description="Análisis de rendimiento generado en formato Markdown")
+    session_id: str = Field(..., description="ID de sesión")
+    model_used: str = Field(..., description="Modelo utilizado")
+    metadata: Optional[Dict[str, Any]] = None
