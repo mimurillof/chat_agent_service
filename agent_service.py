@@ -18,7 +18,7 @@ from json import JSONDecodeError
 from pydantic import BaseModel, ValidationError, Field
 import httpx
 from config import settings
-from models import ChatMessage, MessageRole, PortfolioReportRequest, PortfolioReportResponse, Report, AlertsAnalysisRequest, FutureProjectionsRequest, PerformanceAnalysisRequest
+from models import ChatMessage, MessageRole, PortfolioReportRequest, PortfolioReportResponse, Report, AlertsAnalysisRequest, FutureProjectionsRequest, PerformanceAnalysisRequest, DailyWeeklySummaryRequest
 
 # Configurar logger
 logger = logging.getLogger(__name__)
@@ -1903,6 +1903,269 @@ El valor total actual de tu portafolio es de **$[Valor_Total]**. A continuación
             logger.error(f"❌ Error en análisis de rendimiento: {str(e)}")
             return {
                 "error": "Error generando análisis de rendimiento",
+                "detail": str(e),
+                "session_id": session_id,
+                "model_used": model,
+            }
+
+    async def ejecutar_resumen_diario_semanal(
+        self,
+        req: "DailyWeeklySummaryRequest"
+    ) -> Dict[str, Any]:
+        """
+        Ejecuta resumen diario/semanal del portafolio basado en 6 archivos específicos
+        del usuario en Supabase Storage.
+        """
+        import json as json_module
+        from datetime import datetime
+        
+        session_id = req.session_id or self.create_session()
+        user_id = req.user_id
+        
+        # Mapear modelo como en otras funciones
+        if req.model_preference:
+            model = settings.model_pro if req.model_preference.lower() == "pro" else settings.model_flash
+        else:
+            model = settings.model_flash
+        
+        logger.info(f"📋 Iniciando resumen diario/semanal para user_id={user_id}, session={session_id}, model={model}")
+        
+        try:
+            # Archivos a leer
+            file_names = [
+                "portfolio_data.json",
+                "portfolio_analisis.json",
+                "api_response_B.json",
+                "informe_consolidado.md",
+                "informe_video_premercado.md",
+                "vision de mercado.md"
+            ]
+            
+            file_contents = {}
+            missing_files = []
+            
+            for file_name in file_names:
+                try:
+                    file_bytes, content_type = await self._backend_download_file(
+                        user_id=user_id,
+                        filename=file_name,
+                        auth_token=req.auth_token,
+                    )
+                    text = file_bytes.decode("utf-8", errors="replace")
+                    if file_name.endswith(".json"):
+                        try:
+                            file_contents[file_name] = json_module.loads(text)
+                        except:
+                            file_contents[file_name] = {"_raw": text}
+                    else:
+                        file_contents[file_name] = text
+                    logger.info(f"✅ Archivo leído: {file_name}")
+                except FileNotFoundError:
+                    missing_files.append(file_name)
+                    logger.warning(f"⚠️ Archivo {file_name} no encontrado")
+                except Exception as e:
+                    missing_files.append(file_name)
+                    logger.error(f"❌ Error leyendo {file_name}: {str(e)}")
+            
+            if not file_contents:
+                return {
+                    "error": "No se pudieron leer los archivos necesarios desde Supabase",
+                    "missing_files": missing_files,
+                    "session_id": session_id,
+                    "model_used": model,
+                }
+            
+            # Obtener fecha actual para la lógica de negocio
+            now = datetime.now()
+            day_of_week = now.weekday()  # 0=Lunes, 4=Viernes
+            
+            # Determinar tipo de resumen según el día
+            if day_of_week == 0 or day_of_week == 4:  # Lunes o Viernes
+                report_type = "Resumen Semanal"
+                date_context = f"lunes, {now.strftime('%d de %B de %Y')}, {now.strftime('%I:%M %p')} EST"
+            else:  # Martes, Miércoles o Jueves
+                report_type = "Resumen Diario"
+                date_context = f"{now.strftime('%A, %d de %B de %Y')}, {now.strftime('%I:%M %p')} EST"
+            
+            # Prompt del sistema para resumen diario/semanal
+            prompt_sistema = """Eres 'AIDA', un asistente de IA financiero de élite.
+
+Tu propósito es proporcionar análisis de cartera claros, precisos y accionables a los clientes.
+
+Tu tono es profesional, ejecutivo y estrictamente basado en los datos proporcionados.
+
+Debes seguir el formato de salida especificado al pie de la letra y no debes incluir información que no provenga de los archivos de contexto.
+
+---
+
+### TAREA
+
+**Activador:** El cliente ha solicitado un "Resumen de Cartera".
+
+**Contexto de Tiempo:** La fecha/hora actual es: **[FECHA_CONTEXTO]**.
+
+**Archivos de Contexto Proporcionados:**
+
+* `Contexto_Cartera`: portfolio_data.json
+* `Contexto_Tecnico`: portfolio_analisis.json
+* `Contexto_Riesgo`: api_response_B.json
+* `Contexto_Apertura_Noticias`: informe_consolidado.md
+* `Contexto_Macro_Video`: informe_video_premercado.md
+* `Contexto_Macro_General`: vision de mercado.md
+
+**Acción Requerida:**
+
+Genera un informe consolidado para el cliente siguiendo rigurosamente los siguientes pasos y utilizando *exclusivamente* los archivos de contexto proporcionados.
+
+#### Pasos de Ejecución:
+
+**1. Análisis Lógico (Chain of Thought Interno):**
+
+* **Paso 1.1:** Evalúa el `Contexto de Tiempo` proporcionado.
+
+* **Paso 1.2:** Aplica la `Lógica de Negocio`:
+    * Si es lunes o viernes, el tipo de informe es "Resumen Semanal" (basado en el cierre del último día de mercado).
+    * Si es martes, miércoles o jueves, el tipo de informe es "Resumen Diario".
+
+* **Paso 1.3:** Concluye el tipo de informe según la fecha proporcionada.
+
+**2. Extracción de Datos de Contexto:**
+
+* De `Contexto_Cartera` [portfolio_data.json]: Extrae `portfolio_value_total`, `p_l_semanal_abs`, `p_l_semanal_pct`, y la `allocation` detallada del cierre más reciente.
+
+* De `Contexto_Tecnico` [portfolio_analisis.json]: Para cada activo en la cartera del cliente, extrae `tendencia_largo_plazo` y `recomendacion`.
+
+* De `Contexto_Riesgo` [api_response_B.json]: Extrae `sharpe_ratio_historico` y la `correlacion_mas_alta`.
+
+* De `Contexto_Macro_General` [vision de mercado.md]: Extrae la narrativa macroeconómica que explique el *porqué* del rendimiento reciente (ej. datos de inflación, tipos de interés).
+
+* De `Contexto_Macro_Video` [informe_video_premercado.md]: Extrae los catalizadores macroeconómicos esperados para *esta* semana (ej. NFP, BCE).
+
+* De `Contexto_Apertura_Noticias` [informe_consolidado.md]: Extrae (1) los precios de apertura de *hoy* y (2) noticias frescas de *hoy* relevantes para los activos de la cartera.
+
+**3. Síntesis y Redacción:**
+
+* Sintetiza todos los datos extraídos en un informe ejecutivo coherente.
+
+* La narrativa principal debe explicar el *rendimiento pasado* (P&L) usando la *narrativa macro* (por qué se movió) e integrar las *señales técnicas* (contexto del activo).
+
+* La perspectiva futura debe mencionar los *catalizadores macro* de esta semana y el *contexto de apertura* de hoy.
+
+#### Formato de Salida Requerido (Markdown):
+
+Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
+
+### Resumen de Portafolio ([TIPO]: [FECHA])
+
+* **Valor Total:** [Valor de `Contexto_Cartera`]
+
+* **Rendimiento [Periodo]:** [P&L absoluto y % de `Contexto_Cartera`]
+
+* **Asignación (Allocation):** [Resumen de `Contexto_Cartera`]
+
+### Análisis de Mercado y Perspectiva
+
+* **Revisión ([Periodo Pasado]):** [Sintetiza la narrativa de `Contexto_Macro_General` que explique el P&L.]
+
+* **Perspectiva ([Periodo Actual]):** [Menciona los catalizadores clave de `Contexto_Macro_Video` y el sentimiento de apertura de `Contexto_Apertura_Noticias`.]
+
+### Detalles de Activos y Riesgo
+
+* **[Activo 1 (ej. AAPL)]:** Tendencia: [Señal de `Contexto_Tecnico`], Recomendación: [Señal de `Contexto_Tecnico`]. Noticia Relevante (Hoy): [Noticia de `Contexto_Apertura_Noticias`].
+
+* **[Activo 2 (ej. MSFT)]:** ...
+
+* **Métricas de Riesgo Clave:** Sharpe Ratio: [Dato de `Contexto_Riesgo`], Correlación a Monitorear: [Dato de `Contexto_Riesgo`].
+
+### Accionables Inmediatos
+
+* [Genera 1-2 puntos clave accionables basados en las recomendaciones, riesgos o noticias identificadas.]"""
+            
+            # Preparar contexto de archivos con nombres amigables
+            files_context = {
+                "Contexto_Cartera": file_contents.get("portfolio_data.json", {}),
+                "Contexto_Tecnico": file_contents.get("portfolio_analisis.json", {}),
+                "Contexto_Riesgo": file_contents.get("api_response_B.json", {}),
+                "Contexto_Apertura_Noticias": file_contents.get("informe_consolidado.md", ""),
+                "Contexto_Macro_Video": file_contents.get("informe_video_premercado.md", ""),
+                "Contexto_Macro_General": file_contents.get("vision de mercado.md", ""),
+            }
+            
+            # Reemplazar fecha en el prompt
+            prompt_with_date = prompt_sistema.replace("[FECHA_CONTEXTO]", date_context)
+            
+            mensaje_usuario = f"Genera el {report_type} del portafolio basándote en los archivos proporcionados.\n\n"
+            mensaje_usuario += f"ARCHIVOS_CONTEXTO=\n{json_module.dumps(files_context, ensure_ascii=False, indent=2)}"
+            
+            # Construir contenido para Gemini
+            contents = [
+                types.Content(role="user", parts=[types.Part.from_text(text=prompt_with_date)]),
+                types.Content(role="user", parts=[types.Part.from_text(text=mensaje_usuario)])
+            ]
+            
+            config = types.GenerateContentConfig(temperature=0.3, max_output_tokens=4000)
+            
+            # Modelos a intentar con fallback
+            models_to_try = [model]
+            if model == settings.model_pro:
+                models_to_try.extend([settings.model_flash, "gemini-2.5-flash"])
+            elif model == settings.model_flash:
+                models_to_try.extend(["gemini-2.5-flash", "gemini-2.5-flash-lite"])
+            
+            successful_model = None
+            resp = None
+            
+            for try_model in models_to_try:
+                try:
+                    resp = await self.client.aio.models.generate_content(
+                        model=try_model,
+                        contents=contents,
+                        config=config,
+                    )
+                    successful_model = try_model
+                    break
+                except Exception as model_error:
+                    error_str = str(model_error)
+                    if "overloaded" in error_str or "503" in error_str:
+                        logger.warning(f"⚠️ Modelo {try_model} sobrecargado, probando siguiente...")
+                        continue
+                    else:
+                        raise model_error
+            
+            if not resp or not successful_model:
+                raise ValueError("Todos los modelos están sobrecargados, intenta más tarde")
+            
+            # Extraer el texto de la respuesta
+            summary_text = ""
+            if hasattr(resp, "text") and resp.text:
+                summary_text = resp.text.strip()
+            elif hasattr(resp, "candidates") and resp.candidates:
+                for candidate in resp.candidates:
+                    if hasattr(candidate, "content") and candidate.content:
+                        if hasattr(candidate.content, "parts"):
+                            for part in candidate.content.parts:
+                                if hasattr(part, "text"):
+                                    summary_text += part.text
+                summary_text = summary_text.strip()
+            
+            if not summary_text:
+                raise ValueError("No se pudo extraer el resumen de la respuesta del modelo")
+            
+            logger.info(f"✅ Resumen diario/semanal generado exitosamente con modelo {successful_model}")
+            
+            return {
+                "summary": summary_text,
+                "session_id": session_id,
+                "model_used": successful_model,
+                "files_processed": list(file_contents.keys()),
+                "missing_files": missing_files if missing_files else None,
+                "report_type": report_type
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ Error en resumen diario/semanal: {str(e)}")
+            return {
+                "error": "Error generando resumen diario/semanal",
                 "detail": str(e),
                 "session_id": session_id,
                 "model_used": model,
