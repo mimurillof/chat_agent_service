@@ -2163,7 +2163,8 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
                 types.Content(role="user", parts=[types.Part.from_text(text=mensaje_usuario)])
             ]
             
-            config = types.GenerateContentConfig(temperature=0.3, max_output_tokens=4000)
+            # Aumentar max_output_tokens para evitar truncamiento (MAX_TOKENS error)
+            config = types.GenerateContentConfig(temperature=0.3, max_output_tokens=16000)
             
             # Modelos a intentar con fallback
             models_to_try = [model]
