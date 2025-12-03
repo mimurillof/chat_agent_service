@@ -2195,25 +2195,68 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
             if not resp or not successful_model:
                 raise ValueError("Todos los modelos están sobrecargados, intenta más tarde")
             
+            # Log detallado de la respuesta para debugging
+            logger.info(f"📝 Respuesta recibida de {successful_model}")
+            logger.info(f"   - Tiene .text: {hasattr(resp, 'text')}, valor: {bool(resp.text) if hasattr(resp, 'text') else 'N/A'}")
+            logger.info(f"   - Tiene .candidates: {hasattr(resp, 'candidates')}, valor: {bool(resp.candidates) if hasattr(resp, 'candidates') else 'N/A'}")
+            
+            # Verificar si la respuesta fue bloqueada o filtrada
+            if hasattr(resp, 'prompt_feedback') and resp.prompt_feedback:
+                logger.warning(f"⚠️ Prompt feedback: {resp.prompt_feedback}")
+            
             # Extraer el texto de la respuesta
             summary_text = ""
             if hasattr(resp, "text") and resp.text:
                 summary_text = resp.text.strip()
+                logger.info(f"   ✅ Texto extraído de resp.text ({len(summary_text)} caracteres)")
             elif hasattr(resp, "candidates") and resp.candidates:
                 # Verificar que candidates no sea None antes de iterar
                 candidates_list = resp.candidates if resp.candidates else []
-                for candidate in candidates_list:
+                logger.info(f"   - Número de candidates: {len(candidates_list)}")
+                
+                for i, candidate in enumerate(candidates_list):
+                    # Log del estado del candidate
+                    finish_reason = getattr(candidate, 'finish_reason', 'unknown')
+                    logger.info(f"   - Candidate {i}: finish_reason={finish_reason}")
+                    
+                    # Verificar si fue bloqueado por seguridad
+                    if hasattr(candidate, 'safety_ratings') and candidate.safety_ratings:
+                        for rating in candidate.safety_ratings:
+                            if hasattr(rating, 'blocked') and rating.blocked:
+                                logger.warning(f"   ⚠️ Candidate bloqueado por seguridad: {rating}")
+                    
                     if hasattr(candidate, "content") and candidate.content:
                         if hasattr(candidate.content, "parts") and candidate.content.parts:
                             # Verificar que parts no sea None antes de iterar
                             parts_list = candidate.content.parts if candidate.content.parts else []
-                            for part in parts_list:
+                            logger.info(f"   - Candidate {i} tiene {len(parts_list)} parts")
+                            for j, part in enumerate(parts_list):
                                 if hasattr(part, "text") and part.text:
                                     summary_text += part.text
+                                    logger.info(f"   ✅ Part {j}: {len(part.text)} caracteres extraídos")
+                                else:
+                                    logger.info(f"   - Part {j}: sin texto (tipo: {type(part)})")
+                        else:
+                            logger.warning(f"   - Candidate {i}: content.parts es None o vacío")
+                    else:
+                        logger.warning(f"   - Candidate {i}: content es None o vacío")
+                
                 summary_text = summary_text.strip()
+            else:
+                logger.warning("   ❌ La respuesta no tiene .text ni .candidates válidos")
+                # Intentar inspeccionar la respuesta completa
+                logger.warning(f"   Tipo de respuesta: {type(resp)}")
+                logger.warning(f"   Atributos disponibles: {dir(resp)}")
             
             if not summary_text:
-                raise ValueError("No se pudo extraer el resumen de la respuesta del modelo")
+                # Proporcionar más contexto sobre el error
+                error_details = []
+                if hasattr(resp, 'candidates') and resp.candidates:
+                    for i, c in enumerate(resp.candidates):
+                        fr = getattr(c, 'finish_reason', 'unknown')
+                        error_details.append(f"candidate_{i}_finish_reason={fr}")
+                error_context = ", ".join(error_details) if error_details else "sin candidates"
+                raise ValueError(f"No se pudo extraer el resumen de la respuesta del modelo ({error_context})")
             
             logger.info(f"✅ Resumen diario/semanal generado exitosamente con modelo {successful_model}")
             
