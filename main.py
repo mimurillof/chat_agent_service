@@ -7,8 +7,16 @@ from fastapi.responses import JSONResponse, StreamingResponse
 import uvicorn
 import uuid
 import json
+import asyncio
+import logging
 from datetime import datetime
 from typing import List, Dict, Any, AsyncGenerator
+from contextlib import asynccontextmanager
+
+# APScheduler imports
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
+import pytz
 
 from config import settings
 from models import (
@@ -22,15 +30,105 @@ from models import (
 )
 from agent_service import chat_service
 
+# Configurar logger
+logger = logging.getLogger(__name__)
+
 # Almacenamiento en memoria para estados de tareas
 # Con 1 worker de Gunicorn, todos los requests comparten la misma memoria
 task_statuses: Dict[str, Dict[str, Any]] = {}
 
-# Crear aplicación FastAPI
+# Scheduler global
+scheduler: AsyncIOScheduler = None
+
+
+# ============================================
+# SCHEDULER: Tarea programada de resumen diario
+# ============================================
+
+async def scheduled_daily_summary_for_all_users():
+    """
+    Tarea programada que se ejecuta de lunes a viernes a las 9:00 AM hora Nueva York.
+    Genera el resumen diario/semanal para todos los usuarios registrados.
+    
+    NOTA: Esta es una implementación básica. En producción, deberías:
+    1. Obtener la lista de usuarios activos desde la base de datos
+    2. Obtener tokens de servicio para cada usuario (o usar service role)
+    3. Implementar manejo de errores y reintentos por usuario
+    """
+    logger.info("🕘 [SCHEDULER] Iniciando tarea programada de resumen diario/semanal")
+    
+    # En este punto, deberías obtener la lista de usuarios desde el backend
+    # Por ahora, esta tarea se activará pero requerirá que los usuarios
+    # tengan sus datos configurados para funcionar
+    
+    # Para implementación completa, podrías:
+    # 1. Llamar a un endpoint del backend que devuelva usuarios activos
+    # 2. Iterar sobre cada usuario y ejecutar el resumen
+    
+    logger.info("🕘 [SCHEDULER] Tarea de resumen programado completada")
+    
+    # Ejemplo de cómo se invocaría para un usuario específico:
+    # request = DailyWeeklySummaryRequest(
+    #     user_id="user_123",
+    #     session_id=None,
+    #     model_preference="flash",
+    #     auth_token="SERVICE_TOKEN"  # Token de servicio
+    # )
+    # result = await chat_service.ejecutar_resumen_diario_semanal(request)
+
+
+def setup_scheduler():
+    """Configura el scheduler APScheduler con la zona horaria de Nueva York."""
+    global scheduler
+    
+    # Zona horaria de Nueva York
+    ny_timezone = pytz.timezone('America/New_York')
+    
+    # Crear scheduler
+    scheduler = AsyncIOScheduler(timezone=ny_timezone)
+    
+    # Programar tarea: Lunes a Viernes a las 9:00 AM hora NY
+    scheduler.add_job(
+        scheduled_daily_summary_for_all_users,
+        trigger=CronTrigger(
+            day_of_week='mon-fri',  # Lunes a Viernes
+            hour=9,                  # 9:00 AM
+            minute=0,
+            timezone=ny_timezone
+        ),
+        id='daily_summary_job',
+        name='Resumen Diario/Semanal Programado',
+        replace_existing=True
+    )
+    
+    logger.info("📅 [SCHEDULER] Configurado para ejecutar L-V a las 9:00 AM hora Nueva York")
+    return scheduler
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Maneja el ciclo de vida de la aplicación (startup/shutdown)."""
+    # Startup
+    logger.info("🚀 Iniciando aplicación y scheduler...")
+    scheduler = setup_scheduler()
+    scheduler.start()
+    logger.info("✅ Scheduler iniciado correctamente")
+    
+    yield
+    
+    # Shutdown
+    logger.info("🛑 Deteniendo scheduler...")
+    if scheduler and scheduler.running:
+        scheduler.shutdown(wait=False)
+    logger.info("✅ Scheduler detenido")
+
+
+# Crear aplicación FastAPI con lifespan
 app = FastAPI(
     title=settings.service_name,
     version=settings.service_version,
-    description="Servicio independiente del agente de chat financiero Horizon"
+    description="Servicio independiente del agente de chat financiero Horizon",
+    lifespan=lifespan
 )
 
 # Configurar CORS

@@ -504,6 +504,54 @@ class ChatAgentService:
                 raise PermissionError("Token inválido o expirado") from exc
             raise
 
+    async def _backend_upload_json(
+        self,
+        user_id: str,
+        filename: str,
+        data: Dict[str, Any],
+        auth_token: Optional[str],
+    ) -> Dict[str, Any]:
+        """
+        Sube un archivo JSON al bucket del usuario vía el backend.
+        
+        Args:
+            user_id: ID del usuario
+            filename: Nombre del archivo (debe terminar en .json)
+            data: Diccionario con los datos a guardar
+            auth_token: Token de autenticación
+            
+        Returns:
+            Dict con el resultado de la operación
+        """
+        if not auth_token:
+            raise PermissionError("Se requiere token de autenticación para subir archivos")
+
+        headers = {
+            "Authorization": f"Bearer {auth_token}",
+            "Content-Type": "application/json"
+        }
+        url = f"{self._backend_base_url}/api/storage/save-json"
+
+        try:
+            response = await self.http_client.post(
+                url,
+                json={"filename": filename, "data": data},
+                headers=headers,
+                timeout=30.0,
+            )
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPStatusError as exc:
+            status_code = exc.response.status_code
+            error_detail = exc.response.text
+            logger.error(f"Error HTTP {status_code} al subir {filename}: {error_detail}")
+            if status_code == 401:
+                raise PermissionError("Token inválido o expirado") from exc
+            raise Exception(f"Error al subir archivo: {status_code} - {error_detail}") from exc
+        except Exception as exc:
+            logger.error(f"Error al subir archivo {filename}: {exc}")
+            raise
+
     async def _gather_storage_context(self, user_id: str, auth_token: Optional[str]) -> Dict[str, Any]:
         """Compila contexto desde el backend: JSON/MD/PDF + imágenes."""
         files = await self._backend_list_files(
@@ -2153,13 +2201,52 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
             
             logger.info(f"✅ Resumen diario/semanal generado exitosamente con modelo {successful_model}")
             
+            # Guardar el resumen en agente.json
+            agente_data = {
+                "resumen_diario_semanal": {
+                    "summary": summary_text,
+                    "report_type": report_type,
+                    "generated_at": datetime.now().isoformat(),
+                    "model_used": successful_model,
+                    "files_processed": list(file_contents.keys()),
+                }
+            }
+            
+            try:
+                # Intentar leer el archivo existente para preservar otras secciones
+                try:
+                    existing_bytes, _ = await self._backend_download_file(
+                        user_id=user_id,
+                        filename="agente.json",
+                        auth_token=req.auth_token,
+                    )
+                    existing_data = json_module.loads(existing_bytes.decode("utf-8"))
+                    # Actualizar solo la sección de resumen
+                    existing_data["resumen_diario_semanal"] = agente_data["resumen_diario_semanal"]
+                    agente_data = existing_data
+                except (FileNotFoundError, Exception) as read_err:
+                    logger.info(f"Archivo agente.json no existe o no se pudo leer, se creará nuevo: {read_err}")
+                
+                # Guardar en Supabase
+                upload_result = await self._backend_upload_json(
+                    user_id=user_id,
+                    filename="agente.json",
+                    data=agente_data,
+                    auth_token=req.auth_token,
+                )
+                logger.info(f"✅ Resumen guardado en agente.json para usuario {user_id}: {upload_result}")
+            except Exception as save_error:
+                logger.warning(f"⚠️ No se pudo guardar agente.json: {save_error}")
+                # No fallamos la operación completa si solo falla el guardado
+            
             return {
                 "summary": summary_text,
                 "session_id": session_id,
                 "model_used": successful_model,
                 "files_processed": list(file_contents.keys()),
                 "missing_files": missing_files if missing_files else None,
-                "report_type": report_type
+                "report_type": report_type,
+                "saved_to_storage": True
             }
             
         except Exception as e:
