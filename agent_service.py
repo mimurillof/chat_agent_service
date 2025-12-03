@@ -1475,11 +1475,15 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archiv
             if hasattr(resp, "text") and resp.text:
                 analysis_text = resp.text
             elif hasattr(resp, "candidates") and resp.candidates:
-                for candidate in resp.candidates:
+                # Verificar que candidates no sea None antes de iterar
+                candidates_list = resp.candidates if resp.candidates else []
+                for candidate in candidates_list:
                     if hasattr(candidate, "content") and candidate.content:
-                        if hasattr(candidate.content, "parts"):
-                            for part in candidate.content.parts:
-                                if hasattr(part, "text"):
+                        if hasattr(candidate.content, "parts") and candidate.content.parts:
+                            # Verificar que parts no sea None antes de iterar
+                            parts_list = candidate.content.parts if candidate.content.parts else []
+                            for part in parts_list:
+                                if hasattr(part, "text") and part.text:
                                     analysis_text += part.text
             
             if not analysis_text:
@@ -1701,11 +1705,15 @@ Después de la cadena de pensamiento, genera un objeto MD (y nada más) que cont
             if hasattr(resp, "text") and resp.text:
                 projections_text = resp.text.strip()
             elif hasattr(resp, "candidates") and resp.candidates:
-                for candidate in resp.candidates:
+                # Verificar que candidates no sea None antes de iterar
+                candidates_list = resp.candidates if resp.candidates else []
+                for candidate in candidates_list:
                     if hasattr(candidate, "content") and candidate.content:
-                        if hasattr(candidate.content, "parts"):
-                            for part in candidate.content.parts:
-                                if hasattr(part, "text"):
+                        if hasattr(candidate.content, "parts") and candidate.content.parts:
+                            # Verificar que parts no sea None antes de iterar
+                            parts_list = candidate.content.parts if candidate.content.parts else []
+                            for part in parts_list:
+                                if hasattr(part, "text") and part.text:
                                     projections_text += part.text
                 projections_text = projections_text.strip()
             
@@ -1926,11 +1934,15 @@ El valor total actual de tu portafolio es de **$[Valor_Total]**. A continuación
             if hasattr(resp, "text") and resp.text:
                 analysis_text = resp.text.strip()
             elif hasattr(resp, "candidates") and resp.candidates:
-                for candidate in resp.candidates:
+                # Verificar que candidates no sea None antes de iterar
+                candidates_list = resp.candidates if resp.candidates else []
+                for candidate in candidates_list:
                     if hasattr(candidate, "content") and candidate.content:
-                        if hasattr(candidate.content, "parts"):
-                            for part in candidate.content.parts:
-                                if hasattr(part, "text"):
+                        if hasattr(candidate.content, "parts") and candidate.content.parts:
+                            # Verificar que parts no sea None antes de iterar
+                            parts_list = candidate.content.parts if candidate.content.parts else []
+                            for part in parts_list:
+                                if hasattr(part, "text") and part.text:
                                     analysis_text += part.text
                 analysis_text = analysis_text.strip()
             
@@ -2188,11 +2200,15 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
             if hasattr(resp, "text") and resp.text:
                 summary_text = resp.text.strip()
             elif hasattr(resp, "candidates") and resp.candidates:
-                for candidate in resp.candidates:
+                # Verificar que candidates no sea None antes de iterar
+                candidates_list = resp.candidates if resp.candidates else []
+                for candidate in candidates_list:
                     if hasattr(candidate, "content") and candidate.content:
-                        if hasattr(candidate.content, "parts"):
-                            for part in candidate.content.parts:
-                                if hasattr(part, "text"):
+                        if hasattr(candidate.content, "parts") and candidate.content.parts:
+                            # Verificar que parts no sea None antes de iterar
+                            parts_list = candidate.content.parts if candidate.content.parts else []
+                            for part in parts_list:
+                                if hasattr(part, "text") and part.text:
                                     summary_text += part.text
                 summary_text = summary_text.strip()
             
