@@ -473,40 +473,54 @@ class ChatAgentService:
         
         # Keywords que indican consulta FINANCIERA
         financial_keywords = [
+            # Términos directos de finanzas (incluyendo variaciones)
+            "finanz", "financ", "finance", "financial",  # Raíces para capturar variaciones
+            "dinero", "money", "económic", "economic", "economia", "economy",
+            
+            # Noticias y búsquedas
+            "noticia", "news", "últimas", "reciente", "hoy", "actual",
+            "busca", "buscar", "search", "encuentra", "find",
+            
             # Instrumentos financieros
             "acción", "acciones", "stock", "stocks", "bono", "bonos",
             "etf", "fondo", "mutual fund", "reit", "derivado", "opción", "futuro",
-            "crypto", "bitcoin", "ethereum", "criptomoneda", "token",
+            "crypto", "bitcoin", "ethereum", "criptomoneda", "token", "btc", "eth",
+            "índice", "index", "commodity", "oro", "gold", "plata", "silver", "petróleo", "oil",
             
             # Mercados e instituciones
-            "mercado", "bolsa", "exchange", "nasdaq", "nyse", "s&p",
-            "dow jones", "ibex", "dax", "ftse", "nikkei",
-            "wall street", "fed", "bce", "banco central",
+            "mercado", "market", "bolsa", "exchange", "nasdaq", "nyse", "s&p", "sp500",
+            "dow jones", "ibex", "dax", "ftse", "nikkei", "bovespa",
+            "wall street", "fed", "bce", "banco central", "reserva federal",
             
             # Conceptos financieros
-            "inversión", "investment", "portafolio", "portfolio", "cartera",
+            "inversión", "inversion", "investment", "invertir", "invest",
+            "portafolio", "portfolio", "cartera",
             "rendimiento", "return", "yield", "dividendo", "dividend",
             "riesgo", "risk", "volatilidad", "volatility", "beta", "alpha",
             "sharpe", "drawdown", "var", "hedge", "cobertura",
+            "ganancia", "pérdida", "profit", "loss", "retorno",
             
             # Análisis y métricas
             "pe ratio", "p/e", "eps", "ebitda", "roi", "roe", "roa",
             "balance", "estado financiero", "income statement", "cash flow",
             "valoración", "valuation", "dcf", "múltiplo",
+            "capitalización", "market cap", "volumen",
             
             # Economía macro
-            "inflación", "inflation", "tasa de interés", "interest rate",
-            "pib", "gdp", "empleo", "unemployment", "recesión", "recession",
-            "política monetaria", "fiscal", "déficit", "deuda",
+            "inflación", "inflation", "tasa de interés", "interest rate", "tasa",
+            "pib", "gdp", "empleo", "unemployment", "desempleo",
+            "recesión", "recession", "crecimiento", "growth",
+            "política monetaria", "fiscal", "déficit", "deuda", "debt",
             
             # Trading y estrategias
-            "trading", "trade", "comprar", "vender", "buy", "sell",
+            "trading", "trade", "trader", "comprar", "vender", "buy", "sell",
             "largo", "corto", "long", "short", "stop loss", "take profit",
-            "soporte", "resistencia", "tendencia", "trend",
+            "soporte", "resistencia", "tendencia", "trend", "alcista", "bajista",
+            "bull", "bear", "rally", "corrección",
             
             # Análisis técnico
-            "gráfico", "chart", "vela", "candlestick", "media móvil",
-            "rsi", "macd", "fibonacci", "bollinger",
+            "gráfico", "chart", "vela", "candlestick", "media móvil", "moving average",
+            "rsi", "macd", "fibonacci", "bollinger", "indicador",
             
             # Finanzas personales
             "ahorro", "saving", "presupuesto", "budget", "deuda", "debt",
@@ -514,32 +528,29 @@ class ChatAgentService:
             "jubilación", "retirement", "pensión", "pension",
             
             # Otros términos financieros
-            "cotización", "precio", "valor", "capital", "activo", "pasivo",
+            "cotización", "precio", "price", "valor", "value", "capital",
+            "activo", "pasivo", "asset", "liability",
             "liquidez", "apalancamiento", "leverage", "margen", "margin",
             "broker", "custodia", "comisión", "fee", "spread",
             
-            # Empresas/tickers comunes (para preguntas directas)
-            "apple", "microsoft", "google", "amazon", "tesla", "nvidia",
-            "meta", "netflix", "aapl", "msft", "googl", "amzn", "tsla", "nvda",
+            # Empresas/tickers comunes
+            "apple", "microsoft", "google", "amazon", "tesla", "nvidia", "meta", "netflix",
+            "aapl", "msft", "googl", "amzn", "tsla", "nvda", "fb", "nflx",
+            "berkshire", "jpmorgan", "visa", "mastercard", "paypal",
             
             # Análisis de documentos financieros
             "reporte", "informe", "report", "documento", "annual report",
-            "10-k", "10-q", "earnings", "resultados", "trimestral", "anual"
+            "10-k", "10-q", "earnings", "resultados", "trimestral", "anual",
+            "sec", "filing", "prospecto",
+            
+            # Preguntas comunes
+            "cuánto vale", "cuánto cuesta", "cotiza", "cómo va", "cómo está",
+            "subió", "bajó", "sube", "baja", "comportamiento"
         ]
         
-        # Si hay archivos, agregar keywords de análisis genérico
-        # (el documento podría ser financiero)
+        # Si hay archivos, ser más permisivo (confiar en que es financiero)
         if has_files:
-            analysis_keywords = [
-                "analiza", "analyze", "analizar", "análisis", "analysis",
-                "resume", "resumir", "resumen", "summary", "summarize",
-                "explica", "explain", "explicar",
-                "qué dice", "qué contiene", "contenido",
-                "pdf", "documento", "imagen", "gráfico", "tabla"
-            ]
-            # Si hay archivos Y menciona análisis, permitir (confiar en que es financiero)
-            if any(kw in query_lower for kw in analysis_keywords):
-                return True
+            return True
         
         # Verificar si hay al menos un keyword financiero
         return any(keyword in query_lower for keyword in financial_keywords)
