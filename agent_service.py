@@ -444,6 +444,116 @@ class ChatAgentService:
         query_lower = query.lower()
         return any(keyword in query_lower for keyword in datetime_keywords)
     
+    def _is_user_storage_query(self, query: str) -> bool:
+        """
+        Detecta si el usuario está preguntando sobre SUS archivos en Supabase Storage.
+        Reconoce patrones posesivos y referencias a archivos del usuario.
+        
+        Ejemplos que debería detectar:
+        - "¿Qué significa mi gráfico de Monte Carlo?"
+        - "Analiza mis gráficos"
+        - "Explícame mi reporte"
+        - "¿Cómo interpreto mi análisis de riesgo?"
+        - "Dame un resumen de mi portafolio basado en mis archivos"
+        - "¿Qué dicen mis datos?"
+        - "Muéstrame mi historial de inversiones"
+        """
+        query_lower = query.lower()
+        
+        # Patrones posesivos en español
+        possessive_patterns = [
+            "mi ", "mis ", "mío", "mía", "míos", "mías",
+            "el mio", "la mia", "los mios", "las mias",
+            "mi archivo", "mis archivos", "mi documento", "mis documentos",
+            "mi gráfico", "mis gráficos", "mi grafico", "mis graficos",
+            "mi imagen", "mis imágenes", "mi imagen", "mis imagenes",
+            "mi reporte", "mis reportes", "mi informe", "mis informes",
+            "mi análisis", "mis análisis", "mi analisis", "mis analisis",
+            "mi portafolio", "mi portfolio", "mi cartera",
+            "mi json", "mis json", "mi pdf", "mis pdf",
+            "mi chart", "mis charts", "mi data", "mis datos",
+        ]
+        
+        # Palabras clave de tipos de archivos/visualizaciones
+        file_type_keywords = [
+            # Gráficos y visualizaciones
+            "gráfico", "grafico", "gráficos", "graficos",
+            "chart", "charts", "plot", "plots",
+            "visualización", "visualizacion", "visualizaciones",
+            "diagrama", "diagramas",
+            
+            # Tipos de análisis comunes en finanzas
+            "monte carlo", "montecarlo", "simulación", "simulacion",
+            "correlación", "correlacion", "heatmap",
+            "drawdown", "volatilidad", "riesgo",
+            "pie chart", "bar chart", "line chart",
+            "candlestick", "velas",
+            "scatter", "distribución", "distribucion",
+            "histograma", "histogram",
+            
+            # Tipos de archivos
+            "json", "pdf", "imagen", "imágenes", "imagenes",
+            "png", "jpg", "jpeg",
+            
+            # Documentos de análisis
+            "reporte", "informe", "análisis", "analisis",
+            "resumen", "summary", "documento",
+        ]
+        
+        # Verbos de acción sobre archivos personales
+        action_verbs = [
+            "analiza", "analizar", "analízame", "analizame",
+            "explica", "explicar", "explícame", "explicame",
+            "interpreta", "interpretar", "interprétame", "interpretame",
+            "muestra", "mostrar", "muéstrame", "muestrame",
+            "describe", "describir", "descríbeme", "describeme",
+            "resume", "resumir", "resúmeme", "resumeme",
+            "lee", "leer", "léeme", "leeme",
+            "revisa", "revisar", "revísame", "revisame",
+            "extrae", "extraer", "extráeme", "extraeme",
+            "qué significa", "que significa",
+            "qué dice", "que dice",
+            "qué muestra", "que muestra",
+            "cómo interpreto", "como interpreto",
+            "cómo leo", "como leo",
+        ]
+        
+        # Detectar patrón posesivo + tipo de archivo
+        has_possessive = any(pattern in query_lower for pattern in possessive_patterns)
+        has_file_type = any(keyword in query_lower for keyword in file_type_keywords)
+        has_action = any(verb in query_lower for verb in action_verbs)
+        
+        # Si tiene posesivo y tipo de archivo → es consulta de storage
+        if has_possessive and has_file_type:
+            return True
+        
+        # Si tiene posesivo y verbo de acción → probable consulta de storage
+        if has_possessive and has_action:
+            return True
+        
+        # Patrones específicos adicionales
+        specific_patterns = [
+            "basado en mis",
+            "según mis",
+            "con base en mis",
+            "de acuerdo a mis",
+            "usando mis",
+            "a partir de mis",
+            "desde mis archivos",
+            "en mi storage",
+            "en mi bucket",
+            "de mi carpeta",
+            "mi último", "mi ultima",
+            "mi reciente", "mi más reciente",
+            "que tengo guardado", "que tengo almacenado",
+            "que he subido", "que subí",
+        ]
+        
+        if any(pattern in query_lower for pattern in specific_patterns):
+            return True
+        
+        return False
+    
     def _is_financial_query(self, query: str, has_files: bool = False) -> bool:
         """
         Determina si la consulta está relacionada con finanzas.
@@ -886,6 +996,9 @@ class ChatAgentService:
         Usa Gemini Function Calling para seleccionar archivos relevantes.
         Basado en paso_1_decision del ejemplo.
         LÍMITE: Máximo 10 archivos para evitar timeouts.
+        
+        MEJORA: Detecta intención del usuario sobre tipos de archivos específicos
+        (gráficos, imágenes, JSON, PDFs, etc.)
         """
         try:
             # Preparar metadatos en formato legible
@@ -900,22 +1013,63 @@ class ChatAgentService:
             
             metadatos_str = json.dumps(formatted_metadata, indent=2, ensure_ascii=False)
             
+            # Detectar intención específica del usuario
+            prompt_lower = prompt.lower()
+            intent_hints = []
+            
+            # Detectar si pregunta por gráficos/imágenes
+            if any(kw in prompt_lower for kw in ["gráfico", "grafico", "chart", "imagen", "visualización", "visualizacion", "plot"]):
+                intent_hints.append("El usuario está preguntando específicamente por GRÁFICOS o IMÁGENES. PRIORIZA archivos PNG, JPG, JPEG sobre JSON/MD.")
+            
+            # Detectar si pregunta por Monte Carlo
+            if any(kw in prompt_lower for kw in ["monte carlo", "montecarlo", "simulación", "simulacion"]):
+                intent_hints.append("El usuario pregunta sobre Monte Carlo. Busca archivos que contengan 'monte', 'carlo', 'simulation', 'risk' en el nombre.")
+            
+            # Detectar si pregunta por correlación
+            if any(kw in prompt_lower for kw in ["correlación", "correlacion", "correlation", "heatmap"]):
+                intent_hints.append("El usuario pregunta sobre correlaciones. Busca archivos que contengan 'correlation', 'heatmap', 'matrix' en el nombre.")
+            
+            # Detectar si pregunta por rendimiento/performance
+            if any(kw in prompt_lower for kw in ["rendimiento", "performance", "growth", "crecimiento", "retorno"]):
+                intent_hints.append("El usuario pregunta sobre rendimiento. Busca archivos que contengan 'growth', 'performance', 'return', 'portfolio' en el nombre.")
+            
+            # Detectar si pregunta por distribución/riesgo
+            if any(kw in prompt_lower for kw in ["distribución", "distribucion", "distribution", "riesgo", "risk", "var", "drawdown"]):
+                intent_hints.append("El usuario pregunta sobre riesgo/distribución. Busca archivos que contengan 'risk', 'distribution', 'drawdown', 'var' en el nombre.")
+            
+            # Detectar si pregunta por PDF/reporte
+            if any(kw in prompt_lower for kw in ["pdf", "reporte", "informe", "documento", "report"]):
+                intent_hints.append("El usuario pregunta por documentos/reportes. PRIORIZA archivos PDF.")
+            
+            # Construir hints adicionales
+            intent_section = ""
+            if intent_hints:
+                intent_section = "\n\nINTENCIÓN DETECTADA DEL USUARIO:\n" + "\n".join(f"- {hint}" for hint in intent_hints) + "\n"
+            
             decision_prompt = f"""
 El usuario ha proporcionado el siguiente prompt: '{prompt}'.
-
+{intent_section}
 A continuación, se presenta una lista de archivos disponibles en Supabase con sus metadatos:
 --- ARCHIVOS DISPONIBLES ---
 {metadatos_str}
 --- FIN DE ARCHIVOS DISPONIBLES ---
 
 IMPORTANTE: Selecciona MÁXIMO 10 archivos relevantes para responder la consulta:
-1. Archivos JSON: Contienen datos estructurados de análisis
-2. Archivos MD (Markdown): Contienen resúmenes y narrativas
-3. Imágenes (PNG/JPG/JPEG/GIF/WEBP): Gráficos, visualizaciones y diagramas
-4. Archivos PDF: Documentos completos, reportes generados
 
-REGLAS ESPECIALES:
-- Si el usuario menciona "reporte", "informe" o "documento": PRIORIZA archivos PDF e json y md e imágenes.
+TIPOS DE ARCHIVO Y CUÁNDO SELECCIONARLOS:
+1. **Archivos JSON**: Contienen datos estructurados de análisis (métricas, valores numéricos)
+2. **Archivos MD (Markdown)**: Contienen resúmenes y narrativas en texto
+3. **Imágenes (PNG/JPG/JPEG/GIF/WEBP)**: Gráficos, visualizaciones, charts, diagramas
+   - SELECCIONA ESTOS si el usuario menciona: "gráfico", "chart", "imagen", "visualización"
+   - Nombres comunes: *_growth.png, *_correlation.png, *_monte_carlo.png, *_risk.png
+4. **Archivos PDF**: Documentos completos, reportes generados
+
+REGLAS DE SELECCIÓN:
+- Si el usuario dice "mi gráfico de X" → busca imágenes con "X" en el nombre
+- Si el usuario pregunta por "Monte Carlo" → busca archivos con "monte", "carlo", "simulation"
+- Si el usuario pregunta por "correlación" → busca archivos con "correlation", "heatmap", "matrix"
+- Si el usuario pregunta por "portafolio" → incluye portfolio_*.json/png y portfolio_*.md
+- Si es ambiguo → incluye una mezcla de JSON (datos) + MD (narrativa) + imágenes relevantes
 
 DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archivos ESENCIALES (máximo 10).
 """
@@ -940,17 +1094,24 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archiv
                 # Forzar límite de archivos para evitar timeout
                 MAX_FILES = 10
                 
-                # Detectar si el usuario menciona "reporte" para priorizar PDFs e imágenes
-                is_report_query = any(word in prompt.lower() for word in ['reporte', 'informe', 'report', 'documento'])
+                # Detectar si el usuario menciona "gráfico" o "imagen" para priorizar imágenes
+                is_image_query = any(word in prompt_lower for word in ['gráfico', 'grafico', 'chart', 'imagen', 'imágenes', 'imagenes', 'visualización', 'visualizacion', 'plot', 'diagrama'])
+                is_report_query = any(word in prompt_lower for word in ['reporte', 'informe', 'report', 'documento', 'pdf'])
                 
-                if is_report_query:
+                if is_image_query:
+                    # Para consultas de gráficos: priorizar imágenes
+                    MAX_JSON = 2
+                    MAX_MD = 2
+                    MAX_IMAGES = 5
+                    MAX_PDF = 1
+                elif is_report_query:
                     # Para reportes: más PDFs e imágenes
                     MAX_JSON = 3
                     MAX_MD = 3
                     MAX_IMAGES = 2
                     MAX_PDF = 2
                 else:
-                    # Para análisis general: más datos estructurados
+                    # Para análisis general: equilibrado
                     MAX_JSON = 4
                     MAX_MD = 3
                     MAX_IMAGES = 2
@@ -966,7 +1127,15 @@ DEBES utilizar la función 'SelectorDeArchivos' para devolver la lista de archiv
                     pdf_files = [f for f in archivos_seleccionados if f.get('nombre_archivo', '').lower().endswith('.pdf')]
                     
                     # Combinar con prioridad según el tipo de consulta
-                    if is_report_query:
+                    if is_image_query:
+                        # Para gráficos: priorizar imágenes
+                        archivos_seleccionados = (
+                            image_files[:MAX_IMAGES] + 
+                            json_files[:MAX_JSON] + 
+                            md_files[:MAX_MD] + 
+                            pdf_files[:MAX_PDF]
+                        )
+                    elif is_report_query:
                         # Para reportes: priorizar PDFs e imágenes
                         archivos_seleccionados = (
                             pdf_files[:MAX_PDF] + 
@@ -2575,22 +2744,32 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
             portfolio_response: Optional[Dict[str, Any]] = None
             lowered_message = message.lower()
             has_auth = bool(auth_token)
-            has_keyword = any(
+            
+            # Detectar si es consulta sobre archivos del usuario (incluyendo patrones posesivos)
+            is_storage_query = self._is_user_storage_query(message)
+            
+            # Keywords tradicionales de portafolio
+            has_portfolio_keyword = any(
                 keyword in lowered_message for keyword in (
                     "portafolio", "portfolio", "cartera", "inversiones",
                     "reporte", "informe", "report", "documento", "análisis"
                 )
             )
             
-            print(f"🔍 DEBUG: auth_token presente: {has_auth}, keyword detectado: {has_keyword}, mensaje: '{message[:50]}...'")
+            # Activar flujo de storage si:
+            # 1. Tiene token Y (keyword tradicional O consulta de storage posesiva)
+            should_use_storage = has_auth and (has_portfolio_keyword or is_storage_query)
             
-            if auth_token and has_keyword:
-                print(f"✅ Activando flujo de análisis de portafolio para usuario {user_id}")
+            print(f"🔍 DEBUG: auth_token={has_auth}, portfolio_keyword={has_portfolio_keyword}, storage_query={is_storage_query}, activar_storage={should_use_storage}")
+            print(f"   Mensaje: '{message[:80]}...'")
+            
+            if should_use_storage:
+                print(f"✅ Activando flujo de análisis de archivos de usuario para {user_id}")
                 portfolio_response = await self._process_portfolio_query(
                     message=message,
                     user_id=user_id,
-                model=model, 
-                conversation_history=conversation_history, 
+                    model=model, 
+                    conversation_history=conversation_history, 
                     tools=tools,
                     auth_token=auth_token,
                     session=session,
@@ -2753,23 +2932,32 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
                 parts=[types.Part.from_text(text=message)]
             ))
             
-            # Verificar si es consulta de portafolio
+            # Verificar si es consulta de portafolio o archivos del usuario
             lowered_message = message.lower()
             has_auth = bool(auth_token)
-            has_keyword = any(
+            
+            # Detectar si es consulta sobre archivos del usuario (incluyendo patrones posesivos)
+            is_storage_query = self._is_user_storage_query(message)
+            
+            # Keywords tradicionales de portafolio
+            has_portfolio_keyword = any(
                 keyword in lowered_message for keyword in (
                     "portafolio", "portfolio", "cartera", "inversiones",
                     "reporte", "informe", "report", "documento", "análisis"
                 )
             )
             
+            # Activar flujo de storage si tiene token Y (keyword tradicional O consulta de storage posesiva)
+            should_use_storage = has_auth and (has_portfolio_keyword or is_storage_query)
+            
             full_response_text = ""
             grounding_metadata = None
             function_calls_made = []
             
-            if auth_token and has_keyword:
-                print(f"✅ Activando flujo de análisis de portafolio STREAMING para usuario {user_id}")
-                # Stream portfolio analysis
+            if should_use_storage:
+                print(f"✅ Activando flujo de análisis de archivos STREAMING para usuario {user_id}")
+                print(f"   (portfolio_keyword={has_portfolio_keyword}, storage_query={is_storage_query})")
+                # Stream portfolio/storage analysis
                 async for chunk_data in self._process_portfolio_query_stream(
                     message=message,
                     user_id=user_id,
