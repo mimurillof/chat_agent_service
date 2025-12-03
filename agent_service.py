@@ -124,82 +124,64 @@ FILE_SELECTION_TOOL = types.Tool(
 
 # Prompts del sistema
 FLASH_SYSTEM_PROMPT = """
-Eres "Horizon Agent", un asistente financiero experto y profesional. Tu ÚNICO propósito es ayudar con temas EXCLUSIVAMENTE FINANCIEROS.
+Eres "Horizon Agent", un asistente financiero experto y profesional.
 
-## TU ESPECIALIDAD (RESPONDE SOLO A ESTOS TEMAS):
+## TU ENFOQUE:
+Todas tus respuestas deben tener un enfoque FINANCIERO. Cuando el usuario pregunte algo:
+- Si es claramente financiero: responde directamente con información de mercados, inversiones, economía.
+- Si es ambiguo (ej: "noticias de hoy"): interpreta la pregunta con enfoque financiero (busca noticias FINANCIERAS).
+- Si es claramente NO financiero (ej: "cómo hacer una receta de pastel"): declina educadamente.
+
+## TU ESPECIALIDAD:
 - Análisis de portafolios e inversiones
-- Cotizaciones, precios y tendencias de mercados financieros (acciones, bonos, ETFs, criptomonedas)
-- Noticias financieras, económicas y de mercados
-- Conceptos y términos financieros (ratios, métricas, indicadores)
+- Cotizaciones, precios y tendencias de mercados (acciones, bonos, ETFs, criptomonedas)
+- Noticias financieras y económicas
+- Conceptos financieros (ratios, métricas, indicadores)
 - Análisis técnico y fundamental
-- Gestión de riesgos financieros
-- Estrategias de inversión y diversificación
-- Análisis de reportes financieros de empresas
-- Información macroeconómica (tasas de interés, inflación, PIB, política monetaria)
-- Planificación financiera personal e institucional
+- Gestión de riesgos y estrategias de inversión
+- Reportes financieros de empresas
+- Información macroeconómica (tasas, inflación, PIB)
 
-## RESTRICCIONES ABSOLUTAS - RECHAZAR INMEDIATAMENTE:
-❌ Noticias generales NO financieras (política, deportes, entretenimiento, farándula)
-❌ Preguntas sobre temas ajenos a finanzas (recetas, viajes, salud, tecnología general)
-❌ Solicitudes de contenido inapropiado o no ético
-❌ Análisis de archivos que NO sean documentos financieros
-❌ Cualquier tema que no tenga relación directa con finanzas o inversiones
+## CUANDO DECLINAR:
+Si el usuario pregunta algo claramente NO relacionado con finanzas (recetas, deportes, entretenimiento, etc.), responde:
+"Soy Horizon Agent, especializado en finanzas e inversiones. ¿Tienes alguna consulta sobre mercados, inversiones o economía?"
 
-## RESPUESTA CUANDO DETECTES TEMAS NO FINANCIEROS:
-Si el usuario pregunta sobre temas NO relacionados con finanzas, responde EXACTAMENTE:
-"Lo siento, soy Horizon Agent, un asistente especializado exclusivamente en finanzas e inversiones. No puedo ayudarte con ese tema. ¿Tienes alguna consulta sobre mercados financieros, tu portafolio de inversiones, o análisis económico?"
-
-## HERRAMIENTAS DISPONIBLES:
-1. **Google Search**: Para buscar información FINANCIERA actualizada (precios, noticias de mercados, datos económicos)
-2. **URL Context**: Para analizar URLs de sitios FINANCIEROS proporcionados por el usuario
-3. **get_current_datetime**: Para obtener la fecha/hora actual
-
-## DIRECTRICES DE RESPUESTA:
-- Sé conciso, preciso y profesional
-- Cita fuentes cuando uses búsqueda web
-- Usa terminología financiera apropiada
-- Prioriza datos cuantitativos y métricas
-- Si no estás seguro de un dato, indícalo claramente
+## FORMATO DE RESPUESTA:
+- Sé conciso y profesional
+- Usa formato Markdown para estructurar la información
+- NO incluyas metadatos internos, logs o información de sistema en tu respuesta
+- Cita fuentes con enlaces cuando uses búsqueda web
+- Presenta la información de forma clara y legible
 """
 
 PRO_SYSTEM_PROMPT = """
-Eres "Horizon Agent Pro", un analista financiero cuantitativo senior con expertise en análisis profundo de documentos e inversiones.
+Eres "Horizon Agent Pro", un analista financiero cuantitativo senior.
 
-## TU ESPECIALIDAD EXCLUSIVA (SOLO FINANZAS):
+## TU ENFOQUE:
+Todas tus respuestas deben tener enfoque FINANCIERO:
+- Si el contenido es financiero: analiza en profundidad.
+- Si el documento/pregunta es ambiguo: busca el ángulo financiero.
+- Si es claramente NO financiero: indica que te especializas en finanzas.
+
+## TU ESPECIALIDAD:
 - Análisis profundo de reportes financieros y estados contables
 - Evaluación de portafolios de inversión
 - Análisis de riesgo y rendimiento
-- Due diligence financiero
 - Valoración de empresas y activos
-- Análisis de mercados y tendencias económicas
-- Interpretación de indicadores macroeconómicos
-- Estrategias de inversión institucional
+- Análisis de mercados y tendencias
+- Indicadores macroeconómicos
+- Estrategias de inversión
 - Análisis técnico avanzado
 
-## RESTRICCIONES ABSOLUTAS - RECHAZAR INMEDIATAMENTE:
-❌ Documentos o archivos NO financieros (fotos personales, documentos legales no financieros, etc.)
-❌ Análisis de cualquier contenido que no sea de naturaleza financiera
-❌ Noticias o información no relacionada con economía/finanzas
-❌ Preguntas generales fuera del ámbito financiero
-❌ Solicitudes no éticas o inapropiadas
+## ANÁLISIS DE DOCUMENTOS:
+- Si el documento es financiero: proporciona análisis detallado
+- Si NO es financiero: indica "Este documento no parece ser financiero. Me especializo en análisis de estados contables, reportes de inversiones, y documentos financieros."
 
-## RESPUESTA CUANDO DETECTES CONTENIDO NO FINANCIERO:
-Para archivos NO financieros, responde EXACTAMENTE:
-"Este documento no parece ser de naturaleza financiera. Como Horizon Agent, estoy especializado exclusivamente en análisis de documentos financieros como estados contables, reportes de inversiones, análisis de mercado, y similares. ¿Podrías proporcionarme un documento financiero para analizar?"
-
-Para preguntas NO financieras, responde EXACTAMENTE:
-"Lo siento, soy Horizon Agent Pro, especializado exclusivamente en análisis financiero profundo. No puedo ayudarte con ese tema. ¿Tienes algún documento financiero para analizar o consulta sobre inversiones?"
-
-## HERRAMIENTAS DISPONIBLES:
-1. **URL Context**: Para analizar URLs de fuentes financieras
-2. **get_current_datetime**: Para contexto temporal
-
-## DIRECTRICES DE ANÁLISIS:
-- Enfócate en la calidad y profundidad del análisis financiero
-- Identifica riesgos, oportunidades y patrones en datos financieros
-- Proporciona insights accionables y fundamentados
-- Mantén perspectiva crítica y objetiva
-- Usa métricas cuantitativas siempre que sea posible
+## FORMATO DE RESPUESTA:
+- Usa Markdown para estructurar
+- NO incluyas logs internos ni metadatos de sistema
+- Sé profesional y proporciona insights accionables
+- Cita fuentes cuando corresponda
 """
 
 class ArchivoSeleccionado(BaseModel):
@@ -2538,34 +2520,6 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
             
             session = self.sessions[session_id]
             
-            # ✅ VALIDACIÓN: Rechazar consultas no financieras
-            if not self._is_financial_query(message):
-                rejection_msg = self._get_non_financial_rejection_message(message)
-                
-                # Agregar al historial
-                session["messages"].append({
-                    "role": "user",
-                    "content": message,
-                    "timestamp": datetime.now().isoformat()
-                })
-                assistant_message = ChatMessage(
-                    role=MessageRole.ASSISTANT,
-                    content=rejection_msg,
-                    timestamp=datetime.now().isoformat()
-                )
-                session["messages"].append(assistant_message.model_dump())
-                
-                return {
-                    "session_id": session_id,
-                    "response": rejection_msg,
-                    "model_used": "filter",
-                    "has_grounding": False,
-                    "search_queries": [],
-                    "sources": [],
-                    "rejected": True,
-                    "rejection_reason": "non_financial_query"
-                }
-            
             # Detectar URLs en el mensaje si no se proporcionó url explícita
             detected_urls = self._extract_urls_from_query(message)
             if detected_urls and not url:
@@ -2589,17 +2543,11 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
             )
             session["messages"].append(user_message.model_dump())
             
-            # Preparar prompt del sistema
+            # Preparar prompt del sistema (se usará en system_instruction)
             system_prompt = PRO_SYSTEM_PROMPT if model == settings.model_pro else FLASH_SYSTEM_PROMPT
             
-            # Preparar historial de conversación
+            # Preparar historial de conversación (SIN system prompt - va aparte)
             conversation_history = []
-            
-            # Agregar prompt del sistema
-            conversation_history.append(types.Content(
-                role="user",
-                parts=[types.Part.from_text(text=f"[SISTEMA] {system_prompt}")]
-            ))
             
             # Agregar historial de mensajes previos (últimos 10)
             recent_messages = session["messages"][-10:]
@@ -2650,6 +2598,7 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
                 model=model,
                 conversation_history=conversation_history,
                 tools=tools,
+                system_prompt=system_prompt,
             )
             
             response_text = response_data["text"]
@@ -2738,38 +2687,6 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
             # ✅ Verificar si hay archivos inline
             has_inline_files = inline_files and len(inline_files) > 0
             
-            # ✅ VALIDACIÓN: Rechazar consultas no financieras
-            if not self._is_financial_query(message, has_files=has_inline_files):
-                rejection_msg = self._get_non_financial_rejection_message(message)
-                yield {"text": rejection_msg}
-                
-                # Agregar al historial la respuesta de rechazo
-                assistant_message = ChatMessage(
-                    role=MessageRole.ASSISTANT,
-                    content=rejection_msg,
-                    timestamp=datetime.now().isoformat()
-                )
-                session["messages"].append({
-                    "role": "user",
-                    "content": message,
-                    "timestamp": datetime.now().isoformat()
-                })
-                session["messages"].append(assistant_message.model_dump())
-                
-                yield {
-                    "done": True,
-                    "metadata": {
-                        "session_id": session_id,
-                        "model_used": "filter",
-                        "has_grounding": False,
-                        "search_queries": [],
-                        "sources": [],
-                        "rejected": True,
-                        "rejection_reason": "non_financial_query"
-                    }
-                }
-                return
-            
             # Detectar URLs
             detected_urls = self._extract_urls_from_query(message)
             if detected_urls and not url:
@@ -2796,15 +2713,11 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
             )
             session["messages"].append(user_message.model_dump())
             
-            # Preparar prompt del sistema
+            # Preparar prompt del sistema (se usará en system_instruction, no en historial)
             system_prompt = PRO_SYSTEM_PROMPT if model == settings.model_pro else FLASH_SYSTEM_PROMPT
             
-            # Preparar historial de conversación
+            # Preparar historial de conversación (SIN el system prompt - va aparte)
             conversation_history = []
-            conversation_history.append(types.Content(
-                role="user",
-                parts=[types.Part.from_text(text=f"[SISTEMA] {system_prompt}")]
-            ))
             
             # Agregar historial de mensajes previos
             recent_messages = session["messages"][-10:]
@@ -2873,6 +2786,7 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
                     model=model,
                     conversation_history=conversation_history,
                     tools=tools,
+                    system_prompt=system_prompt,
                 ):
                     if "text" in chunk_data:
                         full_response_text += chunk_data["text"]
@@ -2930,7 +2844,8 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
         self, 
         model: str, 
         conversation_history: List, 
-        tools: List
+        tools: List,
+        system_prompt: str = ""
     ) -> Dict[str, Any]:
         """
         Generar respuesta usando herramientas (grounding, function calling).
@@ -2940,12 +2855,13 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
             Dict con: text, grounding_metadata, function_calls
         """
         try:
-            # Configuración base
+            # Configuración base con system_instruction
             config = types.GenerateContentConfig(
                 temperature=0.7,
                 top_p=0.9,
                 max_output_tokens=2048,
-                tools=tools if tools else None
+                tools=tools if tools else None,
+                system_instruction=system_prompt if system_prompt else None
             )
             
             # Primera llamada al modelo
@@ -3067,7 +2983,8 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
         self,
         model: str,
         conversation_history: List,
-        tools: List
+        tools: List,
+        system_prompt: str = ""
     ):
         """
         Versión de streaming de _generate_response_with_tools.
@@ -3078,7 +2995,8 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
                 temperature=0.7,
                 top_p=0.9,
                 max_output_tokens=2048,
-                tools=tools if tools else None
+                tools=tools if tools else None,
+                system_instruction=system_prompt if system_prompt else None
             )
             
             # Usar generate_content_stream para streaming
