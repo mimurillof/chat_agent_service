@@ -14,6 +14,13 @@ class ChatMessage(BaseModel):
     content: str
     timestamp: Optional[str] = None
 
+class InlineFile(BaseModel):
+    """Modelo para archivo inline (base64)"""
+    filename: str = Field(..., description="Nombre del archivo")
+    content_type: str = Field(..., description="MIME type del archivo (e.g., 'application/pdf', 'image/png')")
+    data: str = Field(..., description="Contenido del archivo codificado en base64")
+
+
 class ChatRequest(BaseModel):
     """Modelo para solicitud de chat"""
     message: str = Field(..., description="Mensaje del usuario")
@@ -29,6 +36,8 @@ class ChatRequest(BaseModel):
     file_path: Optional[str] = Field(None, description="Ruta a archivo para análisis")
     url: Optional[str] = Field(None, description="URL para análisis")
     context: Optional[Dict[str, Any]] = Field(None, description="Contexto adicional")
+    # Nuevos campos para archivos inline (multimodal)
+    files: Optional[List[InlineFile]] = Field(None, description="Lista de archivos inline (base64) para análisis multimodal")
 
 class ChatResponse(BaseModel):
     """Modelo para respuesta de chat"""

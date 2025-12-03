@@ -21,7 +21,7 @@ import pytz
 from config import settings
 from models import (
     ChatRequest, ChatResponse, HealthResponse, SessionInfo,
-    ErrorResponse, MessageRole,
+    ErrorResponse, MessageRole, InlineFile,
     PortfolioReportRequest, PortfolioReportResponse,
     AlertsAnalysisRequest, AlertsAnalysisResponse,
     FutureProjectionsRequest, FutureProjectionsResponse,
@@ -357,7 +357,7 @@ async def chat(
     request: ChatRequest,
     authorization: str | None = Header(default=None, alias="Authorization"),
 ):
-    """Endpoint principal para el chat con streaming - requiere user_id"""
+    """Endpoint principal para el chat con streaming - requiere user_id. Soporta archivos inline (multimodal)."""
     try:
         bearer_token = None
         if authorization and authorization.lower().startswith("bearer "):
@@ -368,7 +368,7 @@ async def chat(
         async def event_generator() -> AsyncGenerator[str, None]:
             """Genera eventos SSE para streaming"""
             try:
-                # Procesar mensaje con streaming
+                # Procesar mensaje con streaming (incluyendo archivos inline si existen)
                 async for chunk in chat_service.process_message_stream(
                     message=request.message,
                     user_id=request.user_id,
@@ -378,6 +378,7 @@ async def chat(
                     url=request.url,
                     context=request.context,
                     auth_token=bearer_token,
+                    inline_files=request.files,  # ✅ Nuevo: pasar archivos inline
                 ):
                     # Formato SSE: data: {json}\n\n
                     yield f"data: {json.dumps(chunk, ensure_ascii=False)}\n\n"

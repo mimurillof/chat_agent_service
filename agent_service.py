@@ -18,7 +18,7 @@ from json import JSONDecodeError
 from pydantic import BaseModel, ValidationError, Field
 import httpx
 from config import settings
-from models import ChatMessage, MessageRole, PortfolioReportRequest, PortfolioReportResponse, Report, AlertsAnalysisRequest, FutureProjectionsRequest, PerformanceAnalysisRequest, DailyWeeklySummaryRequest
+from models import ChatMessage, MessageRole, PortfolioReportRequest, PortfolioReportResponse, Report, AlertsAnalysisRequest, FutureProjectionsRequest, PerformanceAnalysisRequest, DailyWeeklySummaryRequest, InlineFile
 
 # Configurar logger
 logger = logging.getLogger(__name__)
@@ -2498,9 +2498,11 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
         url: Optional[str] = None,
         context: Optional[Dict[str, Any]] = None,
         auth_token: Optional[str] = None,
+        inline_files: Optional[List["InlineFile"]] = None,  # ✅ Nuevo: archivos inline
     ):
         """
         Versión de streaming de process_message que yielde chunks en tiempo real.
+        Soporta archivos inline (PDF, imágenes) para análisis multimodal.
         Yields: dict con {"text": str} para chunks de texto o {"done": True, "metadata": dict} al finalizar
         """
         try:
@@ -2517,9 +2519,16 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
             if detected_urls and not url:
                 url = detected_urls[0]
             
+            # ✅ Si hay archivos inline, usar modelo PRO para mejor análisis
+            has_inline_files = inline_files and len(inline_files) > 0
+            
             # Elegir modelo y herramientas
             if model_preference:
                 model = settings.model_pro if model_preference.lower() == "pro" else settings.model_flash
+                _, tools, tool_names = self._choose_model_and_tools(message, file_path, url)
+            elif has_inline_files:
+                # Para archivos inline, usar PRO por defecto para mejor análisis
+                model = settings.model_flash  # Flash es suficiente para multimodal
                 _, tools, tool_names = self._choose_model_and_tools(message, file_path, url)
             else:
                 model, tools, tool_names = self._choose_model_and_tools(message, file_path, url)
@@ -2557,6 +2566,18 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
                 google_search_tool = types.Tool(google_search=types.GoogleSearch())
                 tools.append(google_search_tool)
                 tool_names.append("google_search")
+            
+            # ✅ Si hay archivos inline, procesarlos con el nuevo método
+            if has_inline_files:
+                print(f"📎 Procesando {len(inline_files)} archivo(s) inline para análisis multimodal")
+                async for chunk_data in self._process_inline_files_stream(
+                    message=message,
+                    inline_files=inline_files,
+                    model=model,
+                    session=session,
+                ):
+                    yield chunk_data
+                return  # Terminar después de procesar archivos inline
             
             # Agregar mensaje actual
             conversation_history.append(types.Content(
@@ -2997,6 +3018,171 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
             print(f"❌ {error_msg}")
             traceback.print_exc()
             yield {"text": f"Lo siento, ocurrió un error procesando tu consulta de portafolio."}
+    
+    async def _process_inline_files_stream(
+        self,
+        message: str,
+        inline_files: List["InlineFile"],
+        model: str,
+        session: Dict[str, Any],
+    ):
+        """
+        Procesa archivos inline (PDF, imágenes) enviados directamente por el usuario.
+        Usa la estrategia de datos inline según la guía multimodal de Gemini.
+        
+        Args:
+            message: El mensaje/pregunta del usuario sobre los archivos
+            inline_files: Lista de archivos con filename, content_type, y data (base64)
+            model: Modelo a usar para el análisis
+            session: Sesión actual del chat
+            
+        Yields:
+            dict con {"text": str} para chunks de texto en streaming
+        """
+        try:
+            # Preparar las partes del contenido multimodal
+            content_parts = []
+            processed_files = []
+            total_size = 0
+            
+            for file_info in inline_files:
+                try:
+                    # Decodificar el contenido base64
+                    file_bytes = base64.b64decode(file_info.data)
+                    file_size = len(file_bytes)
+                    total_size += file_size
+                    
+                    # Verificar límite de 20MB por archivo
+                    if file_size > 20 * 1024 * 1024:
+                        yield {"text": f"⚠️ El archivo '{file_info.filename}' excede el límite de 20MB. Omitiendo...\n"}
+                        continue
+                    
+                    # Determinar el mime_type correcto
+                    mime_type = file_info.content_type
+                    filename_lower = file_info.filename.lower()
+                    
+                    # Verificar tipos soportados
+                    supported_types = {
+                        'application/pdf': ['.pdf'],
+                        'image/png': ['.png'],
+                        'image/jpeg': ['.jpg', '.jpeg'],
+                        'image/gif': ['.gif'],
+                        'image/webp': ['.webp'],
+                        'text/plain': ['.txt'],
+                        'text/csv': ['.csv'],
+                        'application/json': ['.json'],
+                        'text/markdown': ['.md'],
+                    }
+                    
+                    # Validar que el tipo está soportado
+                    is_supported = False
+                    for supported_mime, extensions in supported_types.items():
+                        if any(filename_lower.endswith(ext) for ext in extensions):
+                            is_supported = True
+                            # Corregir mime_type si no coincide
+                            if mime_type not in supported_types:
+                                mime_type = supported_mime
+                            break
+                    
+                    if not is_supported:
+                        yield {"text": f"⚠️ El tipo de archivo '{file_info.filename}' no está soportado. Formatos permitidos: PDF, PNG, JPG, GIF, WEBP, TXT, CSV, JSON, MD.\n"}
+                        continue
+                    
+                    # Para archivos de texto, agregar como texto plano
+                    if mime_type in ['text/plain', 'text/csv', 'application/json', 'text/markdown']:
+                        text_content = file_bytes.decode('utf-8', errors='replace')
+                        content_parts.append(f"--- Contenido de {file_info.filename} ---\n{text_content}\n--- Fin de {file_info.filename} ---\n")
+                        processed_files.append({"name": file_info.filename, "type": "text", "size_kb": round(file_size/1024, 2)})
+                    else:
+                        # Para PDF e imágenes, usar Part.from_bytes
+                        content_parts.append(
+                            types.Part.from_bytes(
+                                data=file_bytes,
+                                mime_type=mime_type,
+                            )
+                        )
+                        processed_files.append({"name": file_info.filename, "type": mime_type, "size_kb": round(file_size/1024, 2)})
+                    
+                    print(f"   ✅ Archivo procesado: {file_info.filename} ({file_size/(1024*1024):.2f} MB, {mime_type})")
+                    
+                except Exception as e:
+                    print(f"⚠️ Error procesando archivo {file_info.filename}: {e}")
+                    yield {"text": f"⚠️ Error procesando '{file_info.filename}': {str(e)}\n"}
+                    continue
+            
+            if not content_parts:
+                yield {"text": "❌ No se pudo procesar ningún archivo. Verifica que los archivos sean válidos."}
+                yield {"done": True, "metadata": {"files_processed": 0, "error": "No files processed"}}
+                return
+            
+            # Agregar el mensaje del usuario al final
+            content_parts.append(message)
+            
+            total_size_mb = total_size / (1024 * 1024)
+            print(f"\n📤 Enviando {len(content_parts)} elementos a Gemini ({total_size_mb:.2f} MB total)...")
+            
+            # Llamar a Gemini con streaming
+            try:
+                response_stream = await self.client.aio.models.generate_content_stream(
+                    model=model,
+                    contents=content_parts
+                )
+                
+                chunk_count = 0
+                full_text = ""
+                
+                async for chunk in response_stream:
+                    chunk_count += 1
+                    if hasattr(chunk, 'text') and chunk.text:
+                        full_text += chunk.text
+                        yield {"text": chunk.text}
+                        
+                        # Log cada 10 chunks
+                        if chunk_count % 10 == 0:
+                            print(f"   📝 Enviados {chunk_count} chunks al cliente...")
+                
+                print(f"✅ Análisis multimodal streaming completado ({chunk_count} chunks, {len(full_text)} caracteres)")
+                
+                # Agregar respuesta al historial de la sesión
+                assistant_message = ChatMessage(
+                    role=MessageRole.ASSISTANT,
+                    content=full_text,
+                    timestamp=datetime.now().isoformat()
+                )
+                session["messages"].append(assistant_message.model_dump())
+                session["last_activity"] = datetime.now().isoformat()
+                
+                # Enviar metadata final
+                yield {
+                    "done": True,
+                    "metadata": {
+                        "files_processed": len(processed_files),
+                        "files": processed_files,
+                        "total_size_mb": round(total_size_mb, 2),
+                        "model_used": model,
+                        "multimodal_analysis": True,
+                    }
+                }
+                
+            except Exception as e:
+                error_msg = str(e)
+                print(f"❌ Error llamando a Gemini: {error_msg}")
+                
+                if "503" in error_msg or "UNAVAILABLE" in error_msg:
+                    yield {"text": "\n⚠️ El modelo Gemini no está disponible temporalmente. Por favor intenta de nuevo en unos momentos."}
+                elif "timeout" in error_msg.lower():
+                    yield {"text": "\n⚠️ Timeout procesando los archivos. Intenta con menos archivos o archivos más pequeños."}
+                else:
+                    yield {"text": f"\n❌ Error durante el análisis: {error_msg}"}
+                
+                yield {"done": True, "metadata": {"error": error_msg}}
+                
+        except Exception as e:
+            error_msg = f"Error procesando archivos inline: {str(e)}"
+            print(f"❌ {error_msg}")
+            traceback.print_exc()
+            yield {"text": f"Lo siento, ocurrió un error procesando tus archivos: {str(e)}"}
+            yield {"done": True, "metadata": {"error": error_msg}}
     
     def close_session(self, session_id: str) -> bool:
         """Cerrar sesión"""
