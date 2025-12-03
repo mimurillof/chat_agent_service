@@ -124,33 +124,82 @@ FILE_SELECTION_TOOL = types.Tool(
 
 # Prompts del sistema
 FLASH_SYSTEM_PROMPT = """
-Eres un asistente financiero rápido y eficiente especializado en:
-- Consultas generales del mercado y definiciones financieras
-- Búsquedas web de información actualizada mediante Google Search
-- Análisis de contenido de URLs específicas
-- Obtener información temporal actual (fecha y hora)
-- Resúmenes concisos y respuestas directas
+Eres "Horizon Agent", un asistente financiero experto y profesional. Tu ÚNICO propósito es ayudar con temas EXCLUSIVAMENTE FINANCIEROS.
 
-HERRAMIENTAS DISPONIBLES:
-1. **Google Search**: Úsala cuando necesites información actual sobre precios, noticias, eventos recientes o datos que puedan haber cambiado recientemente.
-2. **URL Context**: Úsala cuando el usuario proporcione URLs específicas para analizar.
-3. **get_current_datetime**: Úsala cuando necesites saber la fecha u hora actual.
+## TU ESPECIALIDAD (RESPONDE SOLO A ESTOS TEMAS):
+- Análisis de portafolios e inversiones
+- Cotizaciones, precios y tendencias de mercados financieros (acciones, bonos, ETFs, criptomonedas)
+- Noticias financieras, económicas y de mercados
+- Conceptos y términos financieros (ratios, métricas, indicadores)
+- Análisis técnico y fundamental
+- Gestión de riesgos financieros
+- Estrategias de inversión y diversificación
+- Análisis de reportes financieros de empresas
+- Información macroeconómica (tasas de interés, inflación, PIB, política monetaria)
+- Planificación financiera personal e institucional
 
-Utiliza las herramientas de manera inteligente y solo cuando sea necesario. Proporciona respuestas precisas y útiles.
+## RESTRICCIONES ABSOLUTAS - RECHAZAR INMEDIATAMENTE:
+❌ Noticias generales NO financieras (política, deportes, entretenimiento, farándula)
+❌ Preguntas sobre temas ajenos a finanzas (recetas, viajes, salud, tecnología general)
+❌ Solicitudes de contenido inapropiado o no ético
+❌ Análisis de archivos que NO sean documentos financieros
+❌ Cualquier tema que no tenga relación directa con finanzas o inversiones
+
+## RESPUESTA CUANDO DETECTES TEMAS NO FINANCIEROS:
+Si el usuario pregunta sobre temas NO relacionados con finanzas, responde EXACTAMENTE:
+"Lo siento, soy Horizon Agent, un asistente especializado exclusivamente en finanzas e inversiones. No puedo ayudarte con ese tema. ¿Tienes alguna consulta sobre mercados financieros, tu portafolio de inversiones, o análisis económico?"
+
+## HERRAMIENTAS DISPONIBLES:
+1. **Google Search**: Para buscar información FINANCIERA actualizada (precios, noticias de mercados, datos económicos)
+2. **URL Context**: Para analizar URLs de sitios FINANCIEROS proporcionados por el usuario
+3. **get_current_datetime**: Para obtener la fecha/hora actual
+
+## DIRECTRICES DE RESPUESTA:
+- Sé conciso, preciso y profesional
+- Cita fuentes cuando uses búsqueda web
+- Usa terminología financiera apropiada
+- Prioriza datos cuantitativos y métricas
+- Si no estás seguro de un dato, indícalo claramente
 """
 
 PRO_SYSTEM_PROMPT = """
-Eres un analista financiero experto especializado en análisis profundo de documentos.
-- Analiza documentos financieros con detalle crítico
-- Identifica riesgos, oportunidades y patrones
+Eres "Horizon Agent Pro", un analista financiero cuantitativo senior con expertise en análisis profundo de documentos e inversiones.
+
+## TU ESPECIALIDAD EXCLUSIVA (SOLO FINANZAS):
+- Análisis profundo de reportes financieros y estados contables
+- Evaluación de portafolios de inversión
+- Análisis de riesgo y rendimiento
+- Due diligence financiero
+- Valoración de empresas y activos
+- Análisis de mercados y tendencias económicas
+- Interpretación de indicadores macroeconómicos
+- Estrategias de inversión institucional
+- Análisis técnico avanzado
+
+## RESTRICCIONES ABSOLUTAS - RECHAZAR INMEDIATAMENTE:
+❌ Documentos o archivos NO financieros (fotos personales, documentos legales no financieros, etc.)
+❌ Análisis de cualquier contenido que no sea de naturaleza financiera
+❌ Noticias o información no relacionada con economía/finanzas
+❌ Preguntas generales fuera del ámbito financiero
+❌ Solicitudes no éticas o inapropiadas
+
+## RESPUESTA CUANDO DETECTES CONTENIDO NO FINANCIERO:
+Para archivos NO financieros, responde EXACTAMENTE:
+"Este documento no parece ser de naturaleza financiera. Como Horizon Agent, estoy especializado exclusivamente en análisis de documentos financieros como estados contables, reportes de inversiones, análisis de mercado, y similares. ¿Podrías proporcionarme un documento financiero para analizar?"
+
+Para preguntas NO financieras, responde EXACTAMENTE:
+"Lo siento, soy Horizon Agent Pro, especializado exclusivamente en análisis financiero profundo. No puedo ayudarte con ese tema. ¿Tienes algún documento financiero para analizar o consulta sobre inversiones?"
+
+## HERRAMIENTAS DISPONIBLES:
+1. **URL Context**: Para analizar URLs de fuentes financieras
+2. **get_current_datetime**: Para contexto temporal
+
+## DIRECTRICES DE ANÁLISIS:
+- Enfócate en la calidad y profundidad del análisis financiero
+- Identifica riesgos, oportunidades y patrones en datos financieros
 - Proporciona insights accionables y fundamentados
-- Mantén una perspectiva crítica y objetiva
-
-HERRAMIENTAS DISPONIBLES:
-1. **URL Context**: Para analizar URLs específicas proporcionadas por el usuario.
-2. **get_current_datetime**: Para obtener información temporal actual.
-
-Enfócate en la calidad del análisis sobre la velocidad.
+- Mantén perspectiva crítica y objetiva
+- Usa métricas cuantitativas siempre que sea posible
 """
 
 class ArchivoSeleccionado(BaseModel):
@@ -338,25 +387,60 @@ class ChatAgentService:
     
     def _needs_web_search(self, query: str) -> bool:
         """
-        Determinar si la consulta necesita búsqueda web.
-        Detecta keywords que indican necesidad de información actualizada.
+        Determinar si la consulta necesita búsqueda web FINANCIERA.
+        Solo activa búsqueda para temas relacionados con finanzas y mercados.
         """
-        web_keywords = [
-            # Español
-            "precio actual", "cotización", "últimas noticias",
-            "precio de", "valor actual", "mercado actual", "tendencia actual",
-            "noticias de", "actualización", "estado actual", "reciente",
-            "últimas", "actual", "en este momento",
-            "cotiza", "vale", "cuesta", "subió", "bajó", "cayó",
-            "noticias", "hoy", "eventos", "sucedido", "acontecido",
-            # Inglés
-            "latest news", "current price", "stock price", "today",
-            "what happened", "recent", "latest", "news about",
-            "current", "now", "breaking news", "update on",
-            "price of", "market", "trending", "happened today"
-        ]
         query_lower = query.lower()
-        return any(keyword in query_lower for keyword in web_keywords)
+        
+        # Keywords FINANCIEROS que activan búsqueda web
+        financial_search_keywords = [
+            # Precios y cotizaciones financieras
+            "precio", "cotización", "cotiza", "vale", "cuesta",
+            "acción", "acciones", "stock", "stocks", "etf",
+            "bono", "bonos", "bond", "treasury",
+            "crypto", "bitcoin", "ethereum", "criptomoneda",
+            "divisa", "forex", "dólar", "euro", "yen",
+            
+            # Mercados e índices
+            "s&p 500", "sp500", "nasdaq", "dow jones", "ibex",
+            "mercado", "bolsa", "wall street", "nyse",
+            "índice", "index", "benchmark",
+            
+            # Noticias financieras
+            "noticias financieras", "financial news", "market news",
+            "noticias del mercado", "noticias económicas", "economic news",
+            "fed", "banco central", "central bank", "bce", "reserva federal",
+            "tasas de interés", "interest rates", "inflación", "inflation",
+            "pib", "gdp", "empleo", "unemployment", "jobs report",
+            
+            # Empresas y reportes
+            "earnings", "resultados", "ganancias", "ingresos",
+            "revenue", "quarterly", "trimestral", "anual",
+            "balance", "estado financiero", "financial statement",
+            
+            # Análisis de mercado
+            "tendencia", "trend", "rally", "caída", "subida", "bajada",
+            "bull", "bear", "bullish", "bearish",
+            "soporte", "resistencia", "support", "resistance",
+            
+            # Commodities
+            "oro", "gold", "plata", "silver", "petróleo", "oil", "gas",
+            "commodity", "commodities", "materias primas"
+        ]
+        
+        # Verificar si hay keywords financieros
+        has_financial_keyword = any(keyword in query_lower for keyword in financial_search_keywords)
+        
+        # También verificar si pide información actualizada
+        update_keywords = [
+            "actual", "hoy", "ahora", "latest", "current", "today",
+            "reciente", "última", "último", "recent", "now"
+        ]
+        needs_current_info = any(keyword in query_lower for keyword in update_keywords)
+        
+        # Solo activar búsqueda si tiene keywords financieros Y pide info actual
+        # O si menciona específicamente "noticias" con contexto financiero
+        return has_financial_keyword and needs_current_info
     
     def _needs_datetime(self, query: str) -> bool:
         """
@@ -375,6 +459,104 @@ class ChatAgentService:
         ]
         query_lower = query.lower()
         return any(keyword in query_lower for keyword in datetime_keywords)
+    
+    def _is_financial_query(self, query: str, has_files: bool = False) -> bool:
+        """
+        Determina si la consulta está relacionada con finanzas.
+        Retorna True si es financiera, False si no lo es.
+        
+        Args:
+            query: El mensaje del usuario
+            has_files: Si hay archivos adjuntos (PDF, imágenes), ser más permisivo
+        """
+        query_lower = query.lower()
+        
+        # Keywords que indican consulta FINANCIERA
+        financial_keywords = [
+            # Instrumentos financieros
+            "acción", "acciones", "stock", "stocks", "bono", "bonos",
+            "etf", "fondo", "mutual fund", "reit", "derivado", "opción", "futuro",
+            "crypto", "bitcoin", "ethereum", "criptomoneda", "token",
+            
+            # Mercados e instituciones
+            "mercado", "bolsa", "exchange", "nasdaq", "nyse", "s&p",
+            "dow jones", "ibex", "dax", "ftse", "nikkei",
+            "wall street", "fed", "bce", "banco central",
+            
+            # Conceptos financieros
+            "inversión", "investment", "portafolio", "portfolio", "cartera",
+            "rendimiento", "return", "yield", "dividendo", "dividend",
+            "riesgo", "risk", "volatilidad", "volatility", "beta", "alpha",
+            "sharpe", "drawdown", "var", "hedge", "cobertura",
+            
+            # Análisis y métricas
+            "pe ratio", "p/e", "eps", "ebitda", "roi", "roe", "roa",
+            "balance", "estado financiero", "income statement", "cash flow",
+            "valoración", "valuation", "dcf", "múltiplo",
+            
+            # Economía macro
+            "inflación", "inflation", "tasa de interés", "interest rate",
+            "pib", "gdp", "empleo", "unemployment", "recesión", "recession",
+            "política monetaria", "fiscal", "déficit", "deuda",
+            
+            # Trading y estrategias
+            "trading", "trade", "comprar", "vender", "buy", "sell",
+            "largo", "corto", "long", "short", "stop loss", "take profit",
+            "soporte", "resistencia", "tendencia", "trend",
+            
+            # Análisis técnico
+            "gráfico", "chart", "vela", "candlestick", "media móvil",
+            "rsi", "macd", "fibonacci", "bollinger",
+            
+            # Finanzas personales
+            "ahorro", "saving", "presupuesto", "budget", "deuda", "debt",
+            "hipoteca", "mortgage", "préstamo", "loan", "crédito", "credit",
+            "jubilación", "retirement", "pensión", "pension",
+            
+            # Otros términos financieros
+            "cotización", "precio", "valor", "capital", "activo", "pasivo",
+            "liquidez", "apalancamiento", "leverage", "margen", "margin",
+            "broker", "custodia", "comisión", "fee", "spread",
+            
+            # Empresas/tickers comunes (para preguntas directas)
+            "apple", "microsoft", "google", "amazon", "tesla", "nvidia",
+            "meta", "netflix", "aapl", "msft", "googl", "amzn", "tsla", "nvda",
+            
+            # Análisis de documentos financieros
+            "reporte", "informe", "report", "documento", "annual report",
+            "10-k", "10-q", "earnings", "resultados", "trimestral", "anual"
+        ]
+        
+        # Si hay archivos, agregar keywords de análisis genérico
+        # (el documento podría ser financiero)
+        if has_files:
+            analysis_keywords = [
+                "analiza", "analyze", "analizar", "análisis", "analysis",
+                "resume", "resumir", "resumen", "summary", "summarize",
+                "explica", "explain", "explicar",
+                "qué dice", "qué contiene", "contenido",
+                "pdf", "documento", "imagen", "gráfico", "tabla"
+            ]
+            # Si hay archivos Y menciona análisis, permitir (confiar en que es financiero)
+            if any(kw in query_lower for kw in analysis_keywords):
+                return True
+        
+        # Verificar si hay al menos un keyword financiero
+        return any(keyword in query_lower for keyword in financial_keywords)
+    
+    def _get_non_financial_rejection_message(self, original_query: str = "") -> str:
+        """Retorna el mensaje de rechazo para consultas no financieras."""
+        return (
+            "Lo siento, soy **Horizon Agent**, un asistente especializado **exclusivamente en finanzas e inversiones**. "
+            "No puedo ayudarte con ese tema.\n\n"
+            "**Puedo ayudarte con:**\n"
+            "- 📈 Análisis de mercados y cotizaciones\n"
+            "- 💼 Gestión de portafolios de inversión\n"
+            "- 📊 Análisis de reportes financieros\n"
+            "- 💰 Conceptos y estrategias de inversión\n"
+            "- 🌐 Noticias económicas y financieras\n\n"
+            "¿Tienes alguna consulta sobre estos temas?"
+        )
     
     def _extract_urls_from_query(self, query: str) -> List[str]:
         """Extraer URLs del mensaje del usuario"""
@@ -2345,6 +2527,34 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
             
             session = self.sessions[session_id]
             
+            # ✅ VALIDACIÓN: Rechazar consultas no financieras
+            if not self._is_financial_query(message):
+                rejection_msg = self._get_non_financial_rejection_message(message)
+                
+                # Agregar al historial
+                session["messages"].append({
+                    "role": "user",
+                    "content": message,
+                    "timestamp": datetime.now().isoformat()
+                })
+                assistant_message = ChatMessage(
+                    role=MessageRole.ASSISTANT,
+                    content=rejection_msg,
+                    timestamp=datetime.now().isoformat()
+                )
+                session["messages"].append(assistant_message.model_dump())
+                
+                return {
+                    "session_id": session_id,
+                    "response": rejection_msg,
+                    "model_used": "filter",
+                    "has_grounding": False,
+                    "search_queries": [],
+                    "sources": [],
+                    "rejected": True,
+                    "rejection_reason": "non_financial_query"
+                }
+            
             # Detectar URLs en el mensaje si no se proporcionó url explícita
             detected_urls = self._extract_urls_from_query(message)
             if detected_urls and not url:
@@ -2514,13 +2724,45 @@ Debes estructurar tu respuesta usando exactamente los siguientes encabezados:
             
             session = self.sessions[session_id]
             
+            # ✅ Verificar si hay archivos inline
+            has_inline_files = inline_files and len(inline_files) > 0
+            
+            # ✅ VALIDACIÓN: Rechazar consultas no financieras
+            if not self._is_financial_query(message, has_files=has_inline_files):
+                rejection_msg = self._get_non_financial_rejection_message(message)
+                yield {"text": rejection_msg}
+                
+                # Agregar al historial la respuesta de rechazo
+                assistant_message = ChatMessage(
+                    role=MessageRole.ASSISTANT,
+                    content=rejection_msg,
+                    timestamp=datetime.now().isoformat()
+                )
+                session["messages"].append({
+                    "role": "user",
+                    "content": message,
+                    "timestamp": datetime.now().isoformat()
+                })
+                session["messages"].append(assistant_message.model_dump())
+                
+                yield {
+                    "done": True,
+                    "metadata": {
+                        "session_id": session_id,
+                        "model_used": "filter",
+                        "has_grounding": False,
+                        "search_queries": [],
+                        "sources": [],
+                        "rejected": True,
+                        "rejection_reason": "non_financial_query"
+                    }
+                }
+                return
+            
             # Detectar URLs
             detected_urls = self._extract_urls_from_query(message)
             if detected_urls and not url:
                 url = detected_urls[0]
-            
-            # ✅ Si hay archivos inline, usar modelo PRO para mejor análisis
-            has_inline_files = inline_files and len(inline_files) > 0
             
             # Elegir modelo y herramientas
             if model_preference:
