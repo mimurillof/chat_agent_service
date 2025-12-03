@@ -369,60 +369,62 @@ class ChatAgentService:
     
     def _needs_web_search(self, query: str) -> bool:
         """
-        Determinar si la consulta necesita búsqueda web FINANCIERA.
-        Solo activa búsqueda para temas relacionados con finanzas y mercados.
+        Determinar si la consulta necesita búsqueda web.
+        Activar búsqueda para: noticias, precios actuales, información en tiempo real.
         """
         query_lower = query.lower()
         
-        # Keywords FINANCIEROS que activan búsqueda web
-        financial_search_keywords = [
-            # Precios y cotizaciones financieras
-            "precio", "cotización", "cotiza", "vale", "cuesta",
-            "acción", "acciones", "stock", "stocks", "etf",
-            "bono", "bonos", "bond", "treasury",
-            "crypto", "bitcoin", "ethereum", "criptomoneda",
-            "divisa", "forex", "dólar", "euro", "yen",
+        # Keywords que SIEMPRE activan búsqueda (noticias, precios actuales)
+        always_search_keywords = [
+            # Noticias
+            "noticia", "noticias", "news", "headline", "titulares",
             
-            # Mercados e índices
-            "s&p 500", "sp500", "nasdaq", "dow jones", "ibex",
-            "mercado", "bolsa", "wall street", "nyse",
-            "índice", "index", "benchmark",
+            # Precios/Cotizaciones actuales
+            "precio", "cotización", "cotiza", "vale", "cuesta", "price",
+            "cuánto está", "cuánto vale", "a cuánto", "cómo está",
+            "cómo va", "cómo anda", "cómo cerró",
             
-            # Noticias financieras
-            "noticias financieras", "financial news", "market news",
-            "noticias del mercado", "noticias económicas", "economic news",
-            "fed", "banco central", "central bank", "bce", "reserva federal",
-            "tasas de interés", "interest rates", "inflación", "inflation",
-            "pib", "gdp", "empleo", "unemployment", "jobs report",
+            # Información en tiempo real
+            "actual", "hoy", "ahora", "latest", "current", "today",
+            "reciente", "última", "últimas", "último", "últimos",
+            "recent", "now", "this week", "esta semana",
             
-            # Empresas y reportes
-            "earnings", "resultados", "ganancias", "ingresos",
-            "revenue", "quarterly", "trimestral", "anual",
-            "balance", "estado financiero", "financial statement",
+            # Mercados en vivo
+            "mercado hoy", "bolsa hoy", "trading", "session",
             
-            # Análisis de mercado
-            "tendencia", "trend", "rally", "caída", "subida", "bajada",
-            "bull", "bear", "bullish", "bearish",
-            "soporte", "resistencia", "support", "resistance",
+            # Búsqueda explícita
+            "busca", "buscar", "search", "encuentra", "find",
+            "dime", "cuéntame", "qué hay", "qué pasa", "qué pasó"
+        ]
+        
+        # Si tiene cualquiera de estos, activar búsqueda
+        if any(keyword in query_lower for keyword in always_search_keywords):
+            return True
+        
+        # Keywords financieros específicos que también activan búsqueda
+        financial_keywords = [
+            # Empresas/Tickers (preguntar por ellos implica querer info actual)
+            "apple", "microsoft", "google", "amazon", "tesla", "nvidia", "meta",
+            "aapl", "msft", "googl", "amzn", "tsla", "nvda",
+            
+            # Índices
+            "s&p 500", "sp500", "nasdaq", "dow jones", "ibex", "dax",
+            
+            # Criptomonedas
+            "bitcoin", "btc", "ethereum", "eth", "crypto",
             
             # Commodities
-            "oro", "gold", "plata", "silver", "petróleo", "oil", "gas",
-            "commodity", "commodities", "materias primas"
+            "oro", "gold", "petróleo", "oil", "plata", "silver",
+            
+            # Macro
+            "fed", "bce", "banco central", "tasa de interés", "inflación",
+            "pib", "gdp", "empleo"
         ]
         
-        # Verificar si hay keywords financieros
-        has_financial_keyword = any(keyword in query_lower for keyword in financial_search_keywords)
+        if any(keyword in query_lower for keyword in financial_keywords):
+            return True
         
-        # También verificar si pide información actualizada
-        update_keywords = [
-            "actual", "hoy", "ahora", "latest", "current", "today",
-            "reciente", "última", "último", "recent", "now"
-        ]
-        needs_current_info = any(keyword in query_lower for keyword in update_keywords)
-        
-        # Solo activar búsqueda si tiene keywords financieros Y pide info actual
-        # O si menciona específicamente "noticias" con contexto financiero
-        return has_financial_keyword and needs_current_info
+        return False
     
     def _needs_datetime(self, query: str) -> bool:
         """
